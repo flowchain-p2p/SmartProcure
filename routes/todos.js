@@ -1,13 +1,12 @@
 const express = require('express');
 const { check } = require('express-validator');
 const { 
-  getTodos, 
-  getTodo, 
-  createTodo, 
-  updateTodo, 
-  deleteTodo,
-  toggleTodoStatus
-} = require('../controllers/todoController');
+  getCatalogItems, 
+  getCatalogItem, 
+  createCatalogItem, 
+  updateCatalogItem, 
+  deleteCatalogItem
+} = require('../controllers/catalogItemController');
 const { identifyTenantFromToken } = require('../middleware/tenantMiddleware');
 
 const router = express.Router();
@@ -15,27 +14,25 @@ const router = express.Router();
 // Protect all routes
 router.use(identifyTenantFromToken);
 
-// Get all todos for the current user
-router.get('/', getTodos);
+// Get all catalog items for the current user
+router.get('/', getCatalogItems);
 
-// Get single todo
-router.get('/:id', getTodo);
+// Get single catalog item
+router.get('/:id', getCatalogItem);
 
-// Create a new todo
+// Create a new catalog item
 router.post('/', 
   [
-    check('title', 'Title is required').not().isEmpty(),
+    check('name', 'Name is required').not().isEmpty(),
+    check('price', 'Price is required').isNumeric()
   ],
-  createTodo
+  createCatalogItem
 );
 
-// Update todo
-router.put('/:id', updateTodo);
+// Update catalog item
+router.put('/:id', updateCatalogItem);
 
-// Delete todo
-router.delete('/:id', deleteTodo);
-
-// Toggle todo completion status
-router.patch('/:id/toggle', toggleTodoStatus);
+// Delete catalog item
+router.delete('/:id', deleteCatalogItem);
 
 module.exports = router;
