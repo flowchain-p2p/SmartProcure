@@ -70,8 +70,23 @@ TenantSchema.methods.isDomainAllowed = function(domain) {
 
 // Static method to find organization by domain
 TenantSchema.statics.findByDomain = async function(domain) {
-  return this.findOne({ 
+  // First try to find by allowed domains explicitly listed
+  const tenantByAllowedDomain = await this.findOne({ 
     allowedDomains: domain.toLowerCase(),
+    active: true
+  });
+  
+  if (tenantByAllowedDomain) {
+    return tenantByAllowedDomain;
+  }
+  
+  // If not found in allowed domains, extract company name from domain
+  // and try to match with tenant slug
+  const domainParts = domain.split('.');
+  const companySlug = domainParts[0].toLowerCase();
+  
+  return this.findOne({
+    slug: companySlug,
     active: true
   });
 };

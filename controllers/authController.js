@@ -118,11 +118,11 @@ exports.domainBasedLogin = async (req, res) => {
     }
     
     // Find tenant by domain
-    const tenant = await Tenant.findByDomain(domain);
-    if (!tenant) {
+    const tenant = await Tenant.findByDomain(domain);    if (!tenant) {
       return res.status(401).json({
         success: false,
-        error: 'Your organization is not registered with us'
+        error: 'Your organization is not registered with us',
+        domain: domain
       });
     }
 

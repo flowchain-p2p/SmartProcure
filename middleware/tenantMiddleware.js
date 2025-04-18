@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const Tenant = require('../models/Tenant');
 const User = require('../models/User');
+const { extractDomain } = require('../utils/domainUtils');
 
 /**
  * Middleware to identify tenant from JWT token
@@ -91,6 +92,51 @@ exports.identifyTenantFromParam = async (req, res, next) => {
     return res.status(500).json({
       success: false,
       error: 'Error identifying tenant'
+    });
+  }
+};
+
+/**
+ * Middleware to identify tenant from email domain (used for login)
+ */
+exports.identifyTenantFromEmail = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email is required'
+      });
+    }
+    
+    // Extract domain from email
+    const domain = extractDomain(email);
+    if (!domain) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid email format'
+      });
+    }
+    
+    // Find tenant by domain
+    const tenant = await Tenant.findByDomain(domain);
+    if (!tenant) {
+      return res.status(401).json({
+        success: false,
+        error: 'Your organization is not registered with us',
+        domain: domain
+      });
+    }
+    
+    // Add tenant to request
+    req.tenant = tenant;
+    
+    next();
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: 'Error identifying tenant from email'
     });
   }
 };
