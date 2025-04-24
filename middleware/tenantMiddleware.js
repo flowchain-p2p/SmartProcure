@@ -17,17 +17,25 @@ exports.identifyTenantFromToken = async (req, res, next) => {
   else if (req.cookies?.jwt) {
     token = req.cookies.jwt;
   }
+  
 
   if (!token) {
     return res.status(401).json({
       success: false,
       error: 'Not authorized to access this route'
     });
-  }
-
-  try {
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  }  try {
+    // Verify token with more detailed error handling
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (jwtError) {
+      console.error('JWT Verification Error:', jwtError.name, jwtError.message);
+      return res.status(401).json({
+        success: false,
+        error: `Token verification failed: ${jwtError.message}`
+      });
+    }
 
     // Check if user exists
     const user = await User.findById(decoded.id);

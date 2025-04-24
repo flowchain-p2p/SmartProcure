@@ -39,14 +39,14 @@ const tenantRoutes = require('./routes/tenants');
 const authRoutes = require('./routes/auth');
 const domainAuthRoutes = require('./routes/domainAuth');
 const domainRoutes = require('./routes/domain');
-const rfqRoutes = require('./routes/rfq');
+const catalogRoutes = require('./routes/catalog');
 
 // Mount routers
 app.use('/api/v1/tenants', tenantRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/auth', domainAuthRoutes);
 app.use('/api/v1/domain', domainRoutes);
-app.use('/api/v1/rfqs', rfqRoutes);
+app.use('/api/v1/catalogs', catalogRoutes);
 
 // Default route for testing
 app.get('/', (req, res) => {

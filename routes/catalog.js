@@ -1,18 +1,18 @@
-// filepath: c:\Soundar\Instatenders\multitenent\backend\routes\rfq.js
+// filepath: c:\Soundar\Instatenders\multitenent\backend\routes\catalog.js
 const express = require('express');
 const router = express.Router();
-const { getRFQs, getRFQ, createRFQ } = require('../controllers/rfqController');
+const { getCatalogs, getCatalog, createCatalog } = require('../controllers/catalogController');
 const { identifyTenantFromToken } = require('../middleware/tenantMiddleware');
 
 // Protect all routes with tenant identification
 router.use(identifyTenantFromToken);
 
-// RFQ routes
+// Catalog routes
 router.route('/')
-  .get(getRFQs)
-  .post(createRFQ);
+  .get(getCatalogs)
+  .post(createCatalog);
 
 router.route('/:id')
-  .get(getRFQ);
+  .get(getCatalog);
 
 module.exports = router;

@@ -1,7 +1,7 @@
-// filepath: c:\Soundar\Instatenders\multitenent\backend\models\RFQ.js
+// filepath: c:\Soundar\Instatenders\multitenent\backend\models\Catalog.js
 const mongoose = require('mongoose');
 
-const RFQSchema = new mongoose.Schema({
+const CatalogSchema = new mongoose.Schema({
   brand: {
     type: String,
     required: true
@@ -136,9 +136,9 @@ const RFQSchema = new mongoose.Schema({
 });
 
 // Pre-save middleware to update 'updatedAt' on save
-RFQSchema.pre('save', function(next) {
+CatalogSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
 });
 
-module.exports = mongoose.model('RFQ', RFQSchema);
+module.exports = mongoose.model('Catalog', CatalogSchema);

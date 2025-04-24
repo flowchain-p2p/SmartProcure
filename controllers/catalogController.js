@@ -1,10 +1,10 @@
-// filepath: c:\Soundar\Instatenders\multitenent\backend\controllers\rfqController.js
-const RFQ = require('../models/RFQ');
+// filepath: c:\Soundar\Instatenders\multitenent\backend\controllers\catalogController.js
+const Catalog = require('../models/Catalog');
 
 // @desc    Get all product catalog items for the current tenant
-// @route   GET /api/v1/rfqs
+// @route   GET /api/v1/catalogs
 // @access  Private
-const getRFQs = async (req, res) => {
+const getCatalogs = async (req, res) => {
   try {
     const query = { tenantId: req.tenant.id };
     
@@ -19,21 +19,20 @@ const getRFQs = async (req, res) => {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
     const skip = (page - 1) * limit;
-    
-    const rfqs = await RFQ.find(query)
+      const catalogs = await Catalog.find(query)
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
       
-    const total = await RFQ.countDocuments(query);
+    const total = await Catalog.countDocuments(query);
     
     res.status(200).json({
       success: true,
-      count: rfqs.length,
+      count: catalogs.length,
       total,
       totalPages: Math.ceil(total / limit),
       currentPage: page,
-      data: rfqs
+      data: catalogs
     });
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -45,26 +44,26 @@ const getRFQs = async (req, res) => {
   }
 };
 
-// @desc    Get a single RFQ by ID
-// @route   GET /api/v1/rfqs/:id
+// @desc    Get a single catalog by ID
+// @route   GET /api/v1/catalogs/:id
 // @access  Private
-const getRFQ = async (req, res) => {
+const getCatalog = async (req, res) => {
   try {
-    const rfq = await RFQ.findOne({
+    const catalog = await Catalog.findOne({
       _id: req.params.id,
       tenantId: req.tenant.id
     });
-
-    if (!rfq) {
+    
+    if (!catalog) {
       return res.status(404).json({
         success: false,
         message: 'Product not found'
       });
     }
-
+    
     res.status(200).json({
       success: true,
-      data: rfq
+      data: catalog
     });
   } catch (error) {
     console.error('Error fetching product:', error);
@@ -76,57 +75,45 @@ const getRFQ = async (req, res) => {
   }
 };
 
-// @desc    Create a new product catalog item
-// @route   POST /api/v1/rfqs
+// @desc    Create a new catalog item
+// @route   POST /api/v1/catalogs
 // @access  Private
-const createRFQ = async (req, res) => {
+const createCatalog = async (req, res) => {
   try {
-    // Add tenant ID to the request body
-    req.body.tenantId = req.tenant.id;
+    // Add the tenant ID from the authenticated request
+    const catalogData = {
+      ...req.body,
+      tenantId: req.tenant.id
+    };
     
-    // Set default values if not provided
-    if (req.body.stockQuantity > 0 && req.body.inStock === undefined) {
-      req.body.inStock = true;
-    }
+    const catalog = await Catalog.create(catalogData);
     
-    // Calculate price if not provided using MRP and discount
-    if (req.body.mrp && req.body.discount && req.body.price === undefined) {
-      req.body.price = Math.floor(req.body.mrp - (req.body.mrp * req.body.discount / 100));
-    }
-    
-    // Set default ratings if not provided
-    if (!req.body.ratings) {
-      req.body.ratings = { average: 0, count: 0 };
-    }
-    
-    const rfq = await RFQ.create(req.body);
-
     res.status(201).json({
       success: true,
-      data: rfq
+      data: catalog
     });
   } catch (error) {
-    console.error('Error creating product catalog item:', error);
+    console.error('Error creating product:', error);
     
-    // Handle validation errors
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(err => err.message);
       return res.status(400).json({
         success: false,
-        message: messages.join(', ')
+        message: 'Validation error',
+        errors: messages
       });
     }
-
+    
     res.status(500).json({
       success: false,
-      message: 'Error creating product catalog item',
+      message: 'Error creating product',
       error: error.message
     });
   }
 };
 
 module.exports = {
-  getRFQs,
-  getRFQ,
-  createRFQ
+  getCatalogs,
+  getCatalog,
+  createCatalog
 };

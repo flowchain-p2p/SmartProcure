@@ -1,8 +1,8 @@
 {
 	"info": {
 		"_postman_id": "48c57246-5810-4c53-9f31-2be3dc60e698",
-		"name": "RFQ API",
-		"description": "Collection for testing the RFQ API endpoints of the Instatenders Multi-tenant application",
+		"name": "Catalog API",
+		"description": "Collection for testing the Catalog API endpoints of the Instatenders Multi-tenant application",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -72,14 +72,14 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/rfqs?page=1&limit=10",
+							"raw": "{{baseUrl}}/api/v1/catalogs?page=1&limit=10",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"rfqs"
+								"catalogs"
 							],
 							"query": [
 								{
@@ -132,22 +132,21 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/rfqs/{{rfqId}}",
+							"raw": "{{baseUrl}}/api/v1/catalogs/{{catalogId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"rfqs",
-								"{{rfqId}}"
+								"catalogs",
+								"{{catalogId}}"
 							]
 						},
 						"description": "Get a single product by its ID"
 					},
 					"response": []
-				},
-				{					"name": "Create Product",
+				},				{					"name": "Create Product",
 					"event": [
 						{
 							"listen": "test",
@@ -156,8 +155,8 @@
 									"const responseJson = pm.response.json();",
 									"",
 									"if (responseJson.data && responseJson.data._id) {",
-									"    pm.environment.set('rfqId', responseJson.data._id);",
-									"    console.log('Product ID saved to environment variable: rfqId');",
+									"    pm.environment.set('catalogId', responseJson.data._id);",
+									"    console.log('Product ID saved to environment variable: catalogId');",
 									"}",
 									""
 								],
@@ -182,49 +181,98 @@
 							"raw": "{\n    \"name\": \"Cordless Drill Set\",\n    \"brand\": \"PowerTech\",\n    \"category\": \"Tools\",\n    \"subCategory\": \"Power Tools\",\n    \"description\": \"Professional grade cordless drill with lithium-ion battery. Comes with carrying case and multiple drill bits.\",\n    \"shortDescription\": \"18V cordless drill with accessories\",\n    \"mrp\": 12000,\n    \"discount\": 15,\n    \"price\": 10200,\n    \"inStock\": true,\n    \"stockQuantity\": 25,\n    \"isPopular\": true,\n    \"partNumber\": \"PT-DRILL-18V\",\n    \"sku\": \"DRILL-18V-PRO\",\n    \"tags\": [\"drill\", \"power tool\", \"cordless\", \"professional\", \"18v\"],\n    \"thumbnailUrl\": \"https://example.com/images/thumbnails/cordless-drill.jpg\",\n    \"images\": [\n        \"https://example.com/images/cordless-drill-1.jpg\",\n        \"https://example.com/images/cordless-drill-2.jpg\"\n    ],\n    \"specifications\": {\n        \"Power\": \"18V\",\n        \"Chuck Size\": \"13mm\",\n        \"Speed Settings\": \"2\",\n        \"No-load Speed\": \"0-450/0-1500 RPM\",\n        \"Max Torque\": \"50Nm\",\n        \"Battery Type\": \"Lithium-ion\",\n        \"Weight\": \"1.8kg\",\n        \"Includes\": \"Carrying case, charger, 2 batteries, 10 drill bits\",\n        \"Warranty\": \"2 years\"\n    },\n    \"ratings\": {\n        \"average\": 4.5,\n        \"count\": 128\n    }\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/v1/rfqs",
+							"raw": "{{baseUrl}}/api/v1/catalogs",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"rfqs"
+								"catalogs"
 							]
 						},
-						"description": "Create a new RFQ"
+						"description": "Create a new product catalog item"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();",
+									"",
+									"if (responseJson.success) {",
+									"    console.log('Product updated successfully');",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Cordless Drill Set Pro\",\n    \"brand\": \"PowerTech\",\n    \"price\": 11500,\n    \"discount\": 20,\n    \"stockQuantity\": 30,\n    \"isPopular\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/catalogs/{{catalogId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"catalogs",
+								"{{catalogId}}"
+							]
+						},
+						"description": "Update an existing product catalog item"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/catalogs/{{catalogId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"catalogs",
+								"{{catalogId}}"
+							]
+						},
+						"description": "Delete a product catalog item"
 					},
 					"response": []
 				}
 			],
-			"description": "Endpoints for managing Request for Quotations (RFQs)"
-		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "baseUrl",
-			"value": "http://localhost:5000",
-			"type": "string"
+			"description": "Endpoints for managing Product Catalog items"
 		}
 	]
 }

@@ -1,6 +1,6 @@
 const Tenant = require('../models/Tenant');
 const User = require('../models/User');
-const Todo = require('../models/Todo');
+
 const { sendTokenResponse } = require('../utils/authUtils');
 const { validationResult } = require('express-validator');
 
@@ -149,10 +149,8 @@ exports.deleteTenant = async (req, res) => {
     }
     
     // Delete all associated users
-    await User.deleteMany({ tenantId: tenant._id });
+    await User.deleteMany({ tenantId: tenant._id });   
     
-    // Delete all associated todos
-    await Todo.deleteMany({ tenantId: tenant._id });
     
     // Delete tenant
     await tenant.deleteOne();
@@ -186,19 +184,14 @@ exports.getTenantStats = async (req, res) => {
     }
     
     // Get statistics
-    const userCount = await User.countDocuments({ tenantId: tenant._id });
-    const todoCount = await Todo.countDocuments({ tenantId: tenant._id });
-    const completedTodoCount = await Todo.countDocuments({ tenantId: tenant._id, completed: true });
+    const userCount = await User.countDocuments({ tenantId: tenant._id });    
     
-    // Calculate completion rate
-    const completionRate = todoCount > 0 ? (completedTodoCount / todoCount) * 100 : 0;
+    
     
     res.status(200).json({
       success: true,
       data: {
-        userCount,
-        todoCount,
-        completedTodoCount,
+        userCount,    
         completionRate: parseFloat(completionRate.toFixed(2))
       }
     });
