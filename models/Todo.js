@@ -1,1 +1,0 @@
-// This file is no longer needed as the Todo model is being replaced by CatalogItem.
