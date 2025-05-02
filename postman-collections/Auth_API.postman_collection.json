@@ -1,0 +1,254 @@
+{
+	"info": {
+		"_postman_id": "85f27a46-6c10-4d53-9e12-2bc3ec60e698",
+		"name": "Auth API",
+		"description": "Collection for testing the Authentication API endpoints of the Instatenders Multi-tenant application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Tenant-Based Auth",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tenants",
+								"{{tenantSlug}}",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new user for a specific tenant"
+					}
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();",
+									"",
+									"if (responseJson.token) {",
+									"    pm.environment.set('authToken', responseJson.token);",
+									"    console.log('Token saved to environment');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tenants",
+								"{{tenantSlug}}",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login a user for a specific tenant"
+					}
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/auth/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tenants",
+								"{{tenantSlug}}",
+								"auth",
+								"me"
+							]
+						},
+						"description": "Get the profile of the currently authenticated user"
+					}
+				},
+				{
+					"name": "Logout User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/tenants/{{tenantSlug}}/auth/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tenants",
+								"{{tenantSlug}}",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Logout the current user and invalidate the token"
+					}
+				}
+			],
+			"description": "Authentication endpoints that work with tenant slugs in the URL"
+		},
+		{
+			"name": "Domain-Based Auth",
+			"item": [
+				{
+					"name": "Domain Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();",
+									"",
+									"if (responseJson.token) {",
+									"    pm.environment.set('authToken', responseJson.token);",
+									"    console.log('Token saved to environment');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@tenant-domain.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/domain-login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"domain-login"
+							]
+						},
+						"description": "Login using email domain to identify tenant"
+					}
+				},
+				{
+					"name": "Check Domain",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@tenant-domain.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/domain/check",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"domain",
+								"check"
+							]
+						},
+						"description": "Check if the domain from an email is associated with a tenant"
+					}
+				}
+			],
+			"description": "Authentication endpoints that work with email domain to identify tenant"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "tenantSlug",
+			"value": "example-tenant",
+			"type": "string"
+		}
+	]
+}

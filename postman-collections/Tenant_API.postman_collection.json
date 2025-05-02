@@ -1,0 +1,234 @@
+{
+	"info": {
+		"_postman_id": "95f27a46-7c20-5e53-9e12-3bc3ec60e799",
+		"name": "Tenant API",
+		"description": "Collection for testing the Tenant management API endpoints of the Instatenders Multi-tenant application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Public Tenant Operations",
+			"item": [
+				{
+					"name": "Get Public Tenants",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tenants/public",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tenants",
+								"public"
+							]
+						},
+						"description": "Get all public tenant information (limited data)"
+					}
+				},
+				{
+					"name": "Create New Tenant",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"New Tenant Company\",\n    \"slug\": \"new-tenant\",\n    \"adminEmail\": \"admin@new-tenant.com\",\n    \"adminPassword\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/tenants",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tenants"
+							]
+						},
+						"description": "Create a new tenant with an admin user"
+					}
+				}
+			],
+			"description": "Public endpoints for tenant operations that don't require authentication"
+		},
+		{
+			"name": "Admin Tenant Operations",
+			"item": [
+				{
+					"name": "Get All Tenants",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/tenants",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tenants"
+							]
+						},
+						"description": "Get all tenants (admin only)"
+					}
+				},
+				{
+					"name": "Get Single Tenant",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/tenants/{{tenantId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tenants",
+								"{{tenantId}}"
+							]
+						},
+						"description": "Get a specific tenant by ID (admin only)"
+					}
+				},
+				{
+					"name": "Update Tenant",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-auth-token",
+								"value": "{{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Tenant Name\",\n    \"slug\": \"updated-tenant-slug\",\n    \"status\": \"active\",\n    \"features\": [\"premium\", \"analytics\"],\n    \"settings\": {\n        \"theme\": \"dark\",\n        \"maxUsers\": 50\n    }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/tenants/{{tenantId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tenants",
+								"{{tenantId}}"
+							]
+						},
+						"description": "Update tenant information (admin only)"
+					}
+				},
+				{
+					"name": "Delete Tenant",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/tenants/{{tenantId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tenants",
+								"{{tenantId}}"
+							]
+						},
+						"description": "Delete a specific tenant (admin only)"
+					}
+				},
+				{
+					"name": "Get Tenant Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/tenants/{{tenantId}}/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tenants",
+								"{{tenantId}}",
+								"stats"
+							]
+						},
+						"description": "Get statistics for a specific tenant (admin only)"
+					}
+				}
+			],
+			"description": "Admin-only endpoints for tenant management that require authentication with admin privileges"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "tenantId",
+			"value": "60d21b4667d0d8992e610c85",
+			"type": "string",
+			"description": "MongoDB ObjectId of a tenant"
+		},
+		{
+			"key": "tenantSlug",
+			"value": "example-tenant",
+			"type": "string"
+		}
+	]
+}
