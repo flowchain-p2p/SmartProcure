@@ -1,0 +1,77 @@
+{
+  "projectName": "Multi-Tenant Backend",
+  "description": "A multi-tenant API backend for the Instatenders application",
+  "architecture": {
+    "type": "REST API",
+    "pattern": "MVC",
+    "datastores": ["MongoDB"]
+  },
+  "stack": {
+    "backend": "Node.js/Express",
+    "database": "MongoDB with Mongoose",
+    "authentication": "JWT"
+  },
+  "conventions": {
+    "naming": {
+      "variables": "camelCase",
+      "files": {
+        "models": "PascalCase.js",
+        "controllers": "camelCase.js",
+        "routes": "camelCase.js",
+        "middleware": "camelCase.js"
+      }
+    },
+    "routing": {
+      "prefix": "/api/v1",
+      "resourcePattern": "/api/v1/{{resourceName}}"
+    },
+    "responses": {
+      "success": {
+        "structure": {
+          "success": true,
+          "count": "number of items (if array)",
+          "data": "payload"
+        }
+      },
+      "error": {
+        "structure": {
+          "success": false,
+          "error": "error message"
+        }
+      }
+    }
+  },
+  "multiTenancy": {
+    "model": "isolated-by-tenantId",
+    "identification": ["domain", "tenantId"],
+    "middleware": "tenantMiddleware.js"
+  },
+  "security": {
+    "authentication": "JWT with refresh tokens",
+    "headers": "Helmet",
+    "input": "Express-validator",
+    "cors": "Configured per environment"
+  },
+  "patterns": {
+    "controllerMethod": {
+      "template": [
+        "/**",
+        " * @desc    {{description}}",
+        " * @route   {{method}} {{route}}",
+        " * @access  {{access}}",
+        " */",
+        "exports.{{methodName}} = async (req, res, next) => {",
+        "  try {",
+        "    // Implementation",
+        "    res.status({{statusCode}}).json({",
+        "      success: true,",
+        "      data: {{data}}",
+        "    });",
+        "  } catch (error) {",
+        "    next(error);",
+        "  }",
+        "};"
+      ]
+    }
+  }
+}

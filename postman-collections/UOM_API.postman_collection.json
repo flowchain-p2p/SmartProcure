@@ -1,0 +1,286 @@
+{
+	"info": {
+		"_postman_id": "5e6f8b3d-4c1a-4f65-9d73-28a7c65d7f1e",
+		"name": "SmartProcure UnitOfMeasure API",
+		"description": "Collection for testing the UnitOfMeasure API endpoints of the Instatenders Multi-tenant application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login (Get Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();",
+									"",
+									"if (responseJson.token) {",
+									"    pm.environment.set('authToken', responseJson.token);",
+									"    console.log('Token saved to environment variable: authToken');",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login to get the authentication token"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints to get token for API access"
+		},
+		{
+			"name": "Units of Measure",
+			"item": [
+				{
+					"name": "Get All Units of Measure",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/uom?page=1&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"uom"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "category",
+									"value": "Weight",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all units of measure with pagination support"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Unit of Measure by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/uom/{{uomId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"uom",
+								"{{uomId}}"
+							]
+						},
+						"description": "Get a specific unit of measure by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Unit of Measure",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"symbol\": \"kg\",\n    \"name\": \"Kilogram\",\n    \"category\": \"Weight\",\n    \"description\": \"Standard unit of mass in the International System of Units\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/uom",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"uom"
+							]
+						},
+						"description": "Create a new unit of measure"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Unit of Measure",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"symbol\": \"kg\",\n    \"name\": \"Kilogram\",\n    \"category\": \"Mass\",\n    \"description\": \"Updated description for the kilogram unit\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/uom/{{uomId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"uom",
+								"{{uomId}}"
+							]
+						},
+						"description": "Update an existing unit of measure"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Unit of Measure",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/uom/{{uomId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"uom",
+								"{{uomId}}"
+							]
+						},
+						"description": "Delete a specific unit of measure by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Units by Category",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/uom?category=Length",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"uom"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "Length"
+								}
+							]
+						},
+						"description": "Filter units of measure by category"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for managing Units of Measure"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		}
+	]
+}
