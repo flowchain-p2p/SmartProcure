@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "95f27a46-7c20-5e53-9e12-3bc3ec60e799",
-		"name": "Tenant API",
+		"name": "SmartProcure Tenant API",
 		"description": "Collection for testing the Tenant management API endpoints of the Instatenders Multi-tenant application",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},

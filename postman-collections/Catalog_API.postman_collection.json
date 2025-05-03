@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "48c57246-5810-4c53-9f31-2be3dc60e698",
-		"name": "Catalog API",
+		"name": "SmartProcure Catalog API",
 		"description": "Collection for testing the Catalog API endpoints of the Instatenders Multi-tenant application",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -61,8 +61,7 @@
 		},
 		{			"name": "Product Catalog",
 			"item": [
-				{
-					"name": "Get All Products",
+				{					"name": "Get All Products",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -98,6 +97,16 @@
 								{
 									"key": "subCategory",
 									"value": "Power Tools",
+									"disabled": true
+								},
+								{
+									"key": "categoryId",
+									"value": "{{categoryId}}",
+									"disabled": true
+								},
+								{
+									"key": "categoryPath",
+									"value": "Tools,Power Tools",
 									"disabled": true
 								},
 								{
@@ -175,10 +184,9 @@
 								"key": "Authorization",
 								"value": "Bearer {{authToken}}"
 							}
-						],
-						"body": {
+						],						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Cordless Drill Set\",\n    \"brand\": \"PowerTech\",\n    \"category\": \"Tools\",\n    \"subCategory\": \"Power Tools\",\n    \"description\": \"Professional grade cordless drill with lithium-ion battery. Comes with carrying case and multiple drill bits.\",\n    \"shortDescription\": \"18V cordless drill with accessories\",\n    \"mrp\": 12000,\n    \"discount\": 15,\n    \"price\": 10200,\n    \"inStock\": true,\n    \"stockQuantity\": 25,\n    \"isPopular\": true,\n    \"partNumber\": \"PT-DRILL-18V\",\n    \"sku\": \"DRILL-18V-PRO\",\n    \"tags\": [\"drill\", \"power tool\", \"cordless\", \"professional\", \"18v\"],\n    \"thumbnailUrl\": \"https://example.com/images/thumbnails/cordless-drill.jpg\",\n    \"images\": [\n        \"https://example.com/images/cordless-drill-1.jpg\",\n        \"https://example.com/images/cordless-drill-2.jpg\"\n    ],\n    \"specifications\": {\n        \"Power\": \"18V\",\n        \"Chuck Size\": \"13mm\",\n        \"Speed Settings\": \"2\",\n        \"No-load Speed\": \"0-450/0-1500 RPM\",\n        \"Max Torque\": \"50Nm\",\n        \"Battery Type\": \"Lithium-ion\",\n        \"Weight\": \"1.8kg\",\n        \"Includes\": \"Carrying case, charger, 2 batteries, 10 drill bits\",\n        \"Warranty\": \"2 years\"\n    },\n    \"ratings\": {\n        \"average\": 4.5,\n        \"count\": 128\n    }\n}"
+							"raw": "{\n    \"name\": \"Cordless Drill Set\",\n    \"brand\": \"PowerTech\",\n    \"category\": \"Tools\",\n    \"subCategory\": \"Power Tools\",\n    \"categoryId\": \"{{childCategoryId}}\",\n    \"categoryPath\": [\"Tools\", \"Power Tools\"],\n    \"description\": \"Professional grade cordless drill with lithium-ion battery. Comes with carrying case and multiple drill bits.\",\n    \"shortDescription\": \"18V cordless drill with accessories\",\n    \"mrp\": 12000,\n    \"discount\": 15,\n    \"price\": 10200,\n    \"inStock\": true,\n    \"stockQuantity\": 25,\n    \"isPopular\": true,\n    \"partNumber\": \"PT-DRILL-18V\",\n    \"sku\": \"DRILL-18V-PRO\",\n    \"tags\": [\"drill\", \"power tool\", \"cordless\", \"professional\", \"18v\"],\n    \"thumbnailUrl\": \"https://example.com/images/thumbnails/cordless-drill.jpg\",\n    \"images\": [\n        \"https://example.com/images/cordless-drill-1.jpg\",\n        \"https://example.com/images/cordless-drill-2.jpg\"\n    ],\n    \"specifications\": {\n        \"Power\": \"18V\",\n        \"Chuck Size\": \"13mm\",\n        \"Speed Settings\": \"2\",\n        \"No-load Speed\": \"0-450/0-1500 RPM\",\n        \"Max Torque\": \"50Nm\",\n        \"Battery Type\": \"Lithium-ion\",\n        \"Weight\": \"1.8kg\",\n        \"Includes\": \"Carrying case, charger, 2 batteries, 10 drill bits\",\n        \"Warranty\": \"2 years\"\n    },\n    \"ratings\": {\n        \"average\": 4.5,\n        \"count\": 128\n    }\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/v1/catalogs",

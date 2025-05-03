@@ -1,5 +1,10 @@
 // filepath: c:\Soundar\Instatenders\multitenent\backend\controllers\catalogController.js
 const Catalog = require('../models/Catalog');
+const Category = require('../models/Category');
+const { 
+  getCatalogsByCategoryPath, 
+  getCatalogsByCategory 
+} = require('../utils/categoryUtils');
 
 // @desc    Get all product catalog items for the current tenant
 // @route   GET /api/v1/catalogs
@@ -8,7 +13,54 @@ const getCatalogs = async (req, res) => {
   try {
     const query = { tenantId: req.tenant.id };
     
-    // Support filtering by category, subCategory, or brand
+    // Handle category filtering using the new structure
+    if (req.query.categoryPath) {
+      // Parse the category path from query param (comma-separated)
+      const categoryPath = req.query.categoryPath.split(',');
+      
+      try {
+        const catalogs = await getCatalogsByCategoryPath(categoryPath, req.tenant.id);
+        
+        return res.status(200).json({
+          success: true,
+          count: catalogs.length,
+          data: catalogs
+        });
+      } catch (error) {
+        console.error('Error fetching products by category path:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Error fetching products by category path',
+          error: error.message
+        });
+      }
+    }
+    
+    if (req.query.categoryId) {
+      // If categoryId is provided, get all catalogs in this category
+      // and its descendants
+      try {
+        const catalogs = await getCatalogsByCategory(
+          req.query.categoryId, 
+          req.tenant.id
+        );
+        
+        return res.status(200).json({
+          success: true,
+          count: catalogs.length,
+          data: catalogs
+        });
+      } catch (error) {
+        console.error('Error fetching products by category ID:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Error fetching products by category ID',
+          error: error.message
+        });
+      }
+    }
+    
+    // Support legacy filtering for backward compatibility
     if (req.query.category) query.category = req.query.category;
     if (req.query.subCategory) query.subCategory = req.query.subCategory;
     if (req.query.brand) query.brand = req.query.brand;

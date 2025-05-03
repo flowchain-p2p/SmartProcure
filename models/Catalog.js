@@ -10,6 +10,16 @@ const CatalogSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  // New fields for category relationship
+  categoryId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category'
+    // Will become required: true after migration
+  },
+  categoryPath: {
+    type: [String]
+    // Will become required: true after migration
+  },
   description: {
     type: String,
     required: true
@@ -140,5 +150,9 @@ CatalogSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
 });
+
+// Add indexes for category queries
+CatalogSchema.index({ tenantId: 1, categoryId: 1 });
+CatalogSchema.index({ tenantId: 1, categoryPath: 1 });
 
 module.exports = mongoose.model('Catalog', CatalogSchema);
