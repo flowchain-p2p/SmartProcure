@@ -1,0 +1,165 @@
+{
+	"info": {
+		"_postman_id": "95f27a47-7c20-5e53-9e12-3bc3ec60e812",
+		"name": "SmartProcure Department API",
+		"description": "Collection for testing the Department management API endpoints of the Instatenders Multi-tenant application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Department Operations",
+			"item": [
+				{
+					"name": "Get All Departments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantSlug}}/departments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenantSlug}}",
+								"departments"
+							]
+						},
+						"description": "Get all departments for a tenant"
+					}
+				},
+				{
+					"name": "Get Single Department",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantSlug}}/departments/{{departmentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenantSlug}}",
+								"departments",
+								"{{departmentId}}"
+							]
+						},
+						"description": "Get a single department by ID"
+					}
+				},
+				{
+					"name": "Create Department",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Operations Department\",\n    \"description\": \"Handles day-to-day operations\",\n    \"manager\": \"{{userId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantSlug}}/departments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenantSlug}}",
+								"departments"
+							]
+						},
+						"description": "Create a new department"
+					}
+				},
+				{
+					"name": "Update Department",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Operations Department Updated\",\n    \"description\": \"Updated operations department description\",\n    \"manager\": \"{{userId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantSlug}}/departments/{{departmentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenantSlug}}",
+								"departments",
+								"{{departmentId}}"
+							]
+						},
+						"description": "Update an existing department"
+					}
+				},
+				{
+					"name": "Delete Department",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantSlug}}/departments/{{departmentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tenants",
+								"{{tenantSlug}}",
+								"departments",
+								"{{departmentId}}"
+							]
+						},
+						"description": "Delete a department"
+					}
+				}
+			],
+			"description": "Endpoints for managing Departments within a tenant"
+		}
+	]
+}

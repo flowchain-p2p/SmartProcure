@@ -1,0 +1,45 @@
+{
+	"info": {
+		"_postman_id": "95f27a47-7c20-5e53-9e12-3bc3ec60e813",
+		"name": "SmartProcure Domain API",
+		"description": "Collection for testing the Domain management API endpoints of the Instatenders Multi-tenant application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Domain Operations",
+			"item": [
+				{
+					"name": "Check Domain Existence",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/domain/check",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"domain",
+								"check"
+							]
+						},
+						"description": "Check if a domain exists based on an email address"
+					}
+				}
+			],
+			"description": "Endpoints for domain operations"
+		}
+	]
+}
