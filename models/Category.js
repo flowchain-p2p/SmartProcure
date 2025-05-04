@@ -44,6 +44,14 @@ const CategorySchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
+  },
+  image: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
   }
 });
 
