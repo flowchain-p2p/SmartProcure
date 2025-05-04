@@ -1,7 +1,6 @@
-// filepath: c:\Soundar\Instatenders\multitenent\backend\models\Catalog.js
 const mongoose = require('mongoose');
 
-const CatalogSchema = new mongoose.Schema({
+const ProductSchema = new mongoose.Schema({
   brand: {
     type: String,
     required: true
@@ -146,13 +145,13 @@ const CatalogSchema = new mongoose.Schema({
 });
 
 // Pre-save middleware to update 'updatedAt' on save
-CatalogSchema.pre('save', function(next) {
+ProductSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
 });
 
 // Add indexes for category queries
-CatalogSchema.index({ tenantId: 1, categoryId: 1 });
-CatalogSchema.index({ tenantId: 1, categoryPath: 1 });
+ProductSchema.index({ tenantId: 1, categoryId: 1 });
+ProductSchema.index({ tenantId: 1, categoryPath: 1 });
 
-module.exports = mongoose.model('Catalog', CatalogSchema);
+module.exports = mongoose.model('Product', ProductSchema);

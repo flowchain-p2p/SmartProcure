@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
-const Catalog = require('../models/Catalog');
+const Product = require('../models/Product');
 const Category = require('../models/Category');
 
 /**
- * Get all catalogs under a specific category path
+ * Get all products under a specific category path
  * @param {Array} categoryPath - Array of category names (e.g., ["Tools", "Power Tools"])
  * @param {ObjectId|string} tenantId - Optional tenant ID to scope the query
- * @returns {Promise<Array>} - Array of catalog documents
+ * @returns {Promise<Array>} - Array of product documents
  */
-async function getCatalogsByCategoryPath(categoryPath, tenantId = null) {
+async function getProductsByCategoryPath(categoryPath, tenantId = null) {
   try {
     // Build the query
     const query = { categoryPath: { $all: categoryPath } };
@@ -18,32 +18,31 @@ async function getCatalogsByCategoryPath(categoryPath, tenantId = null) {
       // Validate ObjectId format if it's a string
       if (typeof tenantId === 'string') {
         if (!mongoose.Types.ObjectId.isValid(tenantId)) {
-          console.warn('Invalid tenantId format in getCatalogsByCategoryPath');
+          console.warn('Invalid tenantId format in getProductsByCategoryPath');
           return [];
         }
         query.tenantId = new mongoose.Types.ObjectId(tenantId);
       } else {
         query.tenantId = tenantId;
-      }
-    }
+      }    }
     
     // Execute the query
-    const catalogs = await Catalog.find(query).sort({ createdAt: -1 });
+    const products = await Product.find(query).sort({ createdAt: -1 });
     
-    return catalogs;
+    return products;
   } catch (error) {
-    console.error('Error fetching catalogs by category path:', error);
+    console.error('Error fetching products by category path:', error);
     return []; // Return empty array instead of throwing
   }
 }
 
 /**
- * Get all catalogs under a specific category (including all descendant categories)
+ * Get all products under a specific category (including all descendant categories)
  * @param {ObjectId|string} categoryId - ID of the category
  * @param {ObjectId|string} tenantId - Optional tenant ID to scope the query
- * @returns {Promise<Array>} - Array of catalog documents
+ * @returns {Promise<Array>} - Array of product documents
  */
-async function getCatalogsByCategory(categoryId, tenantId = null) {
+async function getProductsByCategory(categoryId, tenantId = null) {
   try {
     // Validate the categoryId
     if (typeof categoryId === 'string' && !mongoose.Types.ObjectId.isValid(categoryId)) {
@@ -79,11 +78,10 @@ async function getCatalogsByCategory(categoryId, tenantId = null) {
     const query = { categoryId: { $in: categoryIds } };
     
     // Add tenant filter if provided
-    if (tenantId) {
-      // Validate ObjectId format if it's a string
+    if (tenantId) {      // Validate ObjectId format if it's a string
       if (typeof tenantId === 'string') {
         if (!mongoose.Types.ObjectId.isValid(tenantId)) {
-          console.warn('Invalid tenantId format in getCatalogsByCategory');
+          console.warn('Invalid tenantId format in getProductsByCategory');
           return [];
         }
         query.tenantId = new mongoose.Types.ObjectId(tenantId);
@@ -93,11 +91,11 @@ async function getCatalogsByCategory(categoryId, tenantId = null) {
     }
     
     // Execute the query
-    const catalogs = await Catalog.find(query).sort({ createdAt: -1 });
+    const products = await Product.find(query).sort({ createdAt: -1 });
     
-    return catalogs;
+    return products;
   } catch (error) {
-    console.error('Error fetching catalogs by category:', error);
+    console.error('Error fetching products by category:', error);
     return []; // Return empty array instead of throwing
   }
 }
@@ -175,9 +173,7 @@ async function getChildCategories(parentId) {
   }
 }
 
-module.exports = {
-  getCatalogsByCategoryPath,
-  getCatalogsByCategory,
+module.exports = {    
   getCategoryById,
   getCategoriesByTenant,
   getChildCategories

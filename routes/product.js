@@ -1,18 +1,17 @@
-// filepath: c:\Soundar\Instatenders\multitenent\backend\routes\catalog.js
 const express = require('express');
 const router = express.Router();
-const { getCatalogs, getCatalog, createCatalog } = require('../controllers/catalogController');
+const { getProducts, getProduct, createProduct } = require('../controllers/productController');
 const { identifyTenantFromToken } = require('../middleware/tenantMiddleware');
 
 // Protect all routes with tenant identification
 router.use(identifyTenantFromToken);
 
-// Catalog routes
+// Product routes
 router.route('/')
-  .get(getCatalogs)
-  .post(createCatalog);
+  .get(getProducts)
+  .post(createProduct);
 
 router.route('/:id')
-  .get(getCatalog);
+  .get(getProduct);
 
 module.exports = router;

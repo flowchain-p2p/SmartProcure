@@ -124,7 +124,8 @@ const getCategoryChildren = async (req, res) => {
 // @access  Private
 const createCategory = async (req, res) => {
   try {
-    const { name, parent, attributes } = req.body;
+    console.log('Request Body:', req.body); // Log the request body for debugging
+    const { name, parent, attributes, image, description } = req.body;
     
     let level = 0;
     let ancestors = [];
@@ -161,6 +162,8 @@ const createCategory = async (req, res) => {
     // Create the new category
     const category = await Category.create({
       name,
+      image, // Added image field
+      description, // Added description field
       parent,
       ancestors,
       level,
@@ -222,12 +225,13 @@ const updateCategory = async (req, res) => {
         message: 'Not authorized to update this category'
       });
     }
-    
-    // Only allow updating certain fields
-    const { name, attributes } = req.body;
+      // Only allow updating certain fields
+    const { name, attributes, image, description } = req.body;
     const updateData = {};
     
     if (name) updateData.name = name;
+    if (image) updateData.image = image;
+    if (description) updateData.description = description;
     if (attributes) updateData.attributes = attributes;
     
     // Update category

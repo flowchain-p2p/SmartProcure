@@ -1,15 +1,14 @@
-// filepath: c:\Soundar\Instatenders\multitenent\backend\controllers\catalogController.js
-const Catalog = require('../models/Catalog');
+const Product = require('../models/Product');
 const Category = require('../models/Category');
 const { 
-  getCatalogsByCategoryPath, 
-  getCatalogsByCategory 
+  getProductsByCategoryPath, 
+  getProductsByCategory 
 } = require('../utils/categoryUtils');
 
-// @desc    Get all product catalog items for the current tenant
-// @route   GET /api/v1/catalogs
+// @desc    Get all product items for the current tenant
+// @route   GET /api/v1/products
 // @access  Private
-const getCatalogs = async (req, res) => {
+const getProducts = async (req, res) => {
   try {
     const query = { tenantId: req.tenant.id };
     
@@ -19,12 +18,12 @@ const getCatalogs = async (req, res) => {
       const categoryPath = req.query.categoryPath.split(',');
       
       try {
-        const catalogs = await getCatalogsByCategoryPath(categoryPath, req.tenant.id);
+        const products = await getProductsByCategoryPath(categoryPath, req.tenant.id);
         
         return res.status(200).json({
           success: true,
-          count: catalogs.length,
-          data: catalogs
+          count: products.length,
+          data: products
         });
       } catch (error) {
         console.error('Error fetching products by category path:', error);
@@ -37,18 +36,18 @@ const getCatalogs = async (req, res) => {
     }
     
     if (req.query.categoryId) {
-      // If categoryId is provided, get all catalogs in this category
+      // If categoryId is provided, get all products in this category
       // and its descendants
       try {
-        const catalogs = await getCatalogsByCategory(
+        const products = await getProductsByCategory(
           req.query.categoryId, 
           req.tenant.id
         );
         
         return res.status(200).json({
           success: true,
-          count: catalogs.length,
-          data: catalogs
+          count: products.length,
+          data: products
         });
       } catch (error) {
         console.error('Error fetching products by category ID:', error);
@@ -71,20 +70,20 @@ const getCatalogs = async (req, res) => {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
     const skip = (page - 1) * limit;
-      const catalogs = await Catalog.find(query)
+      const products = await Product.find(query)
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
       
-    const total = await Catalog.countDocuments(query);
+    const total = await Product.countDocuments(query);
     
     res.status(200).json({
       success: true,
-      count: catalogs.length,
+      count: products.length,
       total,
       totalPages: Math.ceil(total / limit),
       currentPage: page,
-      data: catalogs
+      data: products
     });
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -96,17 +95,17 @@ const getCatalogs = async (req, res) => {
   }
 };
 
-// @desc    Get a single catalog by ID
-// @route   GET /api/v1/catalogs/:id
+// @desc    Get a single product by ID
+// @route   GET /api/v1/products/:id
 // @access  Private
-const getCatalog = async (req, res) => {
+const getProduct = async (req, res) => {
   try {
-    const catalog = await Catalog.findOne({
+    const product = await Product.findOne({
       _id: req.params.id,
       tenantId: req.tenant.id
     });
     
-    if (!catalog) {
+    if (!product) {
       return res.status(404).json({
         success: false,
         message: 'Product not found'
@@ -115,7 +114,7 @@ const getCatalog = async (req, res) => {
     
     res.status(200).json({
       success: true,
-      data: catalog
+      data: product
     });
   } catch (error) {
     console.error('Error fetching product:', error);
@@ -127,22 +126,22 @@ const getCatalog = async (req, res) => {
   }
 };
 
-// @desc    Create a new catalog item
-// @route   POST /api/v1/catalogs
+// @desc    Create a new product
+// @route   POST /api/v1/products
 // @access  Private
-const createCatalog = async (req, res) => {
+const createProduct = async (req, res) => {
   try {
     // Add the tenant ID from the authenticated request
-    const catalogData = {
+    const productData = {
       ...req.body,
       tenantId: req.tenant.id
     };
     
-    const catalog = await Catalog.create(catalogData);
+    const product = await Product.create(productData);
     
     res.status(201).json({
       success: true,
-      data: catalog
+      data: product
     });
   } catch (error) {
     console.error('Error creating product:', error);
@@ -165,7 +164,7 @@ const createCatalog = async (req, res) => {
 };
 
 module.exports = {
-  getCatalogs,
-  getCatalog,
-  createCatalog
+  getProducts,
+  getProduct,
+  createProduct
 };

@@ -173,7 +173,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Electronics\",\n    \"attributes\": {\n        \"icon\": \"computer\",\n        \"showInNav\": true,\n        \"displayOrder\": 1\n    }\n}"
+							"raw": "{\n    \"name\": \"Electronics\",\n    \"image\": \"/images/electronics.jpg\",\n    \"description\": \"Electronics and gadgets\",\n    \"attributes\": {\n        \"icon\": \"computer\",\n        \"showInNav\": true,\n        \"displayOrder\": 1\n    }\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/v1/categories",
@@ -220,10 +220,9 @@
 								"key": "Authorization",
 								"value": "Bearer {{authToken}}"
 							}
-						],
-						"body": {
+						],						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Laptops\",\n    \"parent\": \"{{rootCategoryId}}\",\n    \"attributes\": {\n        \"icon\": \"laptop\",\n        \"showInNav\": true,\n        \"displayOrder\": 1\n    }\n}"
+							"raw": "{\n    \"name\": \"Laptops\",\n    \"image\": \"/images/laptops.jpg\",\n    \"description\": \"Laptop computers and accessories\",\n    \"parent\": \"{{rootCategoryId}}\",\n    \"attributes\": {\n        \"icon\": \"laptop\",\n        \"showInNav\": true,\n        \"displayOrder\": 1\n    }\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/v1/categories",
@@ -253,10 +252,9 @@
 								"key": "Authorization",
 								"value": "Bearer {{authToken}}"
 							}
-						],
-						"body": {
+						],						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Gaming Laptops\",\n    \"attributes\": {\n        \"icon\": \"laptop\",\n        \"showInNav\": true,\n        \"displayOrder\": 2,\n        \"featured\": true\n    }\n}"
+							"raw": "{\n    \"name\": \"Gaming Laptops\",\n    \"image\": \"/images/gaming-laptops.jpg\",\n    \"description\": \"High-performance gaming laptops and accessories\",\n    \"attributes\": {\n        \"icon\": \"laptop\",\n        \"showInNav\": true,\n        \"displayOrder\": 2,\n        \"featured\": true\n    }\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/v1/categories/{{childCategoryId}}",
