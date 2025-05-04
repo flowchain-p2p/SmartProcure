@@ -19,10 +19,8 @@ const getRequisitions = async (req, res) => {
     // Filter by createdBy if provided
     if (req.query.createdBy) {
       query.createdBy = req.query.createdBy;
-    }
-
-    // Filter by organization if provided
-    if (req.query.organizationId) {
+    }    // Filter by organization if provided and valid
+    if (req.query.organizationId && mongoose.Types.ObjectId.isValid(req.query.organizationId)) {
       query.organizationId = req.query.organizationId;
     }
 
@@ -133,7 +131,6 @@ const getRequisition = async (req, res) => {
 const createRequisition = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
-
   try {
     const { title, description, organizationId, items, ...rest } = req.body;
 
@@ -142,16 +139,22 @@ const createRequisition = async (req, res) => {
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const requisitionNumber = `PR-${req.tenant.id.toString().slice(-4)}-${dateStr}-${(count + 1).toString().padStart(4, '0')}`;
 
-    // Create the requisition
-    const requisition = await Requisition.create({
+    // Create the requisition with optional organizationId - only include if it's a valid ObjectId
+    const requisitionData = {
       requisitionNumber,
       title,
       description,
-      organizationId,
       tenantId: req.tenant.id,
       createdBy: req.user.id,
       ...rest
-    });
+    };
+    
+    // Only add organizationId if it's a valid MongoDB ObjectId
+    if (organizationId && mongoose.Types.ObjectId.isValid(organizationId)) {
+      requisitionData.organizationId = organizationId;
+    }
+
+    const requisition = await Requisition.create(requisitionData);
 
     // Create requisition items if provided
     let savedItems = [];
@@ -212,16 +215,28 @@ const updateRequisition = async (req, res) => {
         success: false,
         error: 'Not authorized to update this requisition'
       });
+    }    // Prepare update data
+    const updateData = { 
+      updatedBy: req.user.id,
+      updatedAt: Date.now() 
+    };
+    
+    // Add all fields from request body except organizationId
+    Object.keys(req.body).forEach(key => {
+      if (key !== 'organizationId') {
+        updateData[key] = req.body[key];
+      }
+    });
+    
+    // Only add organizationId if it's a valid ObjectId
+    if (req.body.organizationId && mongoose.Types.ObjectId.isValid(req.body.organizationId)) {
+      updateData.organizationId = req.body.organizationId;
     }
-
+    
     // Update the requisition
     requisition = await Requisition.findByIdAndUpdate(
       req.params.id,
-      { 
-        ...req.body, 
-        updatedBy: req.user.id,
-        updatedAt: Date.now() 
-      },
+      updateData,
       { new: true, runValidators: true }
     );
 

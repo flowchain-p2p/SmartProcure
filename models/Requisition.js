@@ -25,11 +25,11 @@ const RequisitionSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Tenant',
     required: true
-  },
-  organizationId: {
+  },  organizationId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Organization',
-    required: false // Making this optional as Organization model wasn't found in the codebase
+    required: false,
+    default: null // Making it truly optional with a default value
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,

@@ -7,12 +7,7 @@ const {
   updateRequisition, 
   deleteRequisition, 
   submitRequisition, 
-  approveRequisition,
-  addRequisitionItem,
-  updateRequisitionItem,
-  deleteRequisitionItem,
-  getRequisitionItems,
-  getRequisitionItemById
+  approveRequisition
 } = require('../controllers/requisitionController');
 const { identifyTenantFromToken } = require('../middleware/tenantMiddleware');
 
@@ -36,14 +31,7 @@ router.route('/:id/submit')
 router.route('/:id/approve')
   .patch(approveRequisition);
 
-// Requisition items routes
-router.route('/:id/items')
-  .get(getRequisitionItems)
-  .post(addRequisitionItem);
-
-router.route('/items/:itemId')
-  .get(getRequisitionItemById)
-  .put(updateRequisitionItem)
-  .delete(deleteRequisitionItem);
+// If you want to add requisition item routes in the future,
+// you'll need to implement the controller functions first
 
 module.exports = router;

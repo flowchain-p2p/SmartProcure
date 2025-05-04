@@ -7,9 +7,10 @@ const {
   updateUnitOfMeasure, 
   deleteUnitOfMeasure 
 } = require('../controllers/uomController');
+const { identifyTenantFromToken } = require('../middleware/tenantMiddleware');
 
-// All routes here require authentication and tenant context
-// The tenant middleware should be applied at the app level
+// Protect all routes with tenant identification
+router.use(identifyTenantFromToken);
 
 router
   .route('/')
