@@ -35,8 +35,11 @@ app.use(cors({
 }));
 
 // Import route files
-const tenantRoutes = require('./routes/tenants');
-const authRoutes = require('./routes/auth');
+const auth = require('./routes/auth');
+const users = require('./routes/users');
+const departments = require('./routes/departments');
+const costCenters = require('./routes/costCenters');
+const tenants = require('./routes/tenants');
 const domainAuthRoutes = require('./routes/domainAuth');
 const domainRoutes = require('./routes/domain');
 const productRoutes = require('./routes/product');
@@ -45,8 +48,11 @@ const uomRoutes = require('./routes/uom');
 const requisitionRoutes = require('./routes/requisition');
 
 // Mount routers
-app.use('/api/v1/tenants', tenantRoutes);
-app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/auth', auth);
+app.use('/api/v1/tenants/:tenantSlug/users', users);
+app.use('/api/v1/tenants/:tenantSlug/departments', departments);
+app.use('/api/v1/tenants/:tenantSlug/cost-centers', costCenters);
+app.use('/api/v1/tenants', tenants);
 app.use('/api/v1/auth', domainAuthRoutes);
 app.use('/api/v1/domain', domainRoutes);
 app.use('/api/v1/products', productRoutes);

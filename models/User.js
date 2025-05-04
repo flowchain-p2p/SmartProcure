@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -11,7 +11,8 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide an email'],
     match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email'],
-    trim: true
+    trim: true,
+    unique: true
   },
   password: {
     type: String,
@@ -19,27 +20,36 @@ const UserSchema = new mongoose.Schema({
     minlength: 6,
     select: false
   },
-  role: {
-    type: String,
-    enum: ['user', 'admin'],
-    default: 'user'
-  },
   tenantId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Tenant',
     required: true
   },
-  active: {
-    type: Boolean,
-    default: true
+  authType: {
+    type: String,
+    enum: ['local', 'azure', 'okta'],
+    default: 'local'
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  externalId: { type: String }, // Placeholder for Azure/Okta integration
+  costCenterId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'CostCenter'
   },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+  departmentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Department'
+  },
+  position: { type: String },
+  approvalLimits: {
+    requisition: { type: Number, default: 0 },
+    purchase: { type: Number, default: 0 }
+  },
+  approvalHierarchy: { type: Number, default: 0 },
+  active: { type: Boolean, default: true },
+  roles: {
+    type: [String],
+    enum: ['Employee', 'Manager', 'CostCenterHead', 'ProcurementTeam', 'Finance', 'Administrator'],
+    default: ['Employee']
   }
 });
 

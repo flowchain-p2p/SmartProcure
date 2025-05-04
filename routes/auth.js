@@ -1,6 +1,6 @@
 const express = require('express');
 const { check } = require('express-validator');
-const { registerUser, loginUser, getMe, logout } = require('../controllers/authController');
+const { registerUser, loginUser, getMe, logout, registerLocalUser, azureLogin, oktaLogin } = require('../controllers/authController');
 const { identifyTenantFromParam, identifyTenantFromToken, identifyTenantFromEmail } = require('../middleware/tenantMiddleware');
 
 const router = express.Router({ mergeParams: true });
@@ -54,5 +54,12 @@ router.get('/me', identifyTenantFromToken, getMe);
 
 // Logout user
 router.get('/logout', logout);
+
+// Local user registration
+router.post('/register-local', registerLocalUser);
+
+// Placeholder routes for Azure and Okta
+router.get('/azure', azureLogin);
+router.get('/okta', oktaLogin);
 
 module.exports = router;
