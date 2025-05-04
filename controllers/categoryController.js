@@ -119,62 +119,131 @@ const getCategoryChildren = async (req, res) => {
   }
 };
 
-// @desc    Create a new category
+// @desc    Create one or multiple categories
 // @route   POST /api/v1/categories
 // @access  Private
 const createCategory = async (req, res) => {
   try {
     console.log('Request Body:', req.body); // Log the request body for debugging
-    const { name, parent, attributes, image, description } = req.body;
     
-    let level = 0;
-    let ancestors = [];
-    
-    // If this is a child category, set up ancestors and level
-    if (parent) {
-      const parentCategory = await getCategoryById(parent);
+    // Check if the request body is an array of categories or a single category
+    if (Array.isArray(req.body)) {
+      // Handle array of categories
+      const createdCategories = [];
+      const errors = [];
       
-      if (!parentCategory) {
-        return res.status(404).json({
-          success: false,
-          message: 'Parent category not found'
-        });
+      // Process each category in the array
+      for (const categoryData of req.body) {
+        try {
+          const { name, parent, attributes, image, description } = categoryData;
+          
+          let level = 0;
+          let ancestors = [];
+          
+          // If this is a child category, set up ancestors and level
+          if (parent) {
+            const parentCategory = await getCategoryById(parent);
+            
+            if (!parentCategory) {
+              errors.push(`Parent category with ID ${parent} not found for category "${name}"`);
+              continue;
+            }
+            
+            // Ensure parent belongs to the same tenant
+            if (parentCategory.tenantId.toString() !== req.tenant.id.toString()) {
+              errors.push(`Parent category with ID ${parent} does not belong to your tenant for category "${name}"`);
+              continue;
+            }
+            
+            // Set level to parent level + 1
+            level = parentCategory.level + 1;
+            
+            // Copy parent's ancestors and add parent to ancestors array
+            ancestors = [
+              ...parentCategory.ancestors,
+              { _id: parentCategory._id, name: parentCategory.name }
+            ];
+          }
+          
+          // Create the new category
+          const category = await Category.create({
+            name,
+            image,
+            description,
+            parent,
+            ancestors,
+            level,
+            tenantId: req.tenant.id,
+            attributes: attributes || {}
+          });
+          
+          createdCategories.push(category);
+        } catch (categoryError) {
+          console.error(`Error creating individual category:`, categoryError);
+          errors.push(`Error creating category "${categoryData.name}": ${categoryError.message}`);
+        }
       }
       
-      // Ensure parent belongs to the same tenant
-      if (parentCategory.tenantId.toString() !== req.tenant.id.toString()) {
-        return res.status(403).json({
-          success: false,
-          message: 'Parent category does not belong to your tenant'
-        });
+      // Return the response with created categories and any errors
+      res.status(201).json({
+        success: createdCategories.length > 0,
+        count: createdCategories.length,
+        data: createdCategories,
+        errors: errors.length > 0 ? errors : undefined
+      });
+    } else {
+      // Handle single category (backward compatibility)
+      const { name, parent, attributes, image, description } = req.body;
+      
+      let level = 0;
+      let ancestors = [];
+      
+      // If this is a child category, set up ancestors and level
+      if (parent) {
+        const parentCategory = await getCategoryById(parent);
+        
+        if (!parentCategory) {
+          return res.status(404).json({
+            success: false,
+            message: 'Parent category not found'
+          });
+        }
+        
+        // Ensure parent belongs to the same tenant
+        if (parentCategory.tenantId.toString() !== req.tenant.id.toString()) {
+          return res.status(403).json({
+            success: false,
+            message: 'Parent category does not belong to your tenant'
+          });
+        }
+        
+        // Set level to parent level + 1
+        level = parentCategory.level + 1;
+        
+        // Copy parent's ancestors and add parent to ancestors array
+        ancestors = [
+          ...parentCategory.ancestors,
+          { _id: parentCategory._id, name: parentCategory.name }
+        ];
       }
       
-      // Set level to parent level + 1
-      level = parentCategory.level + 1;
+      // Create the new category
+      const category = await Category.create({
+        name,
+        image,
+        description,
+        parent,
+        ancestors,
+        level,
+        tenantId: req.tenant.id,
+        attributes: attributes || {}
+      });
       
-      // Copy parent's ancestors and add parent to ancestors array
-      ancestors = [
-        ...parentCategory.ancestors,
-        { _id: parentCategory._id, name: parentCategory.name }
-      ];
+      res.status(201).json({
+        success: true,
+        data: category
+      });
     }
-    
-    // Create the new category
-    const category = await Category.create({
-      name,
-      image, // Added image field
-      description, // Added description field
-      parent,
-      ancestors,
-      level,
-      tenantId: req.tenant.id,
-      attributes: attributes || {}
-    });
-    
-    res.status(201).json({
-      success: true,
-      data: category
-    });
   } catch (error) {
     console.error('Error creating category:', error);
     

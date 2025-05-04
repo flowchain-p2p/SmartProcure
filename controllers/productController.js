@@ -126,25 +126,45 @@ const getProduct = async (req, res) => {
   }
 };
 
-// @desc    Create a new product
+// @desc    Create one or multiple products
 // @route   POST /api/v1/products
 // @access  Private
 const createProduct = async (req, res) => {
   try {
-    // Add the tenant ID from the authenticated request
-    const productData = {
-      ...req.body,
-      tenantId: req.tenant.id
-    };
+    const tenantId = req.tenant.id;
+    let products;
     
-    const product = await Product.create(productData);
-    
-    res.status(201).json({
-      success: true,
-      data: product
-    });
+    // Check if the request body is an array of products or a single product
+    if (Array.isArray(req.body)) {
+      // Handle array of products
+      const productsData = req.body.map(product => ({
+        ...product,
+        tenantId
+      }));
+      
+      products = await Product.insertMany(productsData);
+      
+      res.status(201).json({
+        success: true,
+        count: products.length,
+        data: products
+      });
+    } else {
+      // Handle single product for backward compatibility
+      const productData = {
+        ...req.body,
+        tenantId
+      };
+      
+      const product = await Product.create(productData);
+      
+      res.status(201).json({
+        success: true,
+        data: product
+      });
+    }
   } catch (error) {
-    console.error('Error creating product:', error);
+    console.error('Error creating product(s):', error);
     
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(err => err.message);
@@ -157,7 +177,7 @@ const createProduct = async (req, res) => {
     
     res.status(500).json({
       success: false,
-      message: 'Error creating product',
+      message: 'Error creating product(s)',
       error: error.message
     });
   }

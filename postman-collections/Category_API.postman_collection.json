@@ -189,8 +189,7 @@
 						"description": "Create a new root category (level 0) without a parent"
 					},
 					"response": []
-				},
-				{
+				},				{
 					"name": "Create Child Category",
 					"event": [
 						{
@@ -236,6 +235,60 @@
 							]
 						},
 						"description": "Create a new child category (level > 0) with a parent reference"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Multiple Categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();",
+									"",
+									"if (responseJson.data && responseJson.data.length > 0) {",
+									"    // Store the ID of the first category as a sample",
+									"    if (responseJson.data[0]._id) {",
+									"        pm.environment.set('multipleCategoryFirstId', responseJson.data[0]._id);",
+									"        console.log('First category ID saved to environment variable: multipleCategoryFirstId');",
+									"    }",
+									"    console.log(`Created ${responseJson.count} categories successfully`);",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"name\": \"Smartphones\",\n    \"image\": \"/images/smartphones.jpg\",\n    \"description\": \"Mobile phones and accessories\",\n    \"parent\": \"{{rootCategoryId}}\",\n    \"attributes\": {\n      \"icon\": \"smartphone\",\n      \"showInNav\": true,\n      \"displayOrder\": 2\n    }\n  },\n  {\n    \"name\": \"Tablets\",\n    \"image\": \"/images/tablets.jpg\",\n    \"description\": \"Tablet computers and accessories\",\n    \"parent\": \"{{rootCategoryId}}\",\n    \"attributes\": {\n      \"icon\": \"tablet\",\n      \"showInNav\": true,\n      \"displayOrder\": 3\n    }\n  },\n  {\n    \"name\": \"Gaming\",\n    \"image\": \"/images/gaming.jpg\",\n    \"description\": \"Gaming devices and accessories\",\n    \"attributes\": {\n      \"icon\": \"gamepad\",\n      \"showInNav\": true,\n      \"displayOrder\": 4\n    }\n  }\n]"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/categories",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories"
+							]
+						},
+						"description": "Create multiple categories at once, with or without parent references"
 					},
 					"response": []
 				},
