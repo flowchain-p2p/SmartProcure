@@ -203,7 +203,7 @@
 					"response": []
 				},
 				{
-					"name": "Create Multiple Products",
+					"name": "Products bulk creation",
 					"event": [
 						{
 							"listen": "test",

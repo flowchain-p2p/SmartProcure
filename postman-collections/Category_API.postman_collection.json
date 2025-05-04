@@ -239,7 +239,7 @@
 					"response": []
 				},
 				{
-					"name": "Create Multiple Categories",
+					"name": "Categories bulk creation",
 					"event": [
 						{
 							"listen": "test",

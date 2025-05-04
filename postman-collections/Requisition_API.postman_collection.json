@@ -1,0 +1,490 @@
+{
+	"info": {
+		"_postman_id": "79c85d36-9f2a-4e51-8b9a-10e87c39e456",
+		"name": "SmartProcure Requisition API",
+		"description": "Collection for testing the Requisition API endpoints of the Instatenders Multi-tenant application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login (Get Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();",
+									"",
+									"if (responseJson.token) {",
+									"    pm.environment.set('authToken', responseJson.token);",
+									"    console.log('Token saved to environment variable: authToken');",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login to get the authentication token"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Requisitions",
+			"item": [
+				{
+					"name": "Get All Requisitions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/requisitions?page=1&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"requisitions"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "status",
+									"value": "Draft",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "office",
+									"disabled": true
+								},
+								{
+									"key": "startDate",
+									"value": "2025-01-01",
+									"disabled": true
+								},
+								{
+									"key": "endDate",
+									"value": "2025-12-31",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get a list of all requisitions for the current tenant with pagination"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Requisition by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/requisitions/{{requisitionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"requisitions",
+								"{{requisitionId}}"
+							]
+						},
+						"description": "Get a single requisition by its ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Requisition",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();",
+									"",
+									"if (responseJson.success && responseJson.data && responseJson.data._id) {",
+									"    pm.environment.set('requisitionId', responseJson.data._id);",
+									"    console.log('Requisition ID saved to environment variable: requisitionId');",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Office Supplies Requisition\",\n    \"description\": \"Monthly office supplies for marketing department\",\n    \"organizationId\": \"{{organizationId}}\",\n    \"currency\": \"INR\",\n    \"expectedDeliveryDate\": \"2025-06-01\",\n    \"items\": [\n        {\n            \"catalogProductId\": \"{{productId1}}\",\n            \"quantity\": 10,\n            \"unitPrice\": 125,\n            \"unit\": \"Each\",\n            \"unitId\": \"{{unitId}}\"\n        },\n        {\n            \"name\": \"Premium Notebooks\",\n            \"description\": \"A5 size premium notebooks with leather cover\",\n            \"quantity\": 5,\n            \"unitPrice\": 450,\n            \"unit\": \"Each\",\n            \"unitId\": \"{{unitId}}\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/requisitions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"requisitions"
+							]
+						},
+						"description": "Create a new requisition with line items"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Requisition",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Updated Office Supplies Requisition\",\n    \"description\": \"Updated monthly office supplies for marketing department\",\n    \"expectedDeliveryDate\": \"2025-06-15\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/requisitions/{{requisitionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"requisitions",
+								"{{requisitionId}}"
+							]
+						},
+						"description": "Update an existing requisition"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Requisition",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/requisitions/{{requisitionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"requisitions",
+								"{{requisitionId}}"
+							]
+						},
+						"description": "Delete a requisition (only allowed in Draft status)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Requisition Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"Submitted\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/requisitions/{{requisitionId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"requisitions",
+								"{{requisitionId}}",
+								"status"
+							]
+						},
+						"description": "Update the status of a requisition"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Requisition Items",
+			"item": [
+				{
+					"name": "Get All Items for Requisition",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/requisitions/{{requisitionId}}/items",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"requisitions",
+								"{{requisitionId}}",
+								"items"
+							]
+						},
+						"description": "Get all line items for a specific requisition"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Item by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/requisitions/items/{{requisitionItemId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"requisitions",
+								"items",
+								"{{requisitionItemId}}"
+							]
+						},
+						"description": "Get a single requisition item by its ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Item to Requisition",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();",
+									"",
+									"if (responseJson.success && responseJson.data && responseJson.data._id) {",
+									"    pm.environment.set('requisitionItemId', responseJson.data._id);",
+									"    console.log('Requisition Item ID saved to environment variable: requisitionItemId');",
+									"}",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"catalogProductId\": \"{{productId2}}\",\n    \"quantity\": 3,\n    \"unitPrice\": 750,\n    \"unit\": \"Each\",\n    \"unitId\": \"{{unitId}}\",\n    \"notes\": \"Need this ASAP\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/requisitions/{{requisitionId}}/items",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"requisitions",
+								"{{requisitionId}}",
+								"items"
+							]
+						},
+						"description": "Add a new line item to an existing requisition"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Item",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantity\": 5,\n    \"unitPrice\": 800,\n    \"notes\": \"Updated quantity and price\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/requisitions/items/{{requisitionItemId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"requisitions",
+								"items",
+								"{{requisitionItemId}}"
+							]
+						},
+						"description": "Update an existing requisition item"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Item",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/requisitions/items/{{requisitionItemId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"requisitions",
+								"items",
+								"{{requisitionItemId}}"
+							]
+						},
+						"description": "Delete a requisition item"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

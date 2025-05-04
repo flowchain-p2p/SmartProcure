@@ -42,6 +42,7 @@ const domainRoutes = require('./routes/domain');
 const productRoutes = require('./routes/product');
 const categoryRoutes = require('./routes/category');
 const uomRoutes = require('./routes/uom');
+const requisitionRoutes = require('./routes/requisition');
 
 // Mount routers
 app.use('/api/v1/tenants', tenantRoutes);
@@ -51,6 +52,7 @@ app.use('/api/v1/domain', domainRoutes);
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/categories', categoryRoutes);
 app.use('/api/v1/uom', uomRoutes);
+app.use('/api/v1/requisitions', requisitionRoutes);
 
 // Default route for testing
 app.get('/', (req, res) => {
