@@ -15,18 +15,51 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/tenants/public",
+							"raw": "{{baseUrl}}/api/v1/tenants/public",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								"tenants",
 								"public"
 							]
 						},
 						"description": "Get all public tenant information (limited data)"
-					}
+					},
+					"response": [
+						{
+							"name": "Successful Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/tenants/public",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"tenants",
+										"public"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"count\": 2,\n    \"data\": [\n        {\n            \"name\": \"Acme Corporation\",\n            \"slug\": \"acme\",\n            \"createdAt\": \"2023-04-15T10:30:00.000Z\"\n        },\n        {\n            \"name\": \"Global Industries\",\n            \"slug\": \"global-industries\",\n            \"createdAt\": \"2023-04-20T14:15:00.000Z\"\n        }\n    ]\n}"
+						}
+					]
 				},
 				{
 					"name": "Create New Tenant",
@@ -43,17 +76,58 @@
 							"raw": "{\n    \"name\": \"New Tenant Company\",\n    \"slug\": \"new-tenant\",\n    \"adminEmail\": \"admin@new-tenant.com\",\n    \"adminPassword\": \"password123\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/tenants",
+							"raw": "{{baseUrl}}/api/v1/tenants",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								"tenants"
 							]
 						},
 						"description": "Create a new tenant with an admin user"
-					}
+					},
+					"response": [
+						{
+							"name": "Successful Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"New Tenant Company\",\n    \"slug\": \"new-tenant\",\n    \"adminEmail\": \"admin@new-tenant.com\",\n    \"adminPassword\": \"password123\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/tenants",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"tenants"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwYWJjMTIzNDU2Nzg5YWJjZGVmMDEyMyIsInJvbGUiOiJhZG1pbiIsInRlbmFudElkIjoiNjBhYmMxMjM0NTY3ODlhYmNkZWYwMTI0IiwiaWF0IjoxNjIxODYyNDAwLCJleHAiOjE2MjQ0NTQ0MDB9.examplesignature\"\n}"
+						}
+					]
 				}
 			],
 			"description": "Public endpoints for tenant operations that don't require authentication"
@@ -72,17 +146,54 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/api/tenants",
+							"raw": "{{baseUrl}}/api/v1/tenants",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								"tenants"
 							]
 						},
 						"description": "Get all tenants (admin only)"
-					}
+					},
+					"response": [
+						{
+							"name": "Successful Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{authToken}}"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/tenants",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"tenants"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"count\": 2,\n    \"data\": [\n        {\n            \"_id\": \"60abc12345678abcdef0124\",\n            \"name\": \"Acme Corporation\",\n            \"slug\": \"acme\",\n            \"active\": true,\n            \"adminEmail\": \"admin@acme.com\",\n            \"createdAt\": \"2023-04-15T10:30:00.000Z\",\n            \"updatedAt\": \"2023-04-15T10:30:00.000Z\"\n        },\n        {\n            \"_id\": \"60abc12345678abcdef0125\",\n            \"name\": \"Global Industries\",\n            \"slug\": \"global-industries\",\n            \"active\": true,\n            \"adminEmail\": \"admin@global-industries.com\",\n            \"createdAt\": \"2023-04-20T14:15:00.000Z\",\n            \"updatedAt\": \"2023-04-20T14:15:00.000Z\"\n        }\n    ]\n}"
+						}
+					]
 				},
 				{
 					"name": "Get Single Tenant",
