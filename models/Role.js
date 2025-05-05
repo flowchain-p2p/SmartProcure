@@ -5,11 +5,9 @@ const RoleSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true
-  },
-  code: {
+  },  code: {
     type: String,
     required: true,
-    unique: true,
     trim: true
   },
   description: {
@@ -49,5 +47,8 @@ RoleSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
 });
+
+// Create a compound index on code and tenantId to ensure uniqueness per tenant
+RoleSchema.index({ code: 1, tenantId: 1 }, { unique: true });
 
 module.exports = mongoose.model('Role', RoleSchema);

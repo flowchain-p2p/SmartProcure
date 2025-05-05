@@ -58,13 +58,28 @@ const getProducts = async (req, res) => {
         });
       }
     }
-    
-    // Support legacy filtering for backward compatibility
+      // Support legacy filtering for backward compatibility
     if (req.query.category) query.category = req.query.category;
     if (req.query.subCategory) query.subCategory = req.query.subCategory;
     if (req.query.brand) query.brand = req.query.brand;
     if (req.query.inStock) query.inStock = req.query.inStock === 'true';
     if (req.query.isPopular) query.isPopular = req.query.isPopular === 'true';
+    
+    // Support search functionality (case-insensitive regex search)
+    if (req.query.name) {
+      query.name = { $regex: req.query.name, $options: 'i' };
+    }
+    
+    // Support searching in description as well if specified
+    if (req.query.searchInDescription && req.query.name) {
+      query.$or = [
+        { name: { $regex: req.query.name, $options: 'i' } },
+        { description: { $regex: req.query.name, $options: 'i' } },
+        { shortDescription: { $regex: req.query.name, $options: 'i' } }
+      ];
+      // Remove the name filter since we're using $or
+      delete query.name;
+    }
     
     // Support pagination
     const page = parseInt(req.query.page, 10) || 1;
