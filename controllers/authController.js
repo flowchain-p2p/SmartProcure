@@ -113,11 +113,10 @@ exports.domainBasedLogin = async (req, res) => {
     }
 
     const { email, password } = req.body;
-    console.log(`Domain-based login attempt for email: ${email}`);
+    
     
     // Extract domain from email
-    const domain = extractDomain(email);
-    console.log(`Extracted domain: ${domain}`);
+    const domain = extractDomain(email);    
     
     if (!domain) {
       return res.status(400).json({
@@ -136,8 +135,6 @@ exports.domainBasedLogin = async (req, res) => {
         domain: domain
       });
     }
-    
-    console.log(`Tenant found: ${tenant.name} (${tenant._id})`);
 
     // Find user in this tenant
     const user = await User.findOne({ 
@@ -158,21 +155,19 @@ exports.domainBasedLogin = async (req, res) => {
       });
     }
     
-    console.log(`User found: ${user._id}, checking password match...`);
+    
 
     // Check if password matches
     const isMatch = await user.matchPassword(password);
-    console.log(`Password match result: ${isMatch}`);
     
-    if (!isMatch) {
-      console.log('Password did not match');
+    
+    if (!isMatch) {    
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'
       });
     }
 
-    console.log(`Domain login successful for user: ${user._id}`);
     // Send token response with tenant info
     sendTokenResponse(user, 200, res, tenant);
   } catch (error) {
