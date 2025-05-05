@@ -10,26 +10,27 @@ const {
   approveRequisition
 } = require('../controllers/requisitionController');
 const { identifyTenantFromToken } = require('../middleware/tenantMiddleware');
+const { hasPermission } = require('../middleware/permissionMiddleware');
 
 // Protect all routes with tenant identification
 router.use(identifyTenantFromToken);
 
 // Requisition routes
 router.route('/')
-  .get(getRequisitions)
-  .post(createRequisition);
+  .get(hasPermission('pr.view'), getRequisitions)
+  .post(hasPermission('pr.create'), createRequisition);
 
 router.route('/:id')
-  .get(getRequisition)
-  .put(updateRequisition)
-  .delete(deleteRequisition);
+  .get(hasPermission('pr.view'), getRequisition)
+  .put(hasPermission('pr.edit'), updateRequisition)
+  .delete(hasPermission('pr.delete'), deleteRequisition);
 
 // Special actions
 router.route('/:id/submit')
-  .patch(submitRequisition);
+  .patch(hasPermission('pr.submit'), submitRequisition);
 
 router.route('/:id/approve')
-  .patch(approveRequisition);
+  .patch(hasPermission('pr.approve'), approveRequisition);
 
 // If you want to add requisition item routes in the future,
 // you'll need to implement the controller functions first

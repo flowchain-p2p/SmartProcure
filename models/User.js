@@ -50,6 +50,14 @@ const UserSchema = new mongoose.Schema({
     type: [String],
     enum: ['Employee', 'Manager', 'CostCenterHead', 'ProcurementTeam', 'Finance', 'Administrator'],
     default: ['Employee']
+  },
+  roleIds: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Role'
+  }],
+  permissionCache: {
+    type: [String],
+    default: []
   }
 });
 

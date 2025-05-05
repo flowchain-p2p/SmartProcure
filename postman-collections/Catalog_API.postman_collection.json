@@ -1,0 +1,301 @@
+{
+  "info": {
+    "_postman_id": "876c5248-3b21-4e52-a9c1-f7c25e8a9d7e",
+    "name": "SmartProcure Catalog API",
+    "description": "Collection for testing the Catalog API endpoints of the Instatenders Multi-tenant application including catalog, subcatalog, brand, and name search",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login (Get Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "",
+                  "if (responseJson.token) {",
+                  "    pm.environment.set('authToken', responseJson.token);",
+                  "    console.log('Token saved to environment variable: authToken');",
+                  "}",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login to get the authentication token"
+          },
+          "response": []
+        }
+      ],
+      "description": "Authentication endpoints to get token for API access"
+    },
+    {
+      "name": "Catalogs",
+      "item": [
+        {
+          "name": "Get All Catalogs (Root Categories)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories?level=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories"
+              ],
+              "query": [
+                {
+                  "key": "level",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Get all root categories (level 0) which serve as catalogs"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Subcatalogs for a Catalog",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{catalogId}}/children",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                "{{catalogId}}",
+                "children"
+              ]
+            },
+            "description": "Get all subcatalogs (child categories) for a specific catalog (parent category)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints for retrieving catalog and subcatalog information"
+    },
+    {
+      "name": "Brands",
+      "item": [
+        {
+          "name": "Get All Brands",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/brands",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "brands"
+              ]
+            },
+            "description": "Get a distinct list of all brands available in products"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Brands by Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/brands?categoryId={{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "brands"
+              ],
+              "query": [
+                {
+                  "key": "categoryId",
+                  "value": "{{categoryId}}"
+                }
+              ]
+            },
+            "description": "Get a distinct list of brands filtered by a specific category"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints for retrieving brand information"
+    },
+    {
+      "name": "Product Search",
+      "item": [
+        {
+          "name": "Search Products by Name",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search?name={{searchTerm}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "{{searchTerm}}"
+                }
+              ]
+            },
+            "description": "Search for products by name using partial matching"
+          },
+          "response": []
+        },
+        {
+          "name": "Search Products by Name and Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search?name={{searchTerm}}&categoryId={{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "{{searchTerm}}"
+                },
+                {
+                  "key": "categoryId",
+                  "value": "{{categoryId}}"
+                }
+              ]
+            },
+            "description": "Search for products by name and within a specific category"
+          },
+          "response": []
+        },
+        {
+          "name": "Search Products by Name and Brand",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/products/search?name={{searchTerm}}&brand={{brandName}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "{{searchTerm}}"
+                },
+                {
+                  "key": "brand",
+                  "value": "{{brandName}}"
+                }
+              ]
+            },
+            "description": "Search for products by name and from a specific brand"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints for searching products by name with various filters"
+    }
+  ]
+}
