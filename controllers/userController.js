@@ -113,6 +113,13 @@ exports.updateUser = async (req, res) => {
     if (req.body.password === '') {
       delete req.body.password;
     }
+    
+    // If password is being updated, hash it properly
+    if (req.body.password) {
+      const bcrypt = require('bcryptjs');
+      const salt = await bcrypt.genSalt(10);
+      req.body.password = await bcrypt.hash(req.body.password, salt);
+    }
 
     user = await User.findByIdAndUpdate(req.params.id, req.body, {
       new: true,

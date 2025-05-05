@@ -69,25 +69,28 @@ exports.loginUser = async (req, res) => {
     // Check if user exists
     const user = await User.findOne({ email, tenantId: tenant._id }).select('+password');
 
-    if (!user) {
+    if (!user) {      
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'
       });
     }
-
     // Check if password matches
     const isMatch = await user.matchPassword(password);
+    
 
     if (!isMatch) {
+    
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'
       });
     }
 
+    
     sendTokenResponse(user, 200, res);
   } catch (error) {
+    
     res.status(500).json({
       success: false,
       error: error.message
@@ -105,13 +108,17 @@ exports.domainBasedLogin = async (req, res) => {
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Domain login validation errors:', errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { email, password } = req.body;
+    console.log(`Domain-based login attempt for email: ${email}`);
     
     // Extract domain from email
     const domain = extractDomain(email);
+    console.log(`Extracted domain: ${domain}`);
+    
     if (!domain) {
       return res.status(400).json({
         success: false,
@@ -120,13 +127,17 @@ exports.domainBasedLogin = async (req, res) => {
     }
     
     // Find tenant by domain
-    const tenant = await Tenant.findByDomain(domain);    if (!tenant) {
+    const tenant = await Tenant.findByDomain(domain);
+    if (!tenant) {
+      console.log(`No tenant found for domain: ${domain}`);
       return res.status(401).json({
         success: false,
         error: 'Your organization is not registered with us',
         domain: domain
       });
     }
+    
+    console.log(`Tenant found: ${tenant.name} (${tenant._id})`);
 
     // Find user in this tenant
     const user = await User.findOne({ 
@@ -137,6 +148,7 @@ exports.domainBasedLogin = async (req, res) => {
     // If user doesn't exist but domain is valid, consider auto-registration
     // or return specific error message
     if (!user) {
+      console.log(`User not found with email: ${email} in tenant: ${tenant._id}`);
       return res.status(401).json({
         success: false,
         error: 'User not found. Please register first',
@@ -145,19 +157,26 @@ exports.domainBasedLogin = async (req, res) => {
         validDomain: true // Indicates the domain is valid but user needs to register
       });
     }
+    
+    console.log(`User found: ${user._id}, checking password match...`);
 
     // Check if password matches
     const isMatch = await user.matchPassword(password);
+    console.log(`Password match result: ${isMatch}`);
+    
     if (!isMatch) {
+      console.log('Password did not match');
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'
       });
     }
 
+    console.log(`Domain login successful for user: ${user._id}`);
     // Send token response with tenant info
     sendTokenResponse(user, 200, res, tenant);
   } catch (error) {
+    console.error('Domain-based login error:', error);
     res.status(500).json({
       success: false,
       error: error.message
