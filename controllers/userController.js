@@ -157,16 +157,20 @@ exports.deleteUser = async (req, res) => {
       });
     }
 
-    await user.remove();
+    // Use findByIdAndDelete instead of the deprecated remove() method
+    await User.findByIdAndDelete(user._id);
 
     res.status(200).json({
       success: true,
       data: {}
     });
   } catch (error) {
+    console.error('Error deleting user:', error);
+    console.error(`User ID: ${req.params.id}, Tenant ID: ${req.tenant.id}`);
+    
     res.status(500).json({
       success: false,
-      message: 'Server Error'
+      message: 'Server Error: ' + error.message
     });
   }
 };
