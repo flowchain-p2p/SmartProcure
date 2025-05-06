@@ -87,12 +87,17 @@ const RequisitionItemSchema = new mongoose.Schema({
 RequisitionItemSchema.index({ requisitionId: 1 });
 RequisitionItemSchema.index({ tenantId: 1, catalogProductId: 1 });
 
-// Pre-save middleware to update 'updatedAt' and calculate totalPrice
-RequisitionItemSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  
+// Pre-validate middleware to calculate totalPrice before validation runs
+RequisitionItemSchema.pre('validate', function(next) {
   // Calculate total price based on quantity and unitPrice
   this.totalPrice = this.quantity * this.unitPrice;
+  
+  next();
+});
+
+// Pre-save middleware to update 'updatedAt' and validate fields
+RequisitionItemSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
   
   // Validation to ensure either catalog product or free-text fields are provided
   if (!this.catalogProductId && !this.name) {

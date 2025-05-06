@@ -58,8 +58,8 @@ const UserSchema = new mongoose.Schema({
   active: { type: Boolean, default: true },
   roles: {
     type: [String],
-    enum: ['Employee', 'Manager', 'CostCenterHead', 'ProcurementTeam', 'Finance', 'Administrator'],
-    default: ['Employee']
+    enum: ['Requester', 'Approver', 'CostCenterHead', 'Procurement Manager', 'Finance Analyst', 'Administrator'],
+    default: ['Requester']
   },
   roleIds: [{
     type: mongoose.Schema.Types.ObjectId,

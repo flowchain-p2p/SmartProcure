@@ -18,18 +18,23 @@ const RequisitionSchema = new mongoose.Schema({
   status: {
     type: String,
     required: true,
-    enum: ['Draft', 'Submitted', 'Under Review', 'Approved', 'Rejected', 'Cancelled'],
+    enum: ['Draft', 'Submitted', 'Pending Cost Center Approval', 'Under Review', 'Approved', 'Rejected', 'Cancelled'],
     default: 'Draft'
   },
   tenantId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Tenant',
     required: true
-  },  organizationId: {
+  },
+  organizationId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Organization',
     required: false,
     default: null // Making it truly optional with a default value
+  },
+  costCenterId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'CostCenter'
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
@@ -39,6 +44,21 @@ const RequisitionSchema = new mongoose.Schema({
   approvedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
+  },
+  currentApprover: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  approverRole: {
+    type: String
+  },
+  submittedAt: {
+    type: Date
+  },
+  approvalStage: {
+    type: String,
+    enum: ['Not Started', 'Cost Center', 'Department', 'Finance', 'Complete'],
+    default: 'Not Started'
   },
   department: {
     type: String,
@@ -90,6 +110,15 @@ RequisitionSchema.virtual('items', {
   localField: '_id',
   foreignField: 'requisitionId',
   justOne: false
+});
+
+// Virtual for getting approval history
+RequisitionSchema.virtual('approvalHistory', {
+  ref: 'ApprovalHistory',
+  localField: '_id',
+  foreignField: 'requisitionId',
+  justOne: false,
+  options: { sort: { actionDate: -1 } }
 });
 
 module.exports = mongoose.model('Requisition', RequisitionSchema);

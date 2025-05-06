@@ -77,16 +77,17 @@ exports.loginUser = async (req, res) => {
     }
     // Check if password matches
     const isMatch = await user.matchPassword(password);
-    
-
-    if (!isMatch) {
+        if (!isMatch) {
     
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'
       });
     }
-
+    
+    // Check if user is a cost center head
+    const { isUserCostCenterHead } = require('../utils/authUtils');
+    user.isCostCenterHead = await isUserCostCenterHead(user._id, tenant._id);
     
     sendTokenResponse(user, 200, res);
   } catch (error) {
@@ -189,9 +190,19 @@ exports.getMe = async (req, res) => {
     // User is already available from the middleware
     const user = req.user;
     
+    // Check if user is a cost center head
+    const { isUserCostCenterHead } = require('../utils/authUtils');
+    const isCostCenterHead = await isUserCostCenterHead(user._id, user.tenantId);
+    
+    // Add the cost center head status to the user object
+    const userData = {
+      ...user.toJSON(),
+      isCostCenterHead
+    };
+    
     res.status(200).json({
       success: true,
-      data: user
+      data: userData
     });
   } catch (error) {
     res.status(500).json({

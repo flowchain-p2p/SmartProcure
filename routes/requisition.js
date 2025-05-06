@@ -7,7 +7,14 @@ const {
   updateRequisition, 
   deleteRequisition, 
   submitRequisition, 
-  approveRequisition
+  approveRequisition,
+  getPendingCostCenterApprovals,
+  getPendingApprovals,
+  addRequisitionItem,
+  updateRequisitionItem,
+  deleteRequisitionItem,
+  getRequisitionItems,
+  getRequisitionItemById
 } = require('../controllers/requisitionController');
 const { identifyTenantFromToken } = require('../middleware/tenantMiddleware');
 const { hasPermission } = require('../middleware/permissionMiddleware');
@@ -32,7 +39,21 @@ router.route('/:id/submit')
 router.route('/:id/approve')
   .patch(hasPermission('pr.approve'), approveRequisition);
 
-// If you want to add requisition item routes in the future,
-// you'll need to implement the controller functions first
+// Requisition items routes
+router.route('/:id/items')
+  .get(hasPermission('pr.view'), getRequisitionItems)
+  .post(hasPermission('pr.edit'), addRequisitionItem);
+
+router.route('/items/:itemId')
+  .get(hasPermission('pr.view'), getRequisitionItemById)
+  .put(hasPermission('pr.edit'), updateRequisitionItem)
+  .delete(hasPermission('pr.edit'), deleteRequisitionItem);
+
+// Approval related routes
+router.route('/pending-approvals/cost-center')
+  .get(hasPermission('pr.approve'), getPendingCostCenterApprovals);
+
+router.route('/pending-approvals')
+  .get(hasPermission('pr.approve'), getPendingApprovals);
 
 module.exports = router;

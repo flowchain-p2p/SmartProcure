@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const CostCenter = require('../models/CostCenter');
 
 /**
  * Generate JWT token for authentication
@@ -7,12 +8,17 @@ const jwt = require('jsonwebtoken');
  * @returns {String} JWT token
  */
 exports.generateToken = (user, tenant) => {
-  // Create payload with user ID
+  // Create payload with user ID and tenant ID
   const payload = { id: user._id, tenantId: user.tenantId };
   
   // Add tenant slug if tenant object is provided
   if (tenant && tenant.slug) {
     payload.tenantSlug = tenant.slug;
+  }
+  
+  // Add cost center head status if available
+  if (user.isCostCenterHead !== undefined) {
+    payload.isCostCenterHead = user.isCostCenterHead;
   }
   
   const token = jwt.sign(
@@ -79,4 +85,19 @@ exports.sendTokenResponse = (user, statusCode, res, tenant = null) => {
     .status(statusCode)
     .cookie('jwt', token, options)
     .json(response);
+};
+
+/**
+ * Check if user is a cost center head
+ * @param {String} userId - User ID to check
+ * @param {String} tenantId - Tenant ID
+ * @returns {Promise<Boolean>} - True if user is a cost center head, false otherwise
+ */
+exports.isUserCostCenterHead = async (userId, tenantId) => {
+  const count = await CostCenter.countDocuments({
+    head: userId,
+    tenantId: tenantId
+  });
+  
+  return count > 0;
 };
