@@ -5,6 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const connectDatabase = require('./config/database');
+const { swaggerSpec, swaggerUi } = require('./config/swagger');
 
 // Load environment variables
 dotenv.config();
@@ -64,9 +65,24 @@ app.use('/api/v1/requisitions', requisitionRoutes);
 app.use('/api/v1/catalogs', catalogRoutes);
 app.use('/api/v1/locations', locationRoutes);
 
+// API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }'
+}));
+
+// JSON endpoint for Swagger spec
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
 // Default route for testing
 app.get('/', (req, res) => {
-  res.json({ message: 'Multi-Tenant Todo API is running' });
+  res.json({ 
+    message: 'Multi-Tenant Procurement API is running',
+    documentation: '/api-docs'
+  });
 });
 
 // Simple route for testing MongoDB connection

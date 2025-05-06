@@ -1,0 +1,394 @@
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Tenant:
+ *       type: object
+ *       required:
+ *         - name
+ *         - slug
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Auto-generated ID
+ *         name:
+ *           type: string
+ *           description: Organization name
+ *         slug:
+ *           type: string
+ *           description: URL-friendly unique identifier
+ *         domains:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Email domains associated with this tenant
+ *         isActive:
+ *           type: boolean
+ *           description: Whether tenant is active
+ *         logo:
+ *           type: string
+ *           description: Logo image URL
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: Creation timestamp
+ *
+ *     User:
+ *       type: object
+ *       required:
+ *         - firstName
+ *         - lastName
+ *         - email
+ *         - tenantId
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Auto-generated ID
+ *         firstName:
+ *           type: string
+ *         lastName:
+ *           type: string
+ *         email:
+ *           type: string
+ *           format: email
+ *         password:
+ *           type: string
+ *           format: password
+ *           description: Hashed password
+ *         tenantId:
+ *           type: string
+ *           description: Reference to tenant
+ *         role:
+ *           type: string
+ *           enum: [user, admin, superadmin]
+ *         locations:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Array of location IDs
+ *         defaultLocation:
+ *           type: string
+ *           description: Default location ID
+ *         isActive:
+ *           type: boolean
+ *           description: Whether user is active
+ *
+ *     Department:
+ *       type: object
+ *       required:
+ *         - name
+ *         - tenantId
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Auto-generated ID
+ *         name:
+ *           type: string
+ *           description: Department name
+ *         costCenterId:
+ *           type: string
+ *           description: Reference to cost center
+ *         tenantId:
+ *           type: string
+ *           description: Reference to tenant
+ *         manager:
+ *           type: string
+ *           description: ID of department manager
+ *
+ *     CostCenter:
+ *       type: object
+ *       required:
+ *         - code
+ *         - name
+ *         - tenantId
+ *         - head
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Auto-generated ID
+ *         code:
+ *           type: string
+ *           description: Cost center code
+ *         name:
+ *           type: string
+ *           description: Cost center name
+ *         budget:
+ *           type: number
+ *           description: Budget amount
+ *         tenantId:
+ *           type: string
+ *           description: Reference to tenant
+ *         head:
+ *           type: string
+ *           description: ID of cost center head
+ *         approvers:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               level:
+ *                 type: number
+ *
+ *     Category:
+ *       type: object
+ *       required:
+ *         - name
+ *         - tenantId
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Auto-generated ID
+ *         name:
+ *           type: string
+ *           description: Category name
+ *         description:
+ *           type: string
+ *           description: Category description
+ *         parentId:
+ *           type: string
+ *           description: Reference to parent category
+ *         path:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Full path from root category
+ *         tenantId:
+ *           type: string
+ *           description: Reference to tenant
+ *         isActive:
+ *           type: boolean
+ *           description: Whether category is active
+ *
+ *     Product:
+ *       type: object
+ *       required:
+ *         - name
+ *         - tenantId
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Auto-generated ID
+ *         name:
+ *           type: string
+ *           description: Product name
+ *         description:
+ *           type: string
+ *           description: Product description
+ *         categoryId:
+ *           type: string
+ *           description: Reference to category
+ *         price:
+ *           type: number
+ *           description: Price per unit
+ *         uom:
+ *           type: string
+ *           description: Unit of measure
+ *         tenantId:
+ *           type: string
+ *           description: Reference to tenant
+ *         isActive:
+ *           type: boolean
+ *           description: Whether product is active
+ *
+ *     Location:
+ *       type: object
+ *       required:
+ *         - name
+ *         - tenantId
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Auto-generated ID
+ *         name:
+ *           type: string
+ *           description: Location name
+ *         address:
+ *           type: string
+ *           description: Address
+ *         city:
+ *           type: string
+ *           description: City
+ *         state:
+ *           type: string
+ *           description: State/Province
+ *         country:
+ *           type: string
+ *           description: Country
+ *         zipCode:
+ *           type: string
+ *           description: Zip/Postal code
+ *         tenantId:
+ *           type: string
+ *           description: Reference to tenant
+ *         isActive:
+ *           type: boolean
+ *           description: Whether location is active
+ *
+ *     UnitOfMeasure:
+ *       type: object
+ *       required:
+ *         - name
+ *         - abbreviation
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Auto-generated ID
+ *         name:
+ *           type: string
+ *           description: Full name of the unit
+ *         abbreviation:
+ *           type: string
+ *           description: Short form or symbol
+ *         description:
+ *           type: string
+ *           description: Additional description
+ *         tenantId:
+ *           type: string
+ *           description: Reference to tenant
+ *         isActive:
+ *           type: boolean
+ *           description: Whether unit is active
+ *
+ *     Requisition:
+ *       type: object
+ *       required:
+ *         - title
+ *         - tenantId
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Auto-generated ID
+ *         title:
+ *           type: string
+ *           description: Requisition title
+ *         description:
+ *           type: string
+ *           description: Requisition description
+ *         status:
+ *           type: string
+ *           enum: [draft, submitted, approved, rejected, cancelled]
+ *         tenantId:
+ *           type: string
+ *           description: Reference to tenant
+ *         createdBy:
+ *           type: string
+ *           description: User who created the requisition
+ *         organizationId:
+ *           type: string
+ *           description: Reference to organization/location
+ *         department:
+ *           type: string
+ *           description: Reference to department
+ *         costCenter:
+ *           type: string
+ *           description: Reference to cost center
+ *         items:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/RequisitionItem'
+ *         totalAmount:
+ *           type: number
+ *           description: Total amount of all items
+ *         approvalHistory:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               action:
+ *                 type: string
+ *                 enum: [approve, reject]
+ *               comments:
+ *                 type: string
+ *               timestamp:
+ *                 type: string
+ *                 format: date-time
+ *
+ *     RequisitionItem:
+ *       type: object
+ *       required:
+ *         - productId
+ *         - quantity
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Auto-generated ID
+ *         productId:
+ *           type: string
+ *           description: Reference to product
+ *         quantity:
+ *           type: number
+ *           description: Quantity requested
+ *         unitPrice:
+ *           type: number
+ *           description: Price per unit
+ *         totalPrice:
+ *           type: number
+ *           description: Total price (quantity * unitPrice)
+ *         uom:
+ *           type: string
+ *           description: Unit of measure
+ *         remarks:
+ *           type: string
+ *           description: Additional notes or remarks
+ *
+ *   responses:
+ *     UnauthorizedError:
+ *       description: Authentication failed
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               success:
+ *                 type: boolean
+ *                 example: false
+ *               error:
+ *                 type: string
+ *                 example: "Not authorized to access this route"
+ *
+ *     BadRequestError:
+ *       description: Invalid request parameters
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               success:
+ *                 type: boolean
+ *                 example: false
+ *               error:
+ *                 type: string
+ *                 example: "Invalid input data"
+ *
+ *     NotFoundError:
+ *       description: Resource not found
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               success:
+ *                 type: boolean
+ *                 example: false
+ *               error:
+ *                 type: string
+ *                 example: "Resource not found"
+ *
+ *     ForbiddenError:
+ *       description: Permission denied
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               success:
+ *                 type: boolean
+ *                 example: false
+ *               error:
+ *                 type: string
+ *                 example: "Permission denied"
+ */

@@ -1,0 +1,662 @@
+openapi: 3.0.0
+info:
+  title: Instatenders Multi-tenant API
+  version: 1.0.0
+  description: API documentation for Instatenders multi-tenant procurement platform
+  contact:
+    name: Support Team
+    email: support@instatenders.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: /api/v1
+    description: Development server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Tenant:
+      type: object
+      required:
+        - name
+        - slug
+      properties:
+        _id:
+          type: string
+          description: Auto-generated ID
+        name:
+          type: string
+          description: Organization name
+        slug:
+          type: string
+          description: URL-friendly unique identifier
+        domains:
+          type: array
+          items:
+            type: string
+          description: Email domains associated with this tenant
+        isActive:
+          type: boolean
+          description: Whether tenant is active
+        logo:
+          type: string
+          description: Logo image URL
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+
+    User:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - tenantId
+      properties:
+        _id:
+          type: string
+          description: Auto-generated ID
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          description: Hashed password
+        tenantId:
+          type: string
+          description: Reference to tenant
+        role:
+          type: string
+          enum: [user, admin, superadmin]
+        locations:
+          type: array
+          items:
+            type: string
+          description: Array of location IDs
+        defaultLocation:
+          type: string
+          description: Default location ID
+        isActive:
+          type: boolean
+          description: Whether user is active
+
+    Department:
+      type: object
+      required:
+        - name
+        - tenantId
+      properties:
+        _id:
+          type: string
+          description: Auto-generated ID
+        name:
+          type: string
+          description: Department name
+        costCenterId:
+          type: string
+          description: Reference to cost center
+        tenantId:
+          type: string
+          description: Reference to tenant
+        manager:
+          type: string
+          description: ID of department manager
+
+    CostCenter:
+      type: object
+      required:
+        - code
+        - name
+        - tenantId
+        - head
+      properties:
+        _id:
+          type: string
+          description: Auto-generated ID
+        code:
+          type: string
+          description: Cost center code
+        name:
+          type: string
+          description: Cost center name
+        budget:
+          type: number
+          description: Budget amount
+        tenantId:
+          type: string
+          description: Reference to tenant
+        head:
+          type: string
+          description: ID of cost center head
+        approvers:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              level:
+                type: number
+
+    Product:
+      type: object
+      required:
+        - name
+        - tenantId
+      properties:
+        _id:
+          type: string
+          description: Auto-generated ID
+        name:
+          type: string
+          description: Product name
+        description:
+          type: string
+          description: Product description
+        categoryId:
+          type: string
+          description: Reference to category
+        price:
+          type: number
+          description: Price per unit
+        uom:
+          type: string
+          description: Unit of measure
+        tenantId:
+          type: string
+          description: Reference to tenant
+        isActive:
+          type: boolean
+          description: Whether product is active
+
+    Category:
+      type: object
+      required:
+        - name
+        - tenantId
+      properties:
+        _id:
+          type: string
+          description: Auto-generated ID
+        name:
+          type: string
+          description: Category name
+        description:
+          type: string
+          description: Category description
+        parentId:
+          type: string
+          description: Reference to parent category
+        path:
+          type: array
+          items:
+            type: string
+          description: Full path from root category
+        tenantId:
+          type: string
+          description: Reference to tenant
+        isActive:
+          type: boolean
+          description: Whether category is active
+
+    Location:
+      type: object
+      required:
+        - name
+        - tenantId
+      properties:
+        _id:
+          type: string
+          description: Auto-generated ID
+        name:
+          type: string
+          description: Location name
+        address:
+          type: object
+          properties:
+            line1:
+              type: string
+            line2:
+              type: string
+            city:
+              type: string
+            state:
+              type: string
+            postalCode:
+              type: string
+            country:
+              type: string
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+        tenantId:
+          type: string
+          description: Reference to tenant
+        isDefault:
+          type: boolean
+          description: Whether this is the default location
+
+    Requisition:
+      type: object
+      required:
+        - title
+        - tenantId
+      properties:
+        _id:
+          type: string
+          description: Auto-generated ID
+        title:
+          type: string
+          description: Requisition title
+        description:
+          type: string
+          description: Requisition description
+        status:
+          type: string
+          enum: [draft, submitted, approved, rejected, cancelled]
+        tenantId:
+          type: string
+          description: Reference to tenant
+        createdBy:
+          type: string
+          description: User who created the requisition
+        organizationId:
+          type: string
+          description: Reference to organization/location
+        department:
+          type: string
+          description: Reference to department
+        costCenter:
+          type: string
+          description: Reference to cost center
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequisitionItem'
+        totalAmount:
+          type: number
+          description: Total amount of all items
+        approvalHistory:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              action:
+                type: string
+                enum: [approve, reject]
+              comments:
+                type: string
+              timestamp:
+                type: string
+                format: date-time
+
+    RequisitionItem:
+      type: object
+      required:
+        - productId
+        - quantity
+      properties:
+        _id:
+          type: string
+          description: Auto-generated ID
+        productId:
+          type: string
+          description: Reference to product
+        quantity:
+          type: number
+          description: Quantity requested
+        unitPrice:
+          type: number
+          description: Price per unit
+        totalPrice:
+          type: number
+          description: Total price (quantity * unitPrice)
+        uom:
+          type: string
+          description: Unit of measure
+        remarks:
+          type: string
+          description: Additional notes or remarks
+
+    UnitOfMeasure:
+      type: object
+      required:
+        - name
+        - abbreviation
+      properties:
+        _id:
+          type: string
+          description: Auto-generated ID
+        name:
+          type: string
+          description: Full name of the unit
+        abbreviation:
+          type: string
+          description: Short form or symbol
+        description:
+          type: string
+          description: Additional description
+        tenantId:
+          type: string
+          description: Reference to tenant
+        isActive:
+          type: boolean
+          description: Whether unit is active
+
+  responses:
+    UnauthorizedError:
+      description: Authentication failed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: "Not authorized to access this route"
+
+    BadRequestError:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: "Invalid input data"
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: "Resource not found"
+
+    ForbiddenError:
+      description: Permission denied
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: "Permission denied"
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Auth
+    description: Authentication operations
+  - name: Tenants
+    description: Tenant management operations
+  - name: Users
+    description: User management operations
+  - name: Departments
+    description: Department management operations
+  - name: CostCenters
+    description: Cost Center management operations
+  - name: Categories
+    description: Product category operations
+  - name: Products
+    description: Product management operations
+  - name: Locations
+    description: Location management operations
+  - name: UnitOfMeasure
+    description: Units of Measure operations
+  - name: Requisitions
+    description: Requisition management operations
+  - name: Catalogs
+    description: Catalog management operations
+
+paths:
+  /auth/register/{tenantSlug}:
+    post:
+      summary: Register a new user for a specific tenant
+      tags: [Auth]
+      security: []
+      parameters:
+        - name: tenantSlug
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The tenant's slug
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - firstName
+                - lastName
+                - email
+                - password
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        201:
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+
+  /auth/login/{tenantSlug}:
+    post:
+      summary: Log in a user for a specific tenant
+      tags: [Auth]
+      security: []
+      parameters:
+        - name: tenantSlug
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The tenant's slug
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        200:
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /auth/me:
+    get:
+      summary: Get current logged in user
+      tags: [Auth]
+      responses:
+        200:
+          description: Current user information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/User'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /auth/logout:
+    get:
+      summary: Logout current user
+      tags: [Auth]
+      responses:
+        200:
+          description: User logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+  /requisitions:
+    get:
+      summary: Get all requisitions for the current tenant
+      tags: [Requisitions]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+          description: Filter by requisition status
+        - name: createdBy
+          in: query
+          schema:
+            type: string
+          description: Filter by creator user ID
+        - name: organizationId
+          in: query
+          schema:
+            type: string
+          description: Filter by organization ID
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by start date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by end date
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search term for requisitions
+      responses:
+        200:
+          description: List of requisitions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Requisition'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+    post:
+      summary: Create a new requisition
+      tags: [Requisitions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Requisition'
+      responses:
+        201:
+          description: Created requisition
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Requisition'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+# ... More paths will be added for other endpoints ...
