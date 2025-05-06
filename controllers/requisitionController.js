@@ -19,12 +19,17 @@ const getRequisitions = async (req, res) => {
     // Filter by status if provided
     if (req.query.status) {
       query.status = req.query.status;
-    }
-
-    // Filter by createdBy if provided
+    }    // Filter by createdBy if provided
     if (req.query.createdBy) {
       query.createdBy = req.query.createdBy;
-    }    // Filter by organization if provided and valid
+    }
+    
+    // Filter by currentApprover if provided
+    if (req.query.currentApprover) {
+      query.currentApprover = req.query.currentApprover;
+    }
+    
+    // Filter by organization if provided and valid
     if (req.query.organizationId && mongoose.Types.ObjectId.isValid(req.query.organizationId)) {
       query.organizationId = req.query.organizationId;
     }
@@ -435,7 +440,7 @@ const submitRequisition = async (req, res) => {
     requisition = await Requisition.findByIdAndUpdate(
       req.params.id,
       {
-        status: 'Pending Cost Center Approval',
+        status: 'Pending Approval',
         submittedAt: Date.now(),
         currentApprover: approverInfo.currentApprover,
         approvalStage: approverInfo.approvalStage,
@@ -451,7 +456,7 @@ const submitRequisition = async (req, res) => {
       actionType: 'Submitted',
       actionBy: req.user.id,
       statusFrom: 'Draft',
-      statusTo: 'Pending Cost Center Approval',
+      statusTo: 'Pending Approval',
       comments: req.body.comments || 'Submitted for approval',
       tenantId: req.tenant.id
     });

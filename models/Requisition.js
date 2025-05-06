@@ -18,7 +18,7 @@ const RequisitionSchema = new mongoose.Schema({
   status: {
     type: String,
     required: true,
-    enum: ['Draft', 'Submitted', 'Pending Cost Center Approval', 'Under Review', 'Approved', 'Rejected', 'Cancelled'],
+    enum: ['Draft', 'Submitted', 'Pending Approval', 'Approved', 'Rejected', 'Cancelled'],
     default: 'Draft'
   },
   tenantId: {
