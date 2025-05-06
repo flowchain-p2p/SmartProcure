@@ -62,8 +62,7 @@
     {
       "name": "Catalogs",
       "item": [
-        {
-          "name": "Get All Catalogs (Root Categories)",
+        {      "name": "Get All Catalogs (Root Categories)",
           "request": {
             "method": "GET",
             "header": [
@@ -73,28 +72,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/categories?level=0",
+              "raw": "{{baseUrl}}/api/v1/catalogs",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "categories"
-              ],
-              "query": [
-                {
-                  "key": "level",
-                  "value": "0"
-                }
+                "catalogs"
               ]
             },
             "description": "Get all root categories (level 0) which serve as catalogs"
           },
           "response": []
         },
-        {
-          "name": "Get Subcatalogs for a Catalog",
+        {          "name": "Get Subcatalogs for a Catalog",
           "request": {
             "method": "GET",
             "header": [
@@ -104,16 +96,16 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/categories/{{catalogId}}/children",
+              "raw": "{{baseUrl}}/api/v1/catalogs/{{catalogId}}/subcatalogs",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "categories",
+                "catalogs",
                 "{{catalogId}}",
-                "children"
+                "subcatalogs"
               ]
             },
             "description": "Get all subcatalogs (child categories) for a specific catalog (parent category)"
@@ -126,8 +118,7 @@
     {
       "name": "Brands",
       "item": [
-        {
-          "name": "Get All Brands",
+        {          "name": "Get All Brands",
           "request": {
             "method": "GET",
             "header": [
@@ -137,14 +128,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/products/brands",
+              "raw": "{{baseUrl}}/api/v1/catalogs/brands",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "products",
+                "catalogs",
                 "brands"
               ]
             },
@@ -152,8 +143,7 @@
           },
           "response": []
         },
-        {
-          "name": "Get Brands by Category",
+        {          "name": "Get Brands by Category",
           "request": {
             "method": "GET",
             "header": [
@@ -163,14 +153,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/products/brands?categoryId={{categoryId}}",
+              "raw": "{{baseUrl}}/api/v1/catalogs/brands?categoryId={{categoryId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "products",
+                "catalogs",
                 "brands"
               ],
               "query": [
@@ -188,7 +178,7 @@
       "description": "Endpoints for retrieving brand information"
     },
     {
-      "name": "Product Search",
+    "name": "Product Search",
       "item": [
         {
           "name": "Search Products by Name",
@@ -201,13 +191,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/products/search?name={{searchTerm}}",
+              "raw": "{{baseUrl}}/api/v1/catalogs/products/search?name={{searchTerm}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "catalogs",
                 "products",
                 "search"
               ],
@@ -222,8 +213,7 @@
           },
           "response": []
         },
-        {
-          "name": "Search Products by Name and Category",
+        {          "name": "Search Products by Name and Category",
           "request": {
             "method": "GET",
             "header": [
@@ -233,13 +223,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/products/search?name={{searchTerm}}&categoryId={{categoryId}}",
+              "raw": "{{baseUrl}}/api/v1/catalogs/products/search?name={{searchTerm}}&categoryId={{categoryId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "catalogs",
                 "products",
                 "search"
               ],
@@ -258,8 +249,7 @@
           },
           "response": []
         },
-        {
-          "name": "Search Products by Name and Brand",
+        {          "name": "Search Products by Name and Brand",
           "request": {
             "method": "GET",
             "header": [
@@ -269,13 +259,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/products/search?name={{searchTerm}}&brand={{brandName}}",
+              "raw": "{{baseUrl}}/api/v1/catalogs/products/search?name={{searchTerm}}&brand={{brandName}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "catalogs",
                 "products",
                 "search"
               ],

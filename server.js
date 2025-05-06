@@ -47,6 +47,7 @@ const categoryRoutes = require('./routes/category');
 const uomRoutes = require('./routes/uom');
 const requisitionRoutes = require('./routes/requisition');
 const catalogRoutes = require('./routes/catalog');
+const locationRoutes = require('./routes/locations');
 
 // Mount routers
 app.use('/api/v1/auth', auth);
@@ -61,6 +62,7 @@ app.use('/api/v1/categories', categoryRoutes);
 app.use('/api/v1/uom', uomRoutes);
 app.use('/api/v1/requisitions', requisitionRoutes);
 app.use('/api/v1/catalogs', catalogRoutes);
+app.use('/api/v1/locations', locationRoutes);
 
 // Default route for testing
 app.get('/', (req, res) => {

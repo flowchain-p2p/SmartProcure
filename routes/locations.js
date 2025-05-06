@@ -11,13 +11,13 @@ const {
 // Import middleware
 const { protect, authorize } = require('../middleware/authMiddleware');
 const { checkPermission } = require('../middleware/permissionMiddleware');
-const { setTenantId } = require('../middleware/tenantMiddleware');
+const { identifyTenantFromToken } = require('../middleware/tenantMiddleware');
 
 const router = express.Router();
 
 // Apply middleware to all routes
 router.use(protect);
-router.use(setTenantId);
+router.use(identifyTenantFromToken);
 
 // Location routes
 router
