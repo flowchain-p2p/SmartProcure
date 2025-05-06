@@ -1,14 +1,52 @@
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
-
-// Load OpenAPI specification from YAML file
-const YAML = require('yamljs');
 const path = require('path');
+const fs = require('fs');
 
-// Load the OpenAPI specification
-const swaggerOptions = YAML.load(path.join(__dirname, '../docs/openapi.yaml'));
+// Swagger configuration options
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Instatenders Multi-tenant API',
+      version: '1.0.0',
+      description: 'API documentation for Instatenders multi-tenant procurement platform',
+      contact: {
+        name: 'Support Team',
+        email: 'support@instatenders.com'
+      },
+      license: {
+        name: 'MIT',
+        url: 'https://opensource.org/licenses/MIT'
+      }
+    },
+    servers: [
+      {
+        url: '/api/v1',
+        description: 'Development server'
+      }
+    ],
+    // Add security scheme definition
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
+    }
+  },
+  // Path to the API docs - include only JS files
+  apis: [
+    path.join(__dirname, '../docs/components.js'),
+    path.join(__dirname, '../docs/*-routes.js'),
+    path.join(__dirname, '../routes/*.js')
+  ]
+};
 
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
+// Initialize swagger-jsdoc
+const swaggerSpec = swaggerJsdoc(options);
 
 module.exports = {
   swaggerSpec,

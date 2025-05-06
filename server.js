@@ -65,10 +65,11 @@ app.use('/api/v1/requisitions', requisitionRoutes);
 app.use('/api/v1/catalogs', catalogRoutes);
 app.use('/api/v1/locations', locationRoutes);
 
-// API Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+// Set up Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { 
   explorer: true,
-  customCss: '.swagger-ui .topbar { display: none }'
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: "Instatenders API Documentation"
 }));
 
 // JSON endpoint for Swagger spec
