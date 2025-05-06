@@ -34,6 +34,11 @@ const TenantSchema = new mongoose.Schema({
     minlength: 6,
     select: false
   },
+  // Added defaultLocationId to keep track of tenant's default location
+  defaultLocationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Location'
+  },
   active: {
     type: Boolean,
     default: true

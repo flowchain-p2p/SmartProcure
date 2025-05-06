@@ -7,7 +7,10 @@ const {
   getUser,
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  setUserDefaultLocation,
+  manageUserLocations,
+  getUserLocations
 } = require('../controllers/userController');
 
 // All routes require authentication
@@ -25,5 +28,13 @@ router.route('/:id')
   .get(getUser)
   .put(updateUser)
   .delete(deleteUser);
+
+// User location management routes
+router.route('/:id/defaultLocation')
+  .put(setUserDefaultLocation);
+
+router.route('/:id/locations')
+  .get(getUserLocations)
+  .put(manageUserLocations);
 
 module.exports = router;

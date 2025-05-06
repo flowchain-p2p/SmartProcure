@@ -25,6 +25,16 @@ const UserSchema = new mongoose.Schema({
     ref: 'Tenant',
     required: true
   },
+  // Add default location for the user
+  defaultLocationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Location'
+  },
+  // Add preferred locations for the user
+  preferredLocations: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Location'
+  }],
   authType: {
     type: String,
     enum: ['local', 'azure', 'okta'],
