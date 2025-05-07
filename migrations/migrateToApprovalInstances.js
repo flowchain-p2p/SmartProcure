@@ -20,7 +20,7 @@ const CostCenter = require('../models/CostCenter');
 const ApprovalWorkflow = require('../models/ApprovalWorkflow');
 
 // Connect to MongoDB using the same connection string as in database.js
-mongoose.connect("mongodb://admin:admin@localhost:27017/SmartProcureDB?authSource=admin", {
+mongoose.connect("mongodb://admin:admin@localhost:27017/SmartProcureDB", {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })

@@ -1,4 +1,4 @@
-const jose = require('jose');
+// Using dynamic import for jose as it's an ES Module
 const CostCenter = require('../models/CostCenter');
 const User = require('../models/User');
 
@@ -11,6 +11,9 @@ let secretKey;
  * @returns {String} JWT token
  */
 exports.generateToken = async (user, tenant) => {
+  // Dynamic import for jose (ES Module)
+  const { SignJWT } = await import('jose');
+  
   if (!secretKey) {
     secretKey = new TextEncoder().encode(process.env.JWT_SECRET);
   }
@@ -33,7 +36,7 @@ exports.generateToken = async (user, tenant) => {
   }
 
   // Sign the JWT
-  const token = await new jose.SignJWT(payload)
+  const token = await new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('1d')
@@ -123,11 +126,14 @@ exports.isUserCostCenterHead = async (userId, tenantId) => {
  */
 exports.verifyToken = async (token) => {
   try {
+    // Dynamic import for jose (ES Module)
+    const { jwtVerify } = await import('jose');
+    
     if (!secretKey) {
       secretKey = new TextEncoder().encode(process.env.JWT_SECRET);
     }
 
-    const { payload } = await jose.jwtVerify(token, secretKey);
+    const { payload } = await jwtVerify(token, secretKey);
     
     // Ensure ID and tenantId are strings, not buffer objects
     if (payload.id && typeof payload.id !== 'string') {

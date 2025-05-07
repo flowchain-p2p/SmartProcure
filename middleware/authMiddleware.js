@@ -1,4 +1,4 @@
-const jose = require('jose');
+// Using dynamic import for jose as it's an ES Module
 const User = require('../models/User');
 
 /**
@@ -22,10 +22,13 @@ exports.protect = async (req, res, next) => {
       error: 'Not authorized to access this route'
     });
   }
-
-  try {    // Verify token using jose
+  try {
+    // Dynamic import for jose (ES Module)
+    const { jwtVerify } = await import('jose');
+    
+    // Verify token using jose
     const secretKey = new TextEncoder().encode(process.env.JWT_SECRET);
-    const { payload } = await jose.jwtVerify(token, secretKey);
+    const { payload } = await jwtVerify(token, secretKey);
 
     // Ensure we have a string ID
     const userId = String(payload.id);

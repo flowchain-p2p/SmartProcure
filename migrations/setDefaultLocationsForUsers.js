@@ -10,7 +10,7 @@ const Location = require('../models/Location');
 const colors = require('colors');
 
 // Connect to database
-mongoose.connect("mongodb://admin:admin@localhost:27017/SmartProcureDB?authSource=admin");
+mongoose.connect("mongodb://admin:admin@localhost:27017/SmartProcureDB");
 
 const setDefaultLocationsForUsers = async () => {
   try {

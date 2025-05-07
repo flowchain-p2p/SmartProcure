@@ -1,0 +1,41 @@
+Refer #codebase
+
+Generate seed data under the 'utils' folder for testing a MongoDB application.
+
+Models are defined in the 'models' folder.
+
+1. Create a tenant named "MRF".
+
+2. Set the tenant admin email address to "admin@mrf.com".
+
+3. default password for all user is Password@123 , ( Always hased befoere save , refe existing user Creation logic if needed)
+
+3. Create 6 user . Each user should:
+   - Have the default role (refer to the 'system role' definition in the models).
+   - Refer utils/seedPermissionsAndRoles.js for default permissions mappings 
+   - A cost center (generate a few distinct cost center names, e.g., "Manufacturing Operations", "Sales & Marketing", "Corporate Administration", "Research & Development").
+   - A department (generate a few distinct department names, e.g., "Engineering Department", "Marketing Department", "Finance Department", "Human Resources", "IT Department", "Production Department", "Logistics Department").
+   - A location (since the current location is Chennai, Tamil Nadu, India, use "Chennai" and perhaps one or two other plausible locations within India, e.g., "Bangalore", "Mumbai", "Delhi").
+
+4. create two supplier 
+
+
+4. Create 10 category documents relevant to a purchase P2P system. Examples include:
+   - IT
+   - MRO (Maintenance, Repair, and Operations)
+   - Office Supplies
+   - Travel
+   - Marketing
+   - HR
+   - Finance
+   - Operations
+   - Logistics
+   - Research & Development
+
+5. Create products 5-7 product in each categories. For each product, ensure you include:
+   - A name (e.g., "Laptop", "Wrench Set", "Printer Paper").
+   - A reference to one of the created categories.
+
+Ensure the Create seed.js so that i can run and start testing this 
+
+Do not modify any existing code. The generated seed data should be placed within a new file or set of files under the 'util' folder.

@@ -1,4 +1,4 @@
-const jose = require('jose');
+// Using dynamic import for jose as it's an ES Module
 const Tenant = require('../models/Tenant');
 const User = require('../models/User');
 const { extractDomain } = require('../utils/domainUtils');
@@ -23,10 +23,13 @@ exports.identifyTenantFromToken = async (req, res, next) => {
       success: false,
       error: 'Not authorized to access this route'
     });
-  }
-  try {    // Verify token using jose
+  }  try {
+    // Dynamic import for jose (ES Module)
+    const { jwtVerify } = await import('jose');
+    
+    // Verify token using jose
     const secretKey = new TextEncoder().encode(process.env.JWT_SECRET);
-    const { payload } = await jose.jwtVerify(token, secretKey);
+    const { payload } = await jwtVerify(token, secretKey);
       // Simplify ID handling - convert to string and use Mongoose's ObjectId conversion
     const userId = String(payload.id);
     

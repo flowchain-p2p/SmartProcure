@@ -8,7 +8,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // Connect to MongoDB
-mongoose.connect("mongodb://admin:admin@localhost:27017/SmartProcureDB?authSource=admin");
+mongoose.connect("mongodb://admin:admin@localhost:27017/SmartProcureDB");
 
 const permissionsList = [
   { code: 'pr.create', name: 'Create PR', description: 'Create purchase requisitions', category: 'PR Management' },
@@ -30,6 +30,9 @@ const permissionsList = [
   { code: 'supplier.create', name: 'Create Supplier', description: 'Create new suppliers', category: 'Supplier Management' },
   { code: 'supplier.view', name: 'View Supplier', description: 'View supplier information', category: 'Supplier Management' },
   { code: 'supplier.edit', name: 'Edit Supplier', description: 'Edit supplier information', category: 'Supplier Management' },
+  { code: 'supplier.portal_access', name: 'Supplier Portal Access', description: 'Access supplier portal and view assigned POs', category: 'Supplier Management' },
+  { code: 'supplier.respond_po', name: 'Respond to PO', description: 'Ability to accept or reject purchase orders', category: 'Supplier Management' },
+  { code: 'supplier.update_profile', name: 'Update Supplier Profile', description: 'Update own supplier profile information', category: 'Supplier Management' },
   { code: 'invoice.match', name: 'Match Invoice', description: 'Match invoices with purchase orders', category: 'Finance Operations' },
   { code: 'payment.release', name: 'Release Payment', description: 'Release payments to suppliers', category: 'Finance Operations' },
   { code: 'payment.view_schedule', name: 'View Payment Schedule', description: 'View payment schedules', category: 'Finance Operations' },
@@ -71,6 +74,17 @@ const roleDefinitions = [
     code: 'administrator',
     description: 'Full access to all system functions',
     permissions: ['user.manage', 'role.manage', 'audit.view', 'settings.manage', 'budget.override', 'payment.release']
+  },
+  {
+    name: 'Supplier',
+    code: 'supplier',
+    description: 'External supplier with access to supplier portal',
+    permissions: [
+      'supplier.portal_access',
+      'supplier.respond_po',
+      'supplier.update_profile',
+      'po.view'
+    ]
   }
 ];
 
