@@ -1,0 +1,335 @@
+const mongoose = require('mongoose');
+const Vendor = require('../models/Vendor');
+
+// @desc    Get all vendors for a tenant
+// @route   GET /api/v1/vendors
+// @access  Private
+const getVendors = async (req, res) => {
+  try {
+    // Get tenant ID from request (added by tenant middleware)
+    const tenantId = req.tenant._id;
+    
+    // Basic filtering
+    const query = { tenantId };
+    
+    // Add search functionality
+    if (req.query.search) {
+      query.$or = [
+        { name: { $regex: req.query.search, $options: 'i' } },
+        { code: { $regex: req.query.search, $options: 'i' } },
+        { contactPerson: { $regex: req.query.search, $options: 'i' } },
+        { email: { $regex: req.query.search, $options: 'i' } }
+      ];
+    }
+
+    // Add status filtering
+    if (req.query.status) {
+      query.status = req.query.status;
+    }
+
+    // Add category filtering
+    if (req.query.category) {
+      query.category = req.query.category;
+    }
+
+    // Add preferred filtering
+    if (req.query.isPreferred) {
+      query.isPreferred = req.query.isPreferred === 'true';
+    }
+
+    // Pagination
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const startIndex = (page - 1) * limit;
+    
+    const vendors = await Vendor.find(query)
+      .skip(startIndex)
+      .limit(limit)
+      .sort({ name: 1 });
+
+    // Get total count for pagination
+    const total = await Vendor.countDocuments(query);
+
+    // Build pagination object
+    const pagination = {
+      page,
+      pages: Math.ceil(total / limit),
+      limit,
+      total
+    };
+
+    res.status(200).json({
+      success: true,
+      count: vendors.length,
+      pagination,
+      data: vendors
+    });
+  } catch (error) {
+    console.error('Error fetching vendors:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching vendors',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Get single vendor
+// @route   GET /api/v1/vendors/:id
+// @access  Private
+const getVendor = async (req, res) => {
+  try {
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid vendor ID format'
+      });
+    }
+    
+    const tenantId = req.tenant._id;
+    
+    const vendor = await Vendor.findOne({ 
+      _id: req.params.id, 
+      tenantId 
+    });    
+    
+    if (!vendor) {
+      return res.status(404).json({
+        success: false,
+        message: `Vendor not found with id of ${req.params.id}`
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: vendor
+    });
+  } catch (error) {
+    console.error('Error fetching vendor:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching vendor',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Create new vendor
+// @route   POST /api/v1/vendors
+// @access  Private
+const createVendor = async (req, res) => {
+  try {
+    // Add tenantId from authenticated user's tenant
+    req.body.tenantId = req.tenant._id;
+    req.body.createdBy = req.user._id;
+
+    // Validate if vendor code already exists for this tenant
+    if (req.body.code) {
+      const existingVendor = await Vendor.findOne({
+        tenantId: req.tenant._id,
+        code: req.body.code
+      });
+
+      if (existingVendor) {
+        return res.status(400).json({
+          success: false,
+          message: `Vendor with code ${req.body.code} already exists for this tenant`
+        });
+      }
+    }
+    
+    const vendor = await Vendor.create(req.body);
+
+    res.status(201).json({
+      success: true,
+      data: vendor
+    });
+  } catch (error) {
+    console.error('Error creating vendor:', error);
+    
+    // Mongoose validation error
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      
+      return res.status(400).json({
+        success: false,
+        message: 'Validation Error',
+        errors: messages
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Error creating vendor',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Update vendor
+// @route   PUT /api/v1/vendors/:id
+// @access  Private
+const updateVendor = async (req, res) => {
+  try {
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid vendor ID format'
+      });
+    }
+    
+    const tenantId = req.tenant._id;
+    
+    // Check if vendor exists
+    let vendor = await Vendor.findOne({ 
+      _id: req.params.id, 
+      tenantId 
+    });
+    
+    if (!vendor) {
+      return res.status(404).json({
+        success: false,
+        message: `Vendor not found with id of ${req.params.id}`
+      });
+    }
+
+    // If updating code, check it's not duplicated
+    if (req.body.code && req.body.code !== vendor.code) {
+      const existingVendor = await Vendor.findOne({
+        tenantId,
+        code: req.body.code,
+        _id: { $ne: req.params.id }
+      });
+
+      if (existingVendor) {
+        return res.status(400).json({
+          success: false,
+          message: `Vendor with code ${req.body.code} already exists for this tenant`
+        });
+      }
+    }
+    
+    // Update vendor
+    vendor = await Vendor.findOneAndUpdate(
+      { _id: req.params.id, tenantId }, 
+      { $set: req.body }, 
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      data: vendor
+    });
+  } catch (error) {
+    console.error('Error updating vendor:', error);
+    
+    // Mongoose validation error
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      
+      return res.status(400).json({
+        success: false,
+        message: 'Validation Error',
+        errors: messages
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Error updating vendor',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Delete vendor
+// @route   DELETE /api/v1/vendors/:id
+// @access  Private
+const deleteVendor = async (req, res) => {
+  try {
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid vendor ID format'
+      });
+    }
+    
+    const tenantId = req.tenant._id;
+    
+    const vendor = await Vendor.findOne({ 
+      _id: req.params.id, 
+      tenantId 
+    });
+    
+    if (!vendor) {
+      return res.status(404).json({
+        success: false,
+        message: `Vendor not found with id of ${req.params.id}`
+      });
+    }
+
+    // Check if vendor has related records (implementation depends on your data model)
+    // This is just a placeholder, you need to implement this according to your requirements
+    // const hasRelatedRecords = await checkVendorRelatedRecords(req.params.id);
+    // if (hasRelatedRecords) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: `Cannot delete vendor with active related records`
+    //   });
+    // }
+    
+    await vendor.remove();
+
+    res.status(200).json({
+      success: true,
+      data: {}
+    });
+  } catch (error) {
+    console.error('Error deleting vendor:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting vendor',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Get vendor categories (for dropdown lists)
+// @route   GET /api/v1/vendors/categories
+// @access  Private
+const getVendorCategories = async (req, res) => {
+  try {
+    const tenantId = req.tenant._id;
+
+    // Get distinct categories for this tenant
+    const categories = await Vendor.distinct('category', { 
+      tenantId,
+      category: { $ne: null, $ne: "" }  
+    });
+
+    res.status(200).json({
+      success: true,
+      count: categories.length,
+      data: categories
+    });
+  } catch (error) {
+    console.error('Error fetching vendor categories:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching vendor categories',
+      error: error.message
+    });
+  }
+};
+
+module.exports = {
+  getVendors,
+  getVendor,
+  createVendor,
+  updateVendor,
+  deleteVendor,
+  getVendorCategories
+};

@@ -45,6 +45,13 @@ const RequisitionSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
+  // Reference to the approval instance that manages the workflow
+  approvalInstanceId: {
+    type: String,
+    index: true
+  },
+  // The following fields are kept for backward compatibility but will be deprecated
+  // in favor of using the approvalInstance data
   currentApprover: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'

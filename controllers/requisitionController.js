@@ -6,6 +6,8 @@ const User = require('../models/User');
 const mongoose = require('mongoose');
 const Location = require('../models/Location');
 const ApprovalWorkflow = require('../models/ApprovalWorkflow');
+const ApprovalInstance = require('../models/ApprovalInstance');
+const approvalService = require('../services/approvalService');
 
 /**
  * @desc    Get all requisitions for the current tenant
@@ -375,98 +377,40 @@ const submitRequisition = async (req, res) => {
         success: false,
         error: 'Cannot submit a requisition without items'
       });
-    }
-      // Check if frontend provided the necessary approval data
-    const { costCenterHeadId, currentApprover, approvalStage, approverRole } = req.body;
+    }    // Optional: Check if frontend provided a specific workflow to use
+    const { workflowId } = req.body;
     
-    // Variable to hold the approver information
-    let approverInfo = {};
-    
-    // If frontend didn't provide approval data, query it from the database
-    if (!costCenterHeadId && !currentApprover) {
-      // Legacy flow - fetch from database
-      
-      // Get cost center for approval routing
-      const costCenter = await CostCenter.findById(requisition.costCenterId);
-      if (!costCenter) {
-        return res.status(400).json({
-          success: false,
-          error: 'Cost center not found'
-        });
-      }
-
-      // Check if cost center has a head assigned
-      if (!costCenter.head) {
-        return res.status(400).json({
-          success: false,
-          error: 'Cost center has no designated head for approval'
-        });
-      }
-
-      // Find the cost center head user
-      const costCenterHead = await User.findById(costCenter.head);
-      if (!costCenterHead) {
-        return res.status(400).json({
-          success: false,
-          error: 'Cost center head user not found'
-        });
-      }
-
-      // Get user's default location for ship to
-      const requestor = await User.findById(req.user.id).populate('defaultLocationId');
-      if (!requestor.defaultLocationId) {
-        return res.status(400).json({
-          success: false,
-          error: 'User has no default location set for shipping'
-        });
-      }
-      
-      // Set approver info from database
-      approverInfo = {
-        currentApprover: costCenterHead._id,
-        approvalStage: 'Cost Center',
-        approverRole: 'CostCenterHead'
-      };
-    } else {
-      // New flow - use frontend provided data
-      approverInfo = {
-        currentApprover: currentApprover || costCenterHeadId, // Support both parameter names
-        approvalStage: approvalStage || 'Cost Center',
-        approverRole: approverRole || 'CostCenterHead'
-      };
-    }
-
-    // Update the requisition status and set the current approver
-    requisition = await Requisition.findByIdAndUpdate(
-      req.params.id,
+    // Start the approval process using our approval service
+    const { requisition: updatedRequisition, approvalInstance } = await approvalService.startApprovalProcess(
+      requisition._id, 
       {
-        status: 'Pending Approval',
-        submittedAt: Date.now(),
-        currentApprover: approverInfo.currentApprover,
-        approvalStage: approverInfo.approvalStage,
-        approverRole: approverInfo.approverRole,
-        updatedAt: Date.now()
-      },
-      { new: true }
+        userId: req.user.id,
+        tenantId: req.tenant.id,
+        workflowId
+      }
     );
-
-    // Create approval history record
-    await ApprovalHistory.create({
-      requisitionId: requisition._id,
-      actionType: 'Submitted',
-      actionBy: req.user.id,
-      statusFrom: 'Draft',
-      statusTo: 'Pending Approval',
-      comments: req.body.comments || 'Submitted for approval',
-      tenantId: req.tenant.id
-    });
+    
+    // Note: The approval history is now created inside the approval service
+    // This ensures all approval history is managed consistently
 
     await session.commitTransaction();
     session.endSession();
 
+    // Get the current approvers for the UI to display
+    const currentApprovers = await approvalService.getCurrentApprovers(
+      requisition._id, 
+      { tenantId: req.tenant.id }
+    );
+
     res.status(200).json({
       success: true,
-      data: requisition
+      data: {
+        ...updatedRequisition.toObject(),
+        approvalInstance: {
+          currentStage: approvalInstance.approvals[approvalInstance.currentStageIndex].stage,
+          currentApprovers: currentApprovers
+        }
+      }
     });
   } catch (error) {
     await session.abortTransaction();
@@ -518,121 +462,78 @@ const approveRequisition = async (req, res) => {
         error: 'This requisition is not pending approval'
       });
     }
-
-    // Check if user is the current approver
-    if (requisition.currentApprover.toString() !== req.user.id) {
-      return res.status(403).json({
+    
+    // Check if requisition has an approval instance
+    if (!requisition.approvalInstanceId) {
+      return res.status(400).json({
         success: false,
-        error: 'You are not the current approver for this requisition'
+        error: 'This requisition does not have an approval workflow'
       });
     }
-
-    // Setup for workflow progression
-    const currentStatus = requisition.status;
-    let newStatus, nextApprover = null, newApprovalStage = requisition.approvalStage, newApproverRole = '';
-    const actionType = decision.charAt(0).toUpperCase() + decision.slice(1);  // Capitalize first letter
-
-    // Handle approval decision logic
-    if (decision.toLowerCase() === 'approve') {
-      // Check if we need to progress to next approval stage
-      if (requisition.approvalStage === 'Cost Center') {
-        // Move to Department stage if needed
-        newStatus = 'Pending Department Approval';
-        newApprovalStage = 'Department';
-        newApproverRole = 'Department Head';
-        
-        // Find department head from user's department
-        const requestor = await User.findById(requisition.createdBy).populate('departmentId');
-        if (requestor && requestor.departmentId && requestor.departmentId.head) {
-          nextApprover = requestor.departmentId.head;
-        } else {
-          // Skip to Finance approval if no department head
-          newStatus = 'Pending Finance Approval';
-          newApprovalStage = 'Finance';
-          newApproverRole = 'Finance';
-          
-          // Find a finance approver
-          const financeUsers = await User.find({ 
-            roles: { $in: ['Finance'] },
-            tenantId: req.tenant.id,
-            active: true
-          }).sort({ approvalHierarchy: -1 }).limit(1);
-          
-          if (financeUsers && financeUsers.length > 0) {
-            nextApprover = financeUsers[0]._id;
-          } else {
-            // If no finance approver, final approval
-            newStatus = 'Approved';
-            newApprovalStage = 'Complete';
-          }
-        }
-      } else if (requisition.approvalStage === 'Department') {
-        // Move to Finance stage
-        newStatus = 'Pending Finance Approval';
-        newApprovalStage = 'Finance';
-        newApproverRole = 'Finance';
-        
-        // Find a finance approver
-        const financeUsers = await User.find({ 
-          roles: { $in: ['Finance'] },
-          tenantId: req.tenant.id,
-          active: true
-        }).sort({ approvalHierarchy: -1 }).limit(1);
-        
-        if (financeUsers && financeUsers.length > 0) {
-          nextApprover = financeUsers[0]._id;
-        } else {
-          // If no finance approver, final approval
-          newStatus = 'Approved';
-          newApprovalStage = 'Complete';
-        }
-      } else if (requisition.approvalStage === 'Finance') {
-        // Final approval
-        newStatus = 'Approved';
-        newApprovalStage = 'Complete';
-      }
-    } else if (decision.toLowerCase() === 'reject') {
-      // Rejection is final
-      newStatus = 'Rejected';
-      newApprovalStage = 'Complete';
-    } else if (decision.toLowerCase() === 'return') {
-      // Return to requester for changes
-      newStatus = 'Returned';
-      newApprovalStage = 'Not Started';
-    }
-
-    // Update the requisition
-    requisition = await Requisition.findByIdAndUpdate(
-      req.params.id,
-      {
-        status: newStatus,
-        currentApprover: nextApprover,
-        approvalStage: newApprovalStage,
-        approverRole: newApproverRole,
-        updatedAt: Date.now(),
-        approvedBy: newStatus === 'Approved' ? req.user.id : requisition.approvedBy
-      },
-      { new: true }
-    );
-
-    // Create approval history entry
-    await ApprovalHistory.create({
-      requisitionId: requisition._id,
-      actionType: actionType,
-      actionBy: req.user.id,
-      statusFrom: currentStatus,
-      statusTo: newStatus,
-      approverRole: requisition.approverRole,
-      comments: comments || '',
+    
+    // Find the approval instance and verify the user is an approver
+    const approvalInstance = await ApprovalInstance.findOne({
+      instanceId: requisition.approvalInstanceId,
       tenantId: req.tenant.id
     });
+    
+    if (!approvalInstance || approvalInstance.status !== 'InProgress') {
+      return res.status(400).json({
+        success: false,
+        error: 'Approval process is not in progress for this requisition'
+      });
+    }
+      // Get current stage and check if user is a current approver
+    const currentStage = approvalInstance.approvals[approvalInstance.currentStageIndex];
+    const isApprover = currentStage.approvers.some(
+      approver => approver.userId.toString() === req.user.id && approver.status === 'Pending'
+    );
+    
+    // For backward compatibility also check the legacy field
+    const isLegacyApprover = requisition.currentApprover && 
+                            requisition.currentApprover.toString() === req.user.id;
+    
+    if (!isApprover && !isLegacyApprover) {
+      return res.status(403).json({
+        success: false,
+        error: 'You are not a current approver for this requisition'
+      });
+    }
+    
+    // Use our approval service to process the decision
+    const { requisition: updatedRequisition, approvalInstance: updatedInstance } = 
+      await approvalService.processApprovalDecision(
+        requisition._id,
+        {
+          action: decision,
+          comments: comments
+        },
+        {
+          userId: req.user.id,
+          tenantId: req.tenant.id
+        }
+      );
+    
+    // For backward compatibility, ensure we have the requisition object
+    requisition = updatedRequisition;
+
+    // Note: ApprovalHistory is now managed by the approval service
 
     await session.commitTransaction();
     session.endSession();
 
+    // Get the approval status to return to the UI
+    const approvalStatus = await approvalService.getApprovalStatus(
+      requisition._id, 
+      { tenantId: req.tenant.id }
+    );
+
     res.status(200).json({
       success: true,
-      data: requisition
+      data: {
+        ...requisition.toObject(),
+        approvalStatus
+      }
     });
   } catch (error) {
     await session.abortTransaction();
@@ -992,6 +893,58 @@ const getPendingCostCenterApprovals = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get approval status for a requisition
+ * @route   GET /api/v1/requisitions/:id/approval-status
+ * @access  Private
+ */
+const getRequisitionApprovalStatus = async (req, res) => {
+  try {
+    const requisition = await Requisition.findOne({
+      _id: req.params.id,
+      tenantId: req.tenant.id
+    });
+
+    if (!requisition) {
+      return res.status(404).json({
+        success: false,
+        error: 'Requisition not found'
+      });
+    }
+
+    // If no approval instance exists, return basic status
+    if (!requisition.approvalInstanceId) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          status: 'Not Started',
+          currentStage: null,
+          currentApprovers: [],
+          completedStages: [],
+          isComplete: false
+        }
+      });
+    }
+
+    // Get detailed approval status
+    const approvalStatus = await approvalService.getApprovalStatus(
+      requisition._id, 
+      { tenantId: req.tenant.id }
+    );
+
+    res.status(200).json({
+      success: true,
+      data: approvalStatus
+    });
+  } catch (error) {
+    console.error('Error getting requisition approval status:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Server error while fetching approval status'
+    });
+  }
+};
+
 module.exports = {
   getRequisitions,
   getRequisition,
@@ -1006,5 +959,6 @@ module.exports = {
   updateRequisitionItem,
   deleteRequisitionItem,
   getRequisitionItems,
-  getRequisitionItemById
+  getRequisitionItemById,
+  getRequisitionApprovalStatus
 };

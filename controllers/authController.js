@@ -1,10 +1,9 @@
 const User = require('../models/User');
 const Tenant = require('../models/Tenant');
-const { sendTokenResponse } = require('../utils/authUtils');
+const { sendTokenResponse, generateToken } = require('../utils/authUtils');
 const { validationResult } = require('express-validator');
 const { extractDomain } = require('../utils/domainUtils');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 
 /**
  * @desc    Register user for specific tenant
@@ -41,7 +40,7 @@ exports.registerUser = async (req, res) => {
       role: 'user' // Default role
     });
 
-    sendTokenResponse(user, 201, res);
+    await sendTokenResponse(user, 201, res);
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -89,7 +88,7 @@ exports.loginUser = async (req, res) => {
     const { isUserCostCenterHead } = require('../utils/authUtils');
     user.isCostCenterHead = await isUserCostCenterHead(user._id, tenant._id);
     
-    sendTokenResponse(user, 200, res);
+    await sendTokenResponse(user, 200, res);
   } catch (error) {
     
     res.status(500).json({
@@ -170,7 +169,7 @@ exports.domainBasedLogin = async (req, res) => {
     }
 
     // Send token response with tenant info
-    sendTokenResponse(user, 200, res, tenant);
+    await sendTokenResponse(user, 200, res, tenant);
   } catch (error) {
     console.error('Domain-based login error:', error);
     res.status(500).json({

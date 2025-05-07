@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+const jose = require('jose');
 const Tenant = require('../models/Tenant');
 const User = require('../models/User');
 const { extractDomain } = require('../utils/domainUtils');
@@ -17,28 +17,24 @@ exports.identifyTenantFromToken = async (req, res, next) => {
   else if (req.cookies?.jwt) {
     token = req.cookies.jwt;
   }
-  
 
   if (!token) {
     return res.status(401).json({
       success: false,
       error: 'Not authorized to access this route'
     });
-  }  try {
-    // Verify token with more detailed error handling
-    let decoded;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (jwtError) {
-      console.error('JWT Verification Error:', jwtError.name, jwtError.message);
-      return res.status(401).json({
-        success: false,
-        error: `Token verification failed: ${jwtError.message}`
-      });
-    }
-
+  }
+  try {    // Verify token using jose
+    const secretKey = new TextEncoder().encode(process.env.JWT_SECRET);
+    const { payload } = await jose.jwtVerify(token, secretKey);
+      // Simplify ID handling - convert to string and use Mongoose's ObjectId conversion
+    const userId = String(payload.id);
+    
+    // Log the ID for debugging
+    console.log('User ID from token:', userId, 'Type:', typeof userId);
+    
     // Check if user exists
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -46,8 +42,12 @@ exports.identifyTenantFromToken = async (req, res, next) => {
       });
     }
 
+    const tenantId = String(payload.tenantId);
+    
+    // Log the ID for debugging
+    console.log('User ID from token:', userId, 'Type:', typeof userId);
     // Check if tenant exists and is active
-    const tenant = await Tenant.findById(user.tenantId);
+    const tenant = await Tenant.findById(tenantId);
     if (!tenant || !tenant.active) {
       return res.status(401).json({
         success: false,
@@ -59,11 +59,12 @@ exports.identifyTenantFromToken = async (req, res, next) => {
     req.user = user;
     req.tenant = tenant;
 
-    next();
-  } catch (error) {
+    next();  } catch (error) {
+    console.error('Token verification error:', error);
     return res.status(401).json({
       success: false,
-      error: 'Not authorized to access this route'
+      error: 'Not authorized to access this route',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };

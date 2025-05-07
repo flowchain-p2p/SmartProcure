@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+const jose = require('jose');
 const User = require('../models/User');
 
 /**
@@ -23,28 +23,24 @@ exports.protect = async (req, res, next) => {
     });
   }
 
-  try {
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);    // Check if user exists
-    const user = await User.findById(decoded.id);
+  try {    // Verify token using jose
+    const secretKey = new TextEncoder().encode(process.env.JWT_SECRET);
+    const { payload } = await jose.jwtVerify(token, secretKey);
+
+    // Ensure we have a string ID
+    const userId = String(payload.id);
+    
+    // Check if user exists
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(401).json({
         success: false,
         error: 'User not found'
       });
     }
-    
-    // Check if user is a cost center head (only add to token payload)
-    if (decoded.isCostCenterHead !== undefined) {
-      // Don't modify the actual user object, but add the flag to req.user
-      const userObj = user.toObject();
-      userObj.isCostCenterHead = decoded.isCostCenterHead;
-      req.user = userObj;
-    } else {
-      // Add user to request
-      req.user = user;
-    }
-    
+
+    // Add user to request
+    req.user = user;
     next();
   } catch (error) {
     return res.status(401).json({

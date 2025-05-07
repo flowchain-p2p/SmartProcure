@@ -49,6 +49,7 @@ const uomRoutes = require('./routes/uom');
 const requisitionRoutes = require('./routes/requisition');
 const catalogRoutes = require('./routes/catalog');
 const locationRoutes = require('./routes/locations');
+const vendorRoutes = require('./routes/vendors');
 
 // Mount routers
 app.use('/api/v1/auth', auth);
@@ -64,6 +65,7 @@ app.use('/api/v1/uom', uomRoutes);
 app.use('/api/v1/requisitions', requisitionRoutes);
 app.use('/api/v1/catalogs', catalogRoutes);
 app.use('/api/v1/locations', locationRoutes);
+app.use('/api/v1/vendors', vendorRoutes);
 
 // Set up Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { 

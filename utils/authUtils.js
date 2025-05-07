@@ -1,31 +1,43 @@
-const jwt = require('jsonwebtoken');
+const jose = require('jose');
 const CostCenter = require('../models/CostCenter');
+const User = require('../models/User');
+
+// Cache the secret key for performance
+let secretKey;
 
 /**
- * Generate JWT token for authentication
- * @param {Object} user - User object with id property
- * @param {Object} tenant - Tenant object (optional)
+ * Generate a JWT token with user information
+ * @param {Object} user - User object
  * @returns {String} JWT token
  */
-exports.generateToken = (user, tenant) => {
-  // Create payload with user ID and tenant ID
-  const payload = { id: user._id, tenantId: user.tenantId };
-  
+exports.generateToken = async (user, tenant) => {
+  if (!secretKey) {
+    secretKey = new TextEncoder().encode(process.env.JWT_SECRET);
+  }
+  const payload = {
+    id: user._id.toString(), // Convert ObjectId to string
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    tenantId: user.tenantId.toString() // Convert ObjectId to string
+  };
+
   // Add tenant slug if tenant object is provided
   if (tenant && tenant.slug) {
     payload.tenantSlug = tenant.slug;
   }
-  
+
   // Add cost center head status if available
   if (user.isCostCenterHead !== undefined) {
     payload.isCostCenterHead = user.isCostCenterHead;
   }
-  
-  const token = jwt.sign(
-    payload,
-    process.env.JWT_SECRET,
-    { expiresIn: '1d' } // Hardcoded to 1 day
-  );
+
+  // Sign the JWT
+  const token = await new jose.SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('1d')
+    .sign(secretKey);   
   return token;
 };
 
@@ -36,12 +48,14 @@ exports.generateToken = (user, tenant) => {
  * @param {Object} res - Express response object
  * @param {Object} tenant - Tenant object (optional)
  */
-exports.sendTokenResponse = (user, statusCode, res, tenant = null) => {
+exports.sendTokenResponse = async (user, statusCode, res, tenant = null) => {
   // Create token
-  const token = this.generateToken(user, tenant);
+  const token = await this.generateToken(user, tenant);
 
-  // Decode the token
-  const decoded = jwt.decode(token);
+  // Decode the token without verification
+  // In jose we can decode by splitting the token and decoding the payload (middle part)
+  const [headerB64, payloadB64] = token.split('.');
+  const decoded = JSON.parse(Buffer.from(payloadB64, 'base64').toString());
 
   // Validate token expiration
   if (decoded.exp * 1000 < Date.now()) {
@@ -100,4 +114,32 @@ exports.isUserCostCenterHead = async (userId, tenantId) => {
   });
   
   return count > 0;
+};
+
+/**
+ * Verify JWT token
+ * @param {String} token - JWT token to verify
+ * @returns {Object} Decoded token payload
+ */
+exports.verifyToken = async (token) => {
+  try {
+    if (!secretKey) {
+      secretKey = new TextEncoder().encode(process.env.JWT_SECRET);
+    }
+
+    const { payload } = await jose.jwtVerify(token, secretKey);
+    
+    // Ensure ID and tenantId are strings, not buffer objects
+    if (payload.id && typeof payload.id !== 'string') {
+      payload.id = payload.id.toString();
+    }
+    
+    if (payload.tenantId && typeof payload.tenantId !== 'string') {
+      payload.tenantId = payload.tenantId.toString();
+    }
+    
+    return payload;
+  } catch (error) {
+    throw new Error('Invalid token');
+  }
 };

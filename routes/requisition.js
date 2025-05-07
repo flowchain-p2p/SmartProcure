@@ -14,7 +14,8 @@ const {
   updateRequisitionItem,
   deleteRequisitionItem,
   getRequisitionItems,
-  getRequisitionItemById
+  getRequisitionItemById,
+  getRequisitionApprovalStatus
 } = require('../controllers/requisitionController');
 const { identifyTenantFromToken } = require('../middleware/tenantMiddleware');
 const { hasPermission } = require('../middleware/permissionMiddleware');
@@ -38,6 +39,10 @@ router.route('/:id/submit')
 
 router.route('/:id/approve')
   .patch(hasPermission('pr.approve'), approveRequisition);
+
+// Approval status route
+router.route('/:id/approval-status')
+  .get(hasPermission('pr.view'), getRequisitionApprovalStatus);
 
 // Requisition items routes
 router.route('/:id/items')
