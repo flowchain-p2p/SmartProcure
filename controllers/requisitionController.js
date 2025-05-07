@@ -426,7 +426,7 @@ const submitRequisition = async (req, res) => {
 
 /**
  * @desc    Approve or reject a requisition
- * @route   PUT /api/v1/requisitions/:id/approve
+ * @route   PATCH /api/v1/requisitions/:id/approve
  * @access  Private/Permission Based
  */
 const approveRequisition = async (req, res) => {
@@ -455,13 +455,13 @@ const approveRequisition = async (req, res) => {
       });
     }
 
-    // Check if requisition is pending approval
-    if (!requisition.status.startsWith('Pending')) {
-      return res.status(400).json({
-        success: false,
-        error: 'This requisition is not pending approval'
-      });
-    }
+    // // Check if requisition is pending approval
+    // if (!requisition.status.startsWith('Pending')) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     error: 'This requisition is not pending approval'
+    //   });
+    // }
     
     // Check if requisition has an approval instance
     if (!requisition.approvalInstanceId) {
@@ -477,7 +477,7 @@ const approveRequisition = async (req, res) => {
       tenantId: req.tenant.id
     });
     
-    if (!approvalInstance || approvalInstance.status !== 'InProgress') {
+    if (!approvalInstance) {
       return res.status(400).json({
         success: false,
         error: 'Approval process is not in progress for this requisition'
