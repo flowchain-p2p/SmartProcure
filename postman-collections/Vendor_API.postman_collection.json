@@ -1,0 +1,740 @@
+{
+  "info": {
+    "name": "Vendor API",
+    "description": "API endpoints for managing vendors in the multitenancy system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Vendors",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/vendors?page=1&limit=10&search=&status=Active&category=&isPreferred=",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "vendors"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Page number"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "Number of records per page"
+            },
+            {
+              "key": "search",
+              "value": "",
+              "description": "Search term for name, code, contact person, or email"
+            },
+            {
+              "key": "status",
+              "value": "Active",
+              "description": "Filter by status (Active, Inactive, Pending, Blacklisted)"
+            },
+            {
+              "key": "category",
+              "value": "",
+              "description": "Filter by vendor category"
+            },
+            {
+              "key": "isPreferred",
+              "value": "",
+              "description": "Filter by preferred status (true/false)"
+            }
+          ]
+        },
+        "description": "Get all vendors for the authenticated tenant with filtering, search, and pagination"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"count\": 2,\n  \"pagination\": {\n    \"page\": 1,\n    \"pages\": 1,\n    \"limit\": 10,\n    \"total\": 2\n  },\n  \"data\": [\n    {\n      \"_id\": \"60d5ec66e45c913e3c9c4311\",\n      \"name\": \"ABC Suppliers\",\n      \"code\": \"VEN001\",\n      \"contactPerson\": \"John Doe\",\n      \"email\": \"john@abcsuppliers.com\",\n      \"phone\": \"+1234567890\",\n      \"address\": {\n        \"street\": \"123 Supply St\",\n        \"city\": \"Supplier City\",\n        \"state\": \"ST\",\n        \"country\": \"Country\",\n        \"postalCode\": \"12345\"\n      },\n      \"website\": \"https://abcsuppliers.com\",\n      \"taxId\": \"TAX123456\",\n      \"paymentTerms\": \"Net 30\",\n      \"category\": \"Office Supplies\",\n      \"status\": \"Active\",\n      \"rating\": 4.5,\n      \"isPreferred\": true,\n      \"tenantId\": \"60d5ec66e45c913e3c9c4301\",\n      \"createdAt\": \"2023-06-25T10:23:22.111Z\",\n      \"updatedAt\": \"2023-06-25T10:23:22.111Z\"\n    },\n    {\n      \"_id\": \"60d5ec66e45c913e3c9c4312\",\n      \"name\": \"XYZ Manufacturing\",\n      \"code\": \"VEN002\",\n      \"contactPerson\": \"Jane Smith\",\n      \"email\": \"jane@xyzmanufacturing.com\",\n      \"phone\": \"+0987654321\",\n      \"address\": {\n        \"street\": \"456 Manufacturing Blvd\",\n        \"city\": \"Factory City\",\n        \"state\": \"ST\",\n        \"country\": \"Country\",\n        \"postalCode\": \"67890\"\n      },\n      \"website\": \"https://xyzmanufacturing.com\",\n      \"taxId\": \"TAX654321\",\n      \"paymentTerms\": \"Net 60\",\n      \"category\": \"Equipment\",\n      \"status\": \"Active\",\n      \"rating\": 3.5,\n      \"isPreferred\": false,\n      \"tenantId\": \"60d5ec66e45c913e3c9c4301\",\n      \"createdAt\": \"2023-06-25T10:23:22.111Z\",\n      \"updatedAt\": \"2023-06-25T10:23:22.111Z\"\n    }\n  ]\n}"
+        },
+        {
+          "name": "Error Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors"
+              ]
+            }
+          },
+          "status": "Internal Server Error",
+          "code": 500,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Error fetching vendors\",\n  \"error\": \"Error message details\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get Single Vendor",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "vendors",
+            "{{vendorId}}"
+          ]
+        },
+        "description": "Get a single vendor by ID for the authenticated tenant"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "{{vendorId}}"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"60d5ec66e45c913e3c9c4311\",\n    \"name\": \"ABC Suppliers\",\n    \"code\": \"VEN001\",\n    \"contactPerson\": \"John Doe\",\n    \"email\": \"john@abcsuppliers.com\",\n    \"phone\": \"+1234567890\",\n    \"address\": {\n      \"street\": \"123 Supply St\",\n      \"city\": \"Supplier City\",\n      \"state\": \"ST\",\n      \"country\": \"Country\",\n      \"postalCode\": \"12345\"\n    },\n    \"website\": \"https://abcsuppliers.com\",\n    \"taxId\": \"TAX123456\",\n    \"paymentTerms\": \"Net 30\",\n    \"category\": \"Office Supplies\",\n    \"status\": \"Active\",\n    \"rating\": 4.5,\n    \"notes\": \"Reliable supplier with good product quality\",\n    \"isPreferred\": true,\n    \"tenantId\": \"60d5ec66e45c913e3c9c4301\",\n    \"createdAt\": \"2023-06-25T10:23:22.111Z\",\n    \"updatedAt\": \"2023-06-25T10:23:22.111Z\"\n  }\n}"
+        },
+        {
+          "name": "Not Found Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "{{vendorId}}"
+              ]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Vendor not found with id of {{vendorId}}\"\n}"
+        },
+        {
+          "name": "Invalid ID Format",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/invalidId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "invalidId"
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Invalid vendor ID format\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Create Vendor",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"New Vendor Inc\",\n  \"code\": \"VEN003\",\n  \"contactPerson\": \"Robert Johnson\",\n  \"email\": \"robert@newvendor.com\",\n  \"phone\": \"+11223344556\",\n  \"address\": {\n    \"street\": \"789 New St\",\n    \"city\": \"Vendor City\",\n    \"state\": \"VS\",\n    \"country\": \"Country\",\n    \"postalCode\": \"54321\"\n  },\n  \"website\": \"https://newvendor.com\",\n  \"taxId\": \"TAX789012\",\n  \"paymentTerms\": \"Net 45\",\n  \"category\": \"Technology\",\n  \"status\": \"Active\",\n  \"rating\": 3,\n  \"notes\": \"New promising vendor\",\n  \"isPreferred\": false\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/vendors",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "vendors"
+          ]
+        },
+        "description": "Create a new vendor for the authenticated tenant"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Vendor Inc\",\n  \"code\": \"VEN003\",\n  \"contactPerson\": \"Robert Johnson\",\n  \"email\": \"robert@newvendor.com\",\n  \"phone\": \"+11223344556\",\n  \"address\": {\n    \"street\": \"789 New St\",\n    \"city\": \"Vendor City\",\n    \"state\": \"VS\",\n    \"country\": \"Country\",\n    \"postalCode\": \"54321\"\n  },\n  \"website\": \"https://newvendor.com\",\n  \"taxId\": \"TAX789012\",\n  \"paymentTerms\": \"Net 45\",\n  \"category\": \"Technology\",\n  \"status\": \"Active\",\n  \"rating\": 3,\n  \"notes\": \"New promising vendor\",\n  \"isPreferred\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors"
+              ]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"60d5ec66e45c913e3c9c4313\",\n    \"name\": \"New Vendor Inc\",\n    \"code\": \"VEN003\",\n    \"contactPerson\": \"Robert Johnson\",\n    \"email\": \"robert@newvendor.com\",\n    \"phone\": \"+11223344556\",\n    \"address\": {\n      \"street\": \"789 New St\",\n      \"city\": \"Vendor City\",\n      \"state\": \"VS\",\n      \"country\": \"Country\",\n      \"postalCode\": \"54321\"\n    },\n    \"website\": \"https://newvendor.com\",\n    \"taxId\": \"TAX789012\",\n    \"paymentTerms\": \"Net 45\",\n    \"category\": \"Technology\",\n    \"status\": \"Active\",\n    \"rating\": 3,\n    \"notes\": \"New promising vendor\",\n    \"isPreferred\": false,\n    \"tenantId\": \"60d5ec66e45c913e3c9c4301\",\n    \"createdBy\": \"60d5ec66e45c913e3c9c4321\",\n    \"createdAt\": \"2023-06-25T10:23:22.111Z\",\n    \"updatedAt\": \"2023-06-25T10:23:22.111Z\"\n  }\n}"
+        },
+        {
+          "name": "Duplicate Code Error",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Vendor Inc\",\n  \"code\": \"VEN001\",\n  \"contactPerson\": \"Robert Johnson\",\n  \"email\": \"robert@newvendor.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors"
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Vendor with code VEN001 already exists for this tenant\"\n}"
+        },
+        {
+          "name": "Validation Error",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"VEN004\",\n  \"contactPerson\": \"Robert Johnson\",\n  \"email\": \"robert@newvendor.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors"
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Validation Error\",\n  \"errors\": [\"Please provide a vendor name\"]\n}"
+        }
+      ]
+    },
+    {
+      "name": "Update Vendor",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Vendor Name\",\n  \"contactPerson\": \"Updated Contact Person\",\n  \"email\": \"updated@vendor.com\",\n  \"phone\": \"+19876543210\",\n  \"address\": {\n    \"street\": \"Updated Street Address\",\n    \"city\": \"Updated City\",\n    \"state\": \"US\",\n    \"country\": \"Updated Country\",\n    \"postalCode\": \"98765\"\n  },\n  \"website\": \"https://updatedvendor.com\",\n  \"status\": \"Active\",\n  \"rating\": 5,\n  \"isPreferred\": true\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "vendors",
+            "{{vendorId}}"
+          ]
+        },
+        "description": "Update an existing vendor by ID for the authenticated tenant"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Vendor Name\",\n  \"contactPerson\": \"Updated Contact Person\",\n  \"email\": \"updated@vendor.com\",\n  \"phone\": \"+19876543210\",\n  \"address\": {\n    \"street\": \"Updated Street Address\",\n    \"city\": \"Updated City\",\n    \"state\": \"US\",\n    \"country\": \"Updated Country\",\n    \"postalCode\": \"98765\"\n  },\n  \"website\": \"https://updatedvendor.com\",\n  \"status\": \"Active\",\n  \"rating\": 5,\n  \"isPreferred\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "{{vendorId}}"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"data\": {\n    \"_id\": \"60d5ec66e45c913e3c9c4311\",\n    \"name\": \"Updated Vendor Name\",\n    \"code\": \"VEN001\",\n    \"contactPerson\": \"Updated Contact Person\",\n    \"email\": \"updated@vendor.com\",\n    \"phone\": \"+19876543210\",\n    \"address\": {\n      \"street\": \"Updated Street Address\",\n      \"city\": \"Updated City\",\n      \"state\": \"US\",\n      \"country\": \"Updated Country\",\n      \"postalCode\": \"98765\"\n    },\n    \"website\": \"https://updatedvendor.com\",\n    \"taxId\": \"TAX123456\",\n    \"paymentTerms\": \"Net 30\",\n    \"category\": \"Office Supplies\",\n    \"status\": \"Active\",\n    \"rating\": 5,\n    \"notes\": \"Reliable supplier with good product quality\",\n    \"isPreferred\": true,\n    \"tenantId\": \"60d5ec66e45c913e3c9c4301\",\n    \"createdAt\": \"2023-06-25T10:23:22.111Z\",\n    \"updatedAt\": \"2023-06-25T11:45:13.987Z\"\n  }\n}"
+        },
+        {
+          "name": "Vendor Not Found",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Vendor Name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/{{nonExistentVendorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "{{nonExistentVendorId}}"
+              ]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Vendor not found with id of {{nonExistentVendorId}}\"\n}"
+        },
+        {
+          "name": "Invalid ID Format",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Vendor Name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/invalidId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "invalidId"
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Invalid vendor ID format\"\n}"
+        },
+        {
+          "name": "Duplicate Code Error",
+          "originalRequest": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"VEN002\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "{{vendorId}}"
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Vendor with code VEN002 already exists for this tenant\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Delete Vendor",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "vendors",
+            "{{vendorId}}"
+          ]
+        },
+        "description": "Delete a vendor by ID for the authenticated tenant"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "{{vendorId}}"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"data\": {}\n}"
+        },
+        {
+          "name": "Vendor Not Found",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/{{nonExistentVendorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "{{nonExistentVendorId}}"
+              ]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Vendor not found with id of {{nonExistentVendorId}}\"\n}"
+        },
+        {
+          "name": "Invalid ID Format",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/invalidId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "invalidId"
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Invalid vendor ID format\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get Vendor Categories",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/vendors/categories",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "vendors",
+            "categories"
+          ]
+        },
+        "description": "Get all distinct vendor categories for the authenticated tenant (for dropdown lists)"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "categories"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"count\": 3,\n  \"data\": [\n    \"Office Supplies\",\n    \"Equipment\",\n    \"Technology\"\n  ]\n}"
+        },
+        {
+          "name": "Error Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "categories"
+              ]
+            }
+          },
+          "status": "Internal Server Error",
+          "code": 500,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Error fetching vendor categories\",\n  \"error\": \"Error message details\"\n}"
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// You can add pre-request scripts here if needed",
+          "// For example, to automatically set a timestamp for each request"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// You can add test scripts here if needed",
+          "// For example, to validate response format",
+          "",
+          "pm.test(\"Status code is 200 or 201\", function () {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+          "});",
+          "",
+          "pm.test(\"Response has success property\", function () {",
+          "    var jsonData = pm.response.json();",
+          "    pm.expect(jsonData).to.have.property('success');",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "your_jwt_token_here",
+      "type": "string"
+    },
+    {
+      "key": "vendorId",
+      "value": "60d5ec66e45c913e3c9c4311",
+      "type": "string"
+    },
+    {
+      "key": "nonExistentVendorId",
+      "value": "60d5ec66e45c913e3c9c4399",
+      "type": "string"
+    }
+  ]
+}
