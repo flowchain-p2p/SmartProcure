@@ -57,9 +57,7 @@ const seedMRFSuppliers = async () => {
       process.exit(1);
     }
     
-    console.log(`Found supplier role with ID: ${supplierRole._id}`);
-
-    // Step 3: Define suppliers
+    console.log(`Found supplier role with ID: ${supplierRole._id}`);    // Step 3: Define suppliers
     const defaultPassword = await hashPassword('Password@123');
     
     const suppliers = [
@@ -134,6 +132,294 @@ const seedMRFSuppliers = async () => {
           roleIds: [supplierRole._id],
           active: true
         }
+      },
+      {
+        vendor: {
+          name: "SafetyFirst Equipment Ltd",
+          code: "SAFE-003",
+          contactPerson: "Anand Mehta",
+          email: "supplier3@mrf.com",
+          phone: "9876543212",
+          address: {
+            street: "789 Safety Complex",
+            city: "Mumbai",
+            state: "Maharashtra",
+            country: "India",
+            postalCode: "400001"
+          },
+          website: "www.safetyfirstindia.com",
+          taxId: "GSTIN345678912",
+          paymentTerms: "Net 30",
+          category: "Safety",
+          status: "Active",
+          rating: 4.2,
+          notes: "Top safety equipment provider",
+          isPreferred: true,
+          tenantId: mrfTenant._id
+        },
+        user: {
+          name: "Anand Mehta",
+          email: "supplier3@mrf.com",
+          password: defaultPassword,
+          tenantId: mrfTenant._id,
+          authType: 'local',
+          position: "Sales Director",
+          roles: ['Supplier'],
+          roleIds: [supplierRole._id],
+          active: true
+        }
+      },
+      {
+        vendor: {
+          name: "ElectroPower Systems",
+          code: "ELEC-004",
+          contactPerson: "Sunita Rao",
+          email: "supplier4@mrf.com",
+          phone: "9876543213",
+          address: {
+            street: "234 Electric Avenue",
+            city: "Pune",
+            state: "Maharashtra",
+            country: "India",
+            postalCode: "411001"
+          },
+          website: "www.electropowersys.com",
+          taxId: "GSTIN456789123",
+          paymentTerms: "Net 15",
+          category: "Electrical, Electronics & Power",
+          status: "Active",
+          rating: 3.8,
+          notes: "Electrical equipment specialists",
+          isPreferred: false,
+          tenantId: mrfTenant._id
+        },
+        user: {
+          name: "Sunita Rao",
+          email: "supplier4@mrf.com",
+          password: defaultPassword,
+          tenantId: mrfTenant._id,
+          authType: 'local',
+          position: "Business Development Manager",
+          roles: ['Supplier'],
+          roleIds: [supplierRole._id],
+          active: true
+        }
+      },
+      {
+        vendor: {
+          name: "PowerTools Inc",
+          code: "TOOL-005",
+          contactPerson: "Ramesh Joshi",
+          email: "supplier5@mrf.com",
+          phone: "9876543214",
+          address: {
+            street: "567 Workshop Lane",
+            city: "Coimbatore",
+            state: "Tamil Nadu",
+            country: "India",
+            postalCode: "641001"
+          },
+          website: "www.powertools-india.com",
+          taxId: "GSTIN567891234",
+          paymentTerms: "Net 30",
+          category: "Tools",
+          status: "Active",
+          rating: 4.5,
+          notes: "Premium tool manufacturer and supplier",
+          isPreferred: true,
+          tenantId: mrfTenant._id
+        },
+        user: {
+          name: "Ramesh Joshi",
+          email: "supplier5@mrf.com",
+          password: defaultPassword,
+          tenantId: mrfTenant._id,
+          authType: 'local',
+          position: "Managing Director",
+          roles: ['Supplier'],
+          roleIds: [supplierRole._id],
+          active: true
+        }
+      },
+      {
+        vendor: {
+          name: "MetalWorks Fabrication",
+          code: "METL-006",
+          contactPerson: "Kiran Shah",
+          email: "supplier6@mrf.com",
+          phone: "9876543215",
+          address: {
+            street: "890 Industrial Estate",
+            city: "Ahmedabad",
+            state: "Gujarat",
+            country: "India",
+            postalCode: "380001"
+          },
+          website: "www.metalworksfabrication.in",
+          taxId: "GSTIN678912345",
+          paymentTerms: "Net 45",
+          category: "Metals & Raw Materials",
+          status: "Active",
+          rating: 3.9,
+          notes: "Custom metal fabrication and raw material supply",
+          isPreferred: false,
+          tenantId: mrfTenant._id
+        },
+        user: {
+          name: "Kiran Shah",
+          email: "supplier6@mrf.com",
+          password: defaultPassword,
+          tenantId: mrfTenant._id,
+          authType: 'local',
+          position: "Operations Head",
+          roles: ['Supplier'],
+          roleIds: [supplierRole._id],
+          active: true
+        }
+      },
+      {
+        vendor: {
+          name: "Facility Management Solutions",
+          code: "FACL-007",
+          contactPerson: "Deepa Nair",
+          email: "supplier7@mrf.com",
+          phone: "9876543216",
+          address: {
+            street: "123 Commercial Complex",
+            city: "Hyderabad",
+            state: "Telangana",
+            country: "India",
+            postalCode: "500001"
+          },
+          website: "www.fmsolutions.co.in",
+          taxId: "GSTIN789123456",
+          paymentTerms: "Net 30",
+          category: "Facilities",
+          status: "Active",
+          rating: 4.1,
+          notes: "Comprehensive facility management services",
+          isPreferred: true,
+          tenantId: mrfTenant._id
+        },
+        user: {
+          name: "Deepa Nair",
+          email: "supplier7@mrf.com",
+          password: defaultPassword,
+          tenantId: mrfTenant._id,
+          authType: 'local',
+          position: "Client Relationship Manager",
+          roles: ['Supplier'],
+          roleIds: [supplierRole._id],
+          active: true
+        }
+      },
+      {
+        vendor: {
+          name: "CapEx Equipment Solutions",
+          code: "CAPX-008",
+          contactPerson: "Vijay Menon",
+          email: "supplier8@mrf.com",
+          phone: "9876543217",
+          address: {
+            street: "456 Business Park",
+            city: "Delhi",
+            state: "Delhi",
+            country: "India",
+            postalCode: "110001"
+          },
+          website: "www.capexsolutions.com",
+          taxId: "GSTIN891234567",
+          paymentTerms: "Net 60",
+          category: "Capex",
+          status: "Active",
+          rating: 4.7,
+          notes: "Major equipment and capital expenditure specialist",
+          isPreferred: true,
+          tenantId: mrfTenant._id
+        },
+        user: {
+          name: "Vijay Menon",
+          email: "supplier8@mrf.com",
+          password: defaultPassword,
+          tenantId: mrfTenant._id,
+          authType: 'local',
+          position: "Senior Sales Executive",
+          roles: ['Supplier'],
+          roleIds: [supplierRole._id],
+          active: true
+        }
+      },
+      {
+        vendor: {
+          name: "Office Administration Supplies",
+          code: "ADMN-009",
+          contactPerson: "Meena Gupta",
+          email: "supplier9@mrf.com",
+          phone: "9876543218",
+          address: {
+            street: "789 Commerce Street",
+            city: "Kolkata",
+            state: "West Bengal",
+            country: "India",
+            postalCode: "700001"
+          },
+          website: "www.officesuppliesadmin.in",
+          taxId: "GSTIN912345678",
+          paymentTerms: "Net 15",
+          category: "Administration",
+          status: "Active",
+          rating: 3.6,
+          notes: "Office supplies and administrative products",
+          isPreferred: false,
+          tenantId: mrfTenant._id
+        },
+        user: {
+          name: "Meena Gupta",
+          email: "supplier9@mrf.com",
+          password: defaultPassword,
+          tenantId: mrfTenant._id,
+          authType: 'local',
+          position: "Regional Manager",
+          roles: ['Supplier'],
+          roleIds: [supplierRole._id],
+          active: true
+        }
+      },
+      {
+        vendor: {
+          name: "MultiSupply Ventures",
+          code: "MULT-010",
+          contactPerson: "Arjun Reddy",
+          email: "supplier10@mrf.com",
+          phone: "9876543219",
+          address: {
+            street: "101 Distribution Center",
+            city: "Chennai",
+            state: "Tamil Nadu",
+            country: "India",
+            postalCode: "600002"
+          },
+          website: "www.multisupplyventures.com",
+          taxId: "GSTIN012345678",
+          paymentTerms: "Net 30",
+          category: "Miscellaneous",
+          status: "Active",
+          rating: 4.0,
+          notes: "Multi-category supplier for various needs",
+          isPreferred: true,
+          tenantId: mrfTenant._id
+        },
+        user: {
+          name: "Arjun Reddy",
+          email: "supplier10@mrf.com",
+          password: defaultPassword,
+          tenantId: mrfTenant._id,
+          authType: 'local',
+          position: "CEO",
+          roles: ['Supplier'],
+          roleIds: [supplierRole._id],
+          active: true
+        }
       }
     ];
 
@@ -162,10 +448,22 @@ const seedMRFSuppliers = async () => {
       
       // Update vendor with the user ID as createdBy
       await Vendor.findByIdAndUpdate(vendorDoc._id, { createdBy: userDoc._id });
-    }
-
-    console.log('\n=== MRF Suppliers Summary ===');
+    }    console.log('\n=== MRF Suppliers Summary ===');
     console.log(`Created ${suppliers.length} suppliers with user accounts`);
+    console.log('Suppliers created by category:');
+    
+    // Group suppliers by category for summary
+    const categoryCounts = {};
+    suppliers.forEach(s => {
+      const category = s.vendor.category;
+      categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+    });
+    
+    // Print category breakdown
+    Object.keys(categoryCounts).forEach(category => {
+      console.log(`- ${category}: ${categoryCounts[category]} supplier(s)`);
+    });
+    
     console.log('============================');
     console.log('Common Password for all supplier users: Password@123');
     

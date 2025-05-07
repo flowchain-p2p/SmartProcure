@@ -52,10 +52,9 @@ const runAllScripts = async () => {  try {
     console.log('- System permissions and roles');
     console.log('- MRF tenant with admin user');
     console.log('- 5 users with different roles');
-    console.log('- Cost centers, departments, and locations');
-    console.log('- 10 categories for procurement');
+    console.log('- Cost centers, departments, and locations');    console.log('- 10 categories for procurement');
     console.log('- 50+ products across all categories');
-    console.log('- 2 suppliers with user accounts');
+    console.log('- 10 suppliers with user accounts');
     console.log('\nYou can now log in with the following credentials:');
     console.log('Email: admin@mrf.com');
     console.log('Password: Password@123');

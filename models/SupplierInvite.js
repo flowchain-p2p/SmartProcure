@@ -14,7 +14,7 @@ const SupplierInviteSchema = new mongoose.Schema({
   token: {
     type: String,
     required: true,
-    unique: true
+    unique: true  // This creates an index automatically
   },
   createdAt: {
     type: Date,
@@ -46,7 +46,7 @@ const SupplierInviteSchema = new mongoose.Schema({
 });
 
 // Index for faster lookups
-SupplierInviteSchema.index({ token: 1 });
+// Removed duplicate token index since unique: true already creates an index
 SupplierInviteSchema.index({ email: 1, tenantId: 1 });
 
 module.exports = mongoose.model('SupplierInvite', SupplierInviteSchema);

@@ -151,8 +151,7 @@ const seedMRFProducts = async () => {
         const price = 100 + Math.floor(Math.random() * 900);
         const discount = Math.floor(Math.random() * 30);
         const mrp = price + Math.floor(price * 0.2);
-        
-        const newProduct = {
+          const newProduct = {
           name: product.name,
           shortDescription: product.shortDescription,
           description: `Detailed description for ${product.name}. This is a high-quality product used in industrial and commercial settings.`,
@@ -176,11 +175,24 @@ const seedMRFProducts = async () => {
             Material: "Various",
             Dimensions: "Standard",
             Weight: "Product specific",
-            Certification: "ISO 9001"
+            Certification: "ISO 9001",
+            // Additional specifications that might be used in the system
+            Adjustable: Math.random() > 0.5 ? "Yes" : "No",
+            Features: "Standard Features",
+            Finish: "Factory Standard",
+            Size: "Standard Size",
+            Type: "Industrial Grade",
+            Warranty: "1 Year Limited"
           },
+          stockQuantity: Math.floor(10 + Math.random() * 90), // Random stock between 10-100
+          subCategory: categoryName, // Using the same as category for now
+          tags: [categoryName, product.brand, product.name.split(' ')[0]], // Basic tagging
+          thumbnailUrl: '/images/products/thumbnail-default.jpg',
           manufacturer: product.brand,
           unit: 'Each',
-          tenantId: mrfTenant._id.toString()
+          tenantId: mrfTenant._id.toString(),
+          createdAt: new Date(),
+          updatedAt: new Date()
         };
         
         allProducts.push(newProduct);
