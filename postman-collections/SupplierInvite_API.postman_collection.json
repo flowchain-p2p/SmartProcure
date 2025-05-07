@@ -1,0 +1,299 @@
+{
+	"info": {
+		"_postman_id": "fc798d47-e8bc-4e51-a8aa-81d5127e3b91",
+		"name": "Supplier Invite API",
+		"description": "API collection for managing supplier invitations in the multitenancy procurement system.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login (Required for Auth Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.environment.set('authToken', jsonData.token);",
+									"    pm.environment.set('tenantId', jsonData.tenant._id);",
+									"    console.log('Token saved to environment');",
+									"} else {",
+									"    console.log('No token found in response');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{userEmail}}\",\n    \"password\": \"{{userPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login to get an authentication token required for other API calls. Sets the token as an environment variable automatically."
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints required to get token for accessing protected endpoints"
+		},
+		{
+			"name": "Send Supplier Invitation",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{authToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"supplier@example.com\",\n    \"phone\": \"+1234567890\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/suppliers/invite",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"suppliers",
+						"invite"
+					]
+				},
+				"description": "Send an invitation to a supplier by email. The system will generate a unique token and send an email to the supplier. The token expires in 7 days."
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Invitations",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{authToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/suppliers/invites?page=1&limit=10&status=pending&email=supplier",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"suppliers",
+						"invites"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1",
+							"description": "Page number for pagination"
+						},
+						{
+							"key": "limit",
+							"value": "10",
+							"description": "Number of results per page"
+						},
+						{
+							"key": "status",
+							"value": "pending",
+							"description": "Filter by invitation status (pending, accepted, expired, cancelled)"
+						},
+						{
+							"key": "email",
+							"value": "supplier",
+							"description": "Search by supplier email (partial match)"
+						}
+					]
+				},
+				"description": "Get all supplier invitations for the current tenant with pagination, filtering, and search options."
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Invitation Token",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/suppliers/verify-invite/:token?tenantId={{tenantId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"suppliers",
+						"verify-invite",
+						":token"
+					],
+					"query": [
+						{
+							"key": "tenantId",
+							"value": "{{tenantId}}",
+							"description": "The tenant ID associated with the invitation"
+						}
+					],
+					"variable": [
+						{
+							"key": "token",
+							"value": "",
+							"description": "The invitation token to verify"
+						}
+					]
+				},
+				"description": "Verify if an invitation token is valid and not expired. This endpoint is public and does not require authentication since it's used by suppliers who don't have accounts yet."
+			},
+			"response": []
+		},
+		{
+			"name": "Resend Invitation",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{authToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/suppliers/invites/:id/resend",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"suppliers",
+						"invites",
+						":id",
+						"resend"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "",
+							"description": "The invitation ID to resend"
+						}
+					]
+				},
+				"description": "Resend an invitation email to a supplier. This will update the expiration date to 7 days from now and set the status back to 'pending'."
+			},
+			"response": []
+		},
+		{
+			"name": "Cancel Invitation",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{authToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/suppliers/invites/:id",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"suppliers",
+						"invites",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "",
+							"description": "The invitation ID to cancel"
+						}
+					]
+				},
+				"description": "Cancel an invitation by setting its status to 'cancelled'. The invitation will no longer be valid even if the token has not expired."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		}
+	]
+}
