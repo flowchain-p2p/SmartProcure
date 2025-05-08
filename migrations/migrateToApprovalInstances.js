@@ -14,7 +14,7 @@ require('../models/Tenant');
 require('../models/Department');
 const Requisition = require('../models/Requisition');
 const ApprovalInstance = require('../models/ApprovalInstance');
-const ApprovalHistory = require('../models/ApprovalHistory');
+// ApprovalHistory removed for MVP
 const User = require('../models/User');
 const CostCenter = require('../models/CostCenter');
 const ApprovalWorkflow = require('../models/ApprovalWorkflow');
@@ -78,14 +78,11 @@ const createApprovalInstanceFromRequisition = async (requisition) => {
   
   // Get a default workflow
   const workflow = await ensureDefaultWorkflow(requisition.tenantId);
-  
-  // Generate the instance ID
+    // Generate the instance ID
   const instanceId = `approvalInstance-${requisition._id}`;
   
-  // Create an approval history collection for this requisition
-  const approvalHistory = await ApprovalHistory.find({
-    requisitionId: requisition._id
-  }).sort({ actionDate: 1 });
+  // No approval history needed for MVP
+  const approvalHistory = []; // Empty array as placeholder
   
   // Determine the current stage based on the requisition's approvalStage
   let currentStageIndex = 0;
@@ -125,20 +122,10 @@ const createApprovalInstanceFromRequisition = async (requisition) => {
         status: stageStatus
       }]
     };
-    
-    if (stageStatus === 'Approved') {
-      // Look for approval history to set action date
-      const approval = approvalHistory.find(h => 
-        h.approverRole === 'CostCenterHead' && 
-        h.actionType === 'Approved'
-      );
-      
-      if (approval) {
-        costCenterStage.approvers[0].actionDate = approval.actionDate;
-        costCenterStage.approvers[0].comments = approval.comments;
-      } else {
-        costCenterStage.approvers[0].actionDate = new Date();
-      }
+      if (stageStatus === 'Approved') {
+      // No approval history for MVP, use current date
+      costCenterStage.approvers[0].actionDate = new Date();
+      costCenterStage.approvers[0].comments = '';
     }
     
     approvalStages.push(costCenterStage);
@@ -170,19 +157,9 @@ const createApprovalInstanceFromRequisition = async (requisition) => {
       }]
     };
     
-    if (stageStatus === 'Approved') {
-      // Look for approval history
-      const approval = approvalHistory.find(h => 
-        h.approverRole === 'Department Head' && 
-        h.actionType === 'Approved'
-      );
-      
-      if (approval) {
-        departmentStage.approvers[0].actionDate = approval.actionDate;
-        departmentStage.approvers[0].comments = approval.comments;
-      } else {
-        departmentStage.approvers[0].actionDate = new Date();
-      }
+    if (stageStatus === 'Approved') {      // No approval history for MVP
+      departmentStage.approvers[0].actionDate = new Date();
+      departmentStage.approvers[0].comments = '';
     }
     
     approvalStages.push(departmentStage);
@@ -210,18 +187,9 @@ const createApprovalInstanceFromRequisition = async (requisition) => {
     };
     
     if (stageStatus === 'Approved') {
-      // Look for approval history
-      const approval = approvalHistory.find(h => 
-        h.approverRole === 'Finance' && 
-        h.actionType === 'Approved'
-      );
-      
-      if (approval) {
-        financeStage.approvers[0].actionDate = approval.actionDate;
-        financeStage.approvers[0].comments = approval.comments;
-      } else {
-        financeStage.approvers[0].actionDate = new Date();
-      }
+      // Look for approval history      // No approval history for MVP
+      financeStage.approvers[0].actionDate = new Date();
+      financeStage.approvers[0].comments = '';
     }
     
     approvalStages.push(financeStage);

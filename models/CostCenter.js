@@ -17,11 +17,10 @@ const CostCenterSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Tenant',
     required: true
-  },
-  head: {
+  },  head: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: false
   },
   approvers: [{
     userId: {

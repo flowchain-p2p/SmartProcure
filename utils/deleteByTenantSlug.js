@@ -2,13 +2,13 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
 // Import all relevant models
-const ApprovalHistory = require('../models/ApprovalHistory');
 const ApprovalInstance = require('../models/ApprovalInstance');
 const ApprovalWorkflow = require('../models/ApprovalWorkflow');
 const Category = require('../models/Category');
 const CostCenter = require('../models/CostCenter');
 const Department = require('../models/Department');
 const Location = require('../models/Location');
+const Permission = require('../models/Permission');
 const Product = require('../models/Product');
 const Requisition = require('../models/Requisition');
 const RequisitionItem = require('../models/RequisitionItem');
@@ -18,6 +18,7 @@ const Tenant = require('../models/Tenant');
 const UnitOfMeasure = require('../models/UnitOfMeasure');
 const User = require('../models/User');
 const Vendor = require('../models/Vendor');
+const VendorCategory = require('../models/VendorCategory');
 
 // Load environment variables
 dotenv.config();
@@ -111,37 +112,30 @@ const deleteByTenantSlug = async (tenantSlug) => {
     // Delete RequisitionItem documents
     const requisitionItemsResult = await RequisitionItem.deleteMany({ tenantId });
     deletionResults.push({ collection: 'RequisitionItems', count: requisitionItemsResult.deletedCount });
-    
-    // Delete Requisition documents
+      // Delete Requisition documents
     const requisitionsResult = await Requisition.deleteMany({ tenantId });
     deletionResults.push({ collection: 'Requisitions', count: requisitionsResult.deletedCount });
-    
-    // Delete ApprovalHistory documents
-    const approvalHistoryResult = await ApprovalHistory.deleteMany({ tenantId });
-    deletionResults.push({ collection: 'ApprovalHistories', count: approvalHistoryResult.deletedCount });
     
     // Delete ApprovalInstance documents
     const approvalInstancesResult = await ApprovalInstance.deleteMany({ tenantId });
     deletionResults.push({ collection: 'ApprovalInstances', count: approvalInstancesResult.deletedCount });
-
-    // Step 3: Optionally, delete the tenant itself
-    let tenantDeleted = false;
-    if (process.argv.includes('--delete-tenant')) {
-      await Tenant.deleteOne({ _id: tenantId });
-      tenantDeleted = true;
-    }
+    
+    // Delete Permission documents
+    const permissionsResult = await Permission.deleteMany({ tenantId });
+    deletionResults.push({ collection: 'Permissions', count: permissionsResult.deletedCount });
+    
+    // Delete VendorCategory documents
+    const vendorCategoriesResult = await VendorCategory.deleteMany({ tenantId });
+    deletionResults.push({ collection: 'VendorCategories', count: vendorCategoriesResult.deletedCount });    // Step 3: Delete the tenant itself
+    await Tenant.deleteOne({ _id: tenantId });
+    const tenantDeleted = true;
 
     // Print deletion summary
     console.log('\n=== Deletion Summary ===');
     deletionResults.forEach(result => {
       console.log(`- ${result.collection}: ${result.count} document(s) deleted`);
     });
-    
-    if (tenantDeleted) {
-      console.log(`- Tenant "${tenant.name}" also deleted`);
-    } else {
-      console.log(`- Tenant "${tenant.name}" preserved (use --delete-tenant flag to delete)`);
-    }
+      console.log(`- Tenant "${tenant.name}" deleted`);
     
     console.log('========================\n');
     
@@ -160,12 +154,11 @@ const deleteByTenantSlug = async (tenantSlug) => {
 if (require.main === module) {
   // Get tenant slug from command line arguments
   const tenantSlug = process.argv[2];
-  
-  if (!tenantSlug) {
+    if (!tenantSlug) {
     console.error('Please provide a tenant slug as argument');
-    console.log('Usage: node deleteByTenantSlug.js <tenantSlug> [--delete-tenant]');
+    console.log('Usage: node deleteByTenantSlug.js <tenantSlug>');
     console.log('Example: node deleteByTenantSlug.js mrf');
-    console.log('Add --delete-tenant flag to also delete the tenant itself');
+    console.log('This will delete all data related to the tenant, including the tenant itself');
     process.exit(1);
   }
   

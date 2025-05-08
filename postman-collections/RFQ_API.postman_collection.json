@@ -1,0 +1,493 @@
+{
+	"info": {
+		"_postman_id": "3e5b8a71-f4bb-47d4-bd0b-b6ad7e47f85c",
+		"name": "RFQ_API",
+		"description": "# Request For Quotation (RFQ) API Collection\n\nThis collection contains endpoints for managing RFQs in the multi-tenant procurement system.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "RFQs",
+			"item": [
+				{
+					"name": "Get All RFQs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rfqs?status=Draft&page=1&limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rfqs"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "Draft",
+									"description": "Filter by status (Draft, Issued, Delivered, Completed, Cancelled)"
+								},
+								{
+									"key": "requisitionId",
+									"value": "{{requisitionId}}",
+									"description": "Filter by requisition",
+									"disabled": true
+								},
+								{
+									"key": "awardedVendorId",
+									"value": "{{vendorId}}",
+									"description": "Filter by awarded vendor",
+									"disabled": true
+								},
+								{
+									"key": "vendorId",
+									"value": "{{vendorId}}",
+									"description": "Filter by invited vendor",
+									"disabled": true
+								},
+								{
+									"key": "organizationId",
+									"value": "{{organizationId}}",
+									"description": "Filter by organization",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "",
+									"description": "Search in RFQ number, title, description",
+									"disabled": true
+								},
+								{
+									"key": "startDate",
+									"value": "2023-01-01",
+									"description": "Start date for filtering",
+									"disabled": true
+								},
+								{
+									"key": "endDate",
+									"value": "2023-12-31",
+									"description": "End date for filtering",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Items per page"
+								}
+							]
+						},
+						"description": "Get all RFQs with pagination and various filtering options"
+					},
+					"response": []
+				},
+				{
+					"name": "Get RFQ by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rfqs/{{rfqId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rfqs",
+								"{{rfqId}}"
+							]
+						},
+						"description": "Get a specific RFQ by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create RFQ",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Request for Quotation - Office Furniture\",\n    \"description\": \"RFQ for new office furniture for the headquarters\",\n    \"requisitionId\": \"{{requisitionId}}\",\n    \"submissionDeadline\": \"2023-06-30T00:00:00.000Z\",\n    \"items\": [\n        {\n            \"description\": \"Executive Desk\",\n            \"quantity\": 5,\n            \"unitOfMeasure\": \"Each\",\n            \"estimatedUnitPrice\": 25000,\n            \"estimatedTotalPrice\": 125000,\n            \"notes\": \"Solid wood, L-shaped, with cable management\"\n        },\n        {\n            \"description\": \"Ergonomic Office Chair\",\n            \"quantity\": 10,\n            \"unitOfMeasure\": \"Each\",\n            \"estimatedUnitPrice\": 12000,\n            \"estimatedTotalPrice\": 120000,\n            \"notes\": \"Adjustable height, lumbar support, armrests\"\n        }\n    ],\n    \"vendorQuotes\": [\n        {\n            \"vendorId\": \"{{vendorId1}}\"\n        },\n        {\n            \"vendorId\": \"{{vendorId2}}\"\n        },\n        {\n            \"vendorId\": \"{{vendorId3}}\"\n        }\n    ],\n    \"currency\": \"INR\",\n    \"notes\": \"Please provide detailed specifications and images with your quotation\",\n    \"organizationId\": \"{{organizationId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/rfqs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rfqs"
+							]
+						},
+						"description": "Create a new RFQ"
+					},
+					"response": []
+				},
+				{
+					"name": "Update RFQ",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Updated RFQ - Office Furniture\",\n    \"description\": \"Updated RFQ for new office furniture for the headquarters\",\n    \"submissionDeadline\": \"2023-07-15T00:00:00.000Z\",\n    \"items\": [\n        {\n            \"description\": \"Executive Desk\",\n            \"quantity\": 7,\n            \"unitOfMeasure\": \"Each\",\n            \"estimatedUnitPrice\": 25000,\n            \"estimatedTotalPrice\": 175000,\n            \"notes\": \"Solid wood, L-shaped, with cable management and drawer unit\"\n        },\n        {\n            \"description\": \"Ergonomic Office Chair\",\n            \"quantity\": 15,\n            \"unitOfMeasure\": \"Each\",\n            \"estimatedUnitPrice\": 12000,\n            \"estimatedTotalPrice\": 180000,\n            \"notes\": \"Adjustable height, lumbar support, armrests, headrest\"\n        },\n        {\n            \"description\": \"Filing Cabinet\",\n            \"quantity\": 5,\n            \"unitOfMeasure\": \"Each\",\n            \"estimatedUnitPrice\": 8000,\n            \"estimatedTotalPrice\": 40000,\n            \"notes\": \"3-drawer, lockable, metal\"\n        }\n    ],\n    \"notes\": \"Please provide detailed specifications, warranty information, and images with your quotation\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/rfqs/{{rfqId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rfqs",
+								"{{rfqId}}"
+							]
+						},
+						"description": "Update an existing RFQ"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete RFQ",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rfqs/{{rfqId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rfqs",
+								"{{rfqId}}"
+							]
+						},
+						"description": "Delete an RFQ (only if in Draft status)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Status Updates",
+			"item": [
+				{
+					"name": "Issue RFQ",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rfqs/{{rfqId}}/issue",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rfqs",
+								"{{rfqId}}",
+								"issue"
+							]
+						},
+						"description": "Change RFQ status from Draft to Issued"
+					},
+					"response": []
+				},
+				{
+					"name": "Mark RFQ as Delivered",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rfqs/{{rfqId}}/deliver",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rfqs",
+								"{{rfqId}}",
+								"deliver"
+							]
+						},
+						"description": "Change RFQ status from Issued to Delivered"
+					},
+					"response": []
+				},
+				{
+					"name": "Complete RFQ",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rfqs/{{rfqId}}/complete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rfqs",
+								"{{rfqId}}",
+								"complete"
+							]
+						},
+						"description": "Change RFQ status from Delivered to Completed"
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel RFQ",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rfqs/{{rfqId}}/cancel",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rfqs",
+								"{{rfqId}}",
+								"cancel"
+							]
+						},
+						"description": "Cancel an RFQ (cannot be done if already Completed)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Vendor Management",
+			"item": [
+				{
+					"name": "Add Vendor to RFQ",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"vendorId\": \"{{vendorId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/rfqs/{{rfqId}}/vendors",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rfqs",
+								"{{rfqId}}",
+								"vendors"
+							]
+						},
+						"description": "Add a vendor to an RFQ to request a quote"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Vendor Quote",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"Responded\",\n    \"totalQuoteAmount\": 295000,\n    \"currency\": \"INR\",\n    \"deliveryDate\": \"2023-08-15T00:00:00.000Z\",\n    \"notes\": \"Quote includes free installation and 3 year warranty\",\n    \"itemQuotes\": [\n        {\n            \"rfqItemId\": \"{{rfqItemId1}}\",\n            \"unitPrice\": 22000,\n            \"totalPrice\": 154000,\n            \"notes\": \"Premium teak wood executive desk\"\n        },\n        {\n            \"rfqItemId\": \"{{rfqItemId2}}\",\n            \"unitPrice\": 11000,\n            \"totalPrice\": 165000,\n            \"notes\": \"Ergonomic mesh chair with 5-year warranty\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/rfqs/{{rfqId}}/vendors/{{vendorId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rfqs",
+								"{{rfqId}}",
+								"vendors",
+								"{{vendorId}}"
+							]
+						},
+						"description": "Update a vendor's quote for an RFQ"
+					},
+					"response": []
+				},
+				{
+					"name": "Award RFQ to Vendor",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rfqs/{{rfqId}}/award/{{vendorId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rfqs",
+								"{{rfqId}}",
+								"award",
+								"{{vendorId}}"
+							]
+						},
+						"description": "Award an RFQ to a specific vendor"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000/api/v1"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "rfqId",
+			"value": ""
+		},
+		{
+			"key": "requisitionId",
+			"value": ""
+		},
+		{
+			"key": "vendorId",
+			"value": ""
+		},
+		{
+			"key": "vendorId1",
+			"value": ""
+		},
+		{
+			"key": "vendorId2",
+			"value": ""
+		},
+		{
+			"key": "vendorId3",
+			"value": ""
+		},
+		{
+			"key": "rfqItemId1",
+			"value": ""
+		},
+		{
+			"key": "rfqItemId2",
+			"value": ""
+		},
+		{
+			"key": "organizationId",
+			"value": ""
+		}
+	]
+}

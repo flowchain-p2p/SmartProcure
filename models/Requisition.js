@@ -119,13 +119,6 @@ RequisitionSchema.virtual('items', {
   justOne: false
 });
 
-// Virtual for getting approval history
-RequisitionSchema.virtual('approvalHistory', {
-  ref: 'ApprovalHistory',
-  localField: '_id',
-  foreignField: 'requisitionId',
-  justOne: false,
-  options: { sort: { actionDate: -1 } }
-});
+// No approval history needed for MVP
 
 module.exports = mongoose.model('Requisition', RequisitionSchema);

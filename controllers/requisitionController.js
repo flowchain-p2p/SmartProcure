@@ -1,6 +1,6 @@
 const Requisition = require('../models/Requisition');
 const RequisitionItem = require('../models/RequisitionItem');
-const ApprovalHistory = require('../models/ApprovalHistory');
+// ApprovalHistory removed from MVP
 const CostCenter = require('../models/CostCenter');
 const User = require('../models/User');
 const mongoose = require('mongoose');

@@ -1,6 +1,5 @@
 const ApprovalInstance = require('../models/ApprovalInstance');
 const ApprovalWorkflow = require('../models/ApprovalWorkflow');
-const ApprovalHistory = require('../models/ApprovalHistory');
 const Requisition = require('../models/Requisition');
 const CostCenter = require('../models/CostCenter');
 const User = require('../models/User');
@@ -18,19 +17,43 @@ const createApprovalInstance = async (requisitionData, options = {}) => {
   // Generate instance ID
   const instanceId = `approvalInstance-${requisitionData._id}`;
   
-  // Determine the workflow to use
-  let workflow;
+  // Determine the workflow to use  let workflow;
   if (workflowId) {
     // Use the specified workflow
     workflow = await ApprovalWorkflow.findById(workflowId);
+    if (!workflow) {
+      console.error(`Workflow with ID ${workflowId} not found`);
+      throw new Error(`Workflow with ID ${workflowId} not found`);
+    }
   } else {
     // Find a default workflow for requisitions
     workflow = await ApprovalWorkflow.findOne({
       tenantId,
       type: 'requisition'
     });
+    
+    // Create a default workflow if none exists
+    if (!workflow) {
+      try {
+        workflow = await ApprovalWorkflow.create({
+          name: 'Default Requisition Approval',
+          tenantId,
+          type: 'requisition',
+          thresholds: [{
+            amount: 0,
+            requiredApprovals: [
+              { role: 'CostCenterHead', level: 1 }
+            ]
+          }]
+        });
+        console.log(`Created default workflow for tenant ${tenantId}`);
+      } catch (error) {
+        console.error(`Error creating default workflow: ${error.message}`);
+        throw new Error(`Failed to create default approval workflow: ${error.message}`);
+      }
+    }
   }
-  
+    // Ensure we have a valid workflow at this point
   if (!workflow) {
     throw new Error('No workflow found for approval instance');
   }
@@ -133,17 +156,7 @@ const startApprovalProcess = async (requisitionId, options = {}) => {
         approverRole: firstStage.approvers[0].role
       }
     );
-    
-    // Create approval history entry
-    await ApprovalHistory.create({
-      requisitionId,
-      actionType: 'Submitted',
-      actionBy: userId,
-      statusFrom: 'Draft',
-      statusTo: 'Pending Approval',
-      approverRole: firstStage.approvers[0].role,
-      tenantId
-    });
+      // No approval history needed for MVP
   }
   
   // Fetch the updated requisition
@@ -304,18 +317,7 @@ const processApprovalDecision = async (requisitionId, decision, options = {}) =>
   
   // Save the updated approval instance
   await approvalInstance.save();
-  
-  // Create approval history entry
-  await ApprovalHistory.create({
-    requisitionId,
-    actionType: action.charAt(0).toUpperCase() + action.slice(1),
-    actionBy: userId,
-    statusFrom: currentStatus,
-    statusTo: newStatus,
-    comments,
-    approverRole: currentStage.approvers[approverIndex].role,
-    tenantId
-  });
+    // No approval history needed for MVP
   
   // Fetch the updated requisition
   const updatedRequisition = await Requisition.findById(requisitionId);

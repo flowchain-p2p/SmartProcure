@@ -1,0 +1,374 @@
+{
+	"info": {
+		"_postman_id": "7b8e0fc2-5d3c-42a5-9e3d-71d72e5fdb9e",
+		"name": "PurchaseOrder_API",
+		"description": "# Purchase Order API Collection\n\nThis collection contains endpoints for managing purchase orders in the multi-tenant procurement system.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Purchase Orders",
+			"item": [
+				{
+					"name": "Get All Purchase Orders",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/purchase-orders?status=Draft&page=1&limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"purchase-orders"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "Draft",
+									"description": "Filter by status (Draft, Issued, Delivered, Completed, Cancelled)"
+								},
+								{
+									"key": "vendorId",
+									"value": "{{vendorId}}",
+									"description": "Filter by vendor",
+									"disabled": true
+								},
+								{
+									"key": "requisitionId",
+									"value": "{{requisitionId}}",
+									"description": "Filter by requisition",
+									"disabled": true
+								},
+								{
+									"key": "rfqId",
+									"value": "{{rfqId}}",
+									"description": "Filter by RFQ",
+									"disabled": true
+								},
+								{
+									"key": "organizationId",
+									"value": "{{organizationId}}",
+									"description": "Filter by organization",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "",
+									"description": "Search in PO number, title, description",
+									"disabled": true
+								},
+								{
+									"key": "startDate",
+									"value": "2023-01-01",
+									"description": "Start date for filtering",
+									"disabled": true
+								},
+								{
+									"key": "endDate",
+									"value": "2023-12-31",
+									"description": "End date for filtering",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Items per page"
+								}
+							]
+						},
+						"description": "Get all purchase orders with pagination and various filtering options"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Purchase Order by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/purchase-orders/{{purchaseOrderId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"purchase-orders",
+								"{{purchaseOrderId}}"
+							]
+						},
+						"description": "Get a specific purchase order by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Purchase Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Purchase Order for Office Supplies\",\n    \"description\": \"Office supplies for Marketing Department\",\n    \"requisitionId\": \"{{requisitionId}}\",\n    \"vendorId\": \"{{vendorId}}\",\n    \"rfqId\": \"{{rfqId}}\",\n    \"items\": [\n        {\n            \"description\": \"Printer Paper A4\",\n            \"quantity\": 10,\n            \"unitPrice\": 250,\n            \"totalPrice\": 2500,\n            \"currency\": \"INR\",\n            \"unitOfMeasure\": \"Box\",\n            \"notes\": \"80 GSM, 500 sheets per ream, 5 reams per box\"\n        },\n        {\n            \"description\": \"Ballpoint Pens\",\n            \"quantity\": 50,\n            \"unitPrice\": 15,\n            \"totalPrice\": 750,\n            \"currency\": \"INR\",\n            \"unitOfMeasure\": \"Each\",\n            \"notes\": \"Blue ink, 0.7mm tip\"\n        }\n    ],\n    \"deliveryDate\": \"2023-06-30T00:00:00.000Z\",\n    \"deliveryAddress\": \"Corporate HQ, 123 Main Street\",\n    \"deliveryContact\": \"John Smith, +91 9876543210\",\n    \"paymentTerms\": \"Net 30\",\n    \"notes\": \"Please deliver during business hours (9 AM - 5 PM)\",\n    \"organizationId\": \"{{organizationId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/purchase-orders",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"purchase-orders"
+							]
+						},
+						"description": "Create a new purchase order"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Purchase Order",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Updated Purchase Order for Office Supplies\",\n    \"description\": \"Office supplies for Marketing Department - Updated\",\n    \"items\": [\n        {\n            \"description\": \"Printer Paper A4\",\n            \"quantity\": 15,\n            \"unitPrice\": 250,\n            \"totalPrice\": 3750,\n            \"currency\": \"INR\",\n            \"unitOfMeasure\": \"Box\",\n            \"notes\": \"80 GSM, 500 sheets per ream, 5 reams per box\"\n        },\n        {\n            \"description\": \"Ballpoint Pens\",\n            \"quantity\": 100,\n            \"unitPrice\": 15,\n            \"totalPrice\": 1500,\n            \"currency\": \"INR\",\n            \"unitOfMeasure\": \"Each\",\n            \"notes\": \"Blue ink, 0.7mm tip\"\n        }\n    ],\n    \"deliveryDate\": \"2023-07-15T00:00:00.000Z\",\n    \"deliveryAddress\": \"Corporate HQ, 123 Main Street, Floor 2\",\n    \"deliveryContact\": \"Jane Doe, +91 9876543211\",\n    \"paymentTerms\": \"Net 45\",\n    \"notes\": \"Please deliver during business hours (10 AM - 4 PM)\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/purchase-orders/{{purchaseOrderId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"purchase-orders",
+								"{{purchaseOrderId}}"
+							]
+						},
+						"description": "Update an existing purchase order"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Purchase Order",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/purchase-orders/{{purchaseOrderId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"purchase-orders",
+								"{{purchaseOrderId}}"
+							]
+						},
+						"description": "Delete a purchase order (only if in Draft status)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Status Updates",
+			"item": [
+				{
+					"name": "Issue Purchase Order",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/purchase-orders/{{purchaseOrderId}}/issue",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"purchase-orders",
+								"{{purchaseOrderId}}",
+								"issue"
+							]
+						},
+						"description": "Change purchase order status from Draft to Issued"
+					},
+					"response": []
+				},
+				{
+					"name": "Mark Purchase Order as Delivered",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/purchase-orders/{{purchaseOrderId}}/deliver",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"purchase-orders",
+								"{{purchaseOrderId}}",
+								"deliver"
+							]
+						},
+						"description": "Change purchase order status from Issued to Delivered"
+					},
+					"response": []
+				},
+				{
+					"name": "Complete Purchase Order",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/purchase-orders/{{purchaseOrderId}}/complete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"purchase-orders",
+								"{{purchaseOrderId}}",
+								"complete"
+							]
+						},
+						"description": "Change purchase order status from Delivered to Completed"
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Purchase Order",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/purchase-orders/{{purchaseOrderId}}/cancel",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"purchase-orders",
+								"{{purchaseOrderId}}",
+								"cancel"
+							]
+						},
+						"description": "Cancel a purchase order (cannot be done if already Completed)"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000/api/v1"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "purchaseOrderId",
+			"value": ""
+		},
+		{
+			"key": "requisitionId",
+			"value": ""
+		},
+		{
+			"key": "vendorId",
+			"value": ""
+		},
+		{
+			"key": "rfqId",
+			"value": ""
+		},
+		{
+			"key": "organizationId",
+			"value": ""
+		}
+	]
+}
