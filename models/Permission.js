@@ -15,10 +15,9 @@ const PermissionSchema = new mongoose.Schema({
   description: {
     type: String,
     trim: true
-  },
-  category: {
+  },  category: {
     type: String,
-    enum: ['PR Management', 'PO Management', 'Budget Management', 'Supplier Management', 'Finance Operations', 'System Administration'],
+    enum: ['PR Management', 'PO Management', 'RFQ Management', 'Budget Management', 'Supplier Management', 'Finance Operations', 'System Administration'],
     required: true
   },
   createdAt: {

@@ -58,7 +58,7 @@ const seedMRFSuppliers = async () => {
     }
     
     console.log(`Found supplier role with ID: ${supplierRole._id}`);    // Step 3: Define suppliers
-    const defaultPassword = await hashPassword('Password@123');
+    const defaultPassword = 'Password@123';
     
     const suppliers = [
       {

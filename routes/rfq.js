@@ -25,58 +25,34 @@ router.route('/')
   .get(hasPermission('rfq.view'), getRFQs)
   .post(hasPermission('rfq.create'), createRFQ);
 
-// Custom middleware to check RFQ status before applying specific permissions
-const checkRfqStatusPermission = (statusPermissionMap) => {
-  return async (req, res, next) => {
-    try {
-      const rfq = await require('../models/RFQ').findById(req.params.id);
-      if (!rfq) {
-        return res.status(404).json({ success: false, message: 'RFQ not found' });
-      }
-      
-      const status = rfq.status;
-      const requiredPermission = statusPermissionMap[status] || statusPermissionMap.default;
-      
-      return hasPermission(requiredPermission)(req, res, next);
-    } catch (error) {
-      return res.status(500).json({ success: false, message: error.message });
-    }
-  };
-};
+// No longer need status-specific permissions as we've simplified them
 
 router.route('/:id')
   .get(hasPermission('rfq.view'), getRFQ)
-  // Different permissions based on status for update operations
-  .put(checkRfqStatusPermission({
-    'Draft': 'rfq.edit_draft',
-    default: 'rfq.view'  // Read-only for other statuses
-  }), updateRFQ)
-  // Only allow deletion of draft RFQs
-  .delete(hasPermission('rfq.delete_draft'), deleteRFQ);
+  // Use simple edit permission for all update operations
+  .put(hasPermission('rfq.edit'), updateRFQ)
+  // Use edit permission for delete operations
+  .delete(hasPermission('rfq.edit'), deleteRFQ);
 
-// Status change routes
+// Status change routes - all mapped to simplified permissions
 router.route('/:id/issue')
-  .patch(hasPermission('rfq.issue'), issueRFQ);
+  .patch(hasPermission('rfq.submit'), issueRFQ);
 
 router.route('/:id/deliver')
-  .patch(hasPermission('rfq.deliver'), markRFQDelivered);
+  .patch(hasPermission('rfq.submit'), markRFQDelivered);
 
 router.route('/:id/complete')
-  .patch(hasPermission('rfq.complete'), completeRFQ);
+  .patch(hasPermission('rfq.submit'), completeRFQ);
 
 router.route('/:id/cancel')
-  .patch(checkRfqStatusPermission({
-    'Issued': 'rfq.cancel_issued',
-    'Delivered': 'rfq.cancel_delivered',
-    default: 'rfq.view'  // No cancelation permission for other statuses
-  }), cancelRFQ);
+  .patch(hasPermission('rfq.cancel'), cancelRFQ);
 
-// Vendor management routes
+// Vendor management routes - mapped to simplified permissions
 router.route('/:id/vendors')
-  .post(hasPermission('rfq.add_vendor'), addVendorToRFQ);
+  .post(hasPermission('rfq.edit'), addVendorToRFQ);
 
 router.route('/:id/vendors/:vendorId')
-  .put(hasPermission('rfq.update_vendor_quote'), updateVendorQuote);
+  .put(hasPermission('rfq.edit'), updateVendorQuote);
 
 router.route('/:id/award/:vendorId')
   .patch(hasPermission('rfq.award'), awardRFQ);
