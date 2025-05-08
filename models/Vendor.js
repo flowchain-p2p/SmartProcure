@@ -53,11 +53,12 @@ const VendorSchema = new mongoose.Schema({
   taxId: {
     type: String,
     trim: true
-  },
-  paymentTerms: {
+  },  paymentTerms: {
     type: String,
     trim: true
   },
+  // The category field is now handled through the VendorCategory relationship model
+  // This field is kept for backwards compatibility but is deprecated
   category: {
     type: String,
     trim: true

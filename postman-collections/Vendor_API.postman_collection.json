@@ -600,8 +600,7 @@
           "body": "{\n  \"success\": false,\n  \"message\": \"Invalid vendor ID format\"\n}"
         }
       ]
-    },
-    {
+    },    {
       "name": "Get Vendor Categories",
       "request": {
         "method": "GET",
@@ -682,6 +681,361 @@
           "body": "{\n  \"success\": false,\n  \"message\": \"Error fetching vendor categories\",\n  \"error\": \"Error message details\"\n}"
         }
       ]
+    },
+    {
+      "name": "Get Categories for a Vendor",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}/categories",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "vendors",
+            "{{vendorId}}",
+            "categories"
+          ]
+        },
+        "description": "Retrieves all categories associated with a specific vendor"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "{{vendorId}}",
+                "categories"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"count\": 2,\n  \"data\": [\n    {\n      \"_id\": \"60d5ec66e45c913e3c9c4322\",\n      \"name\": \"Office Supplies\",\n      \"preferredSupplier\": true,\n      \"priceRange\": {\n        \"min\": 100,\n        \"max\": 5000,\n        \"currency\": \"USD\"\n      },\n      \"notes\": \"Primary supplier for this category\"\n    },\n    {\n      \"_id\": \"60d5ec66e45c913e3c9c4323\",\n      \"name\": \"Technology\",\n      \"preferredSupplier\": false,\n      \"priceRange\": {\n        \"min\": 0,\n        \"max\": 0,\n        \"currency\": \"USD\"\n      },\n      \"notes\": \"\"\n    }\n  ]\n}"
+        },
+        {
+          "name": "Not Found Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/{{nonExistentVendorId}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "{{nonExistentVendorId}}",
+                "categories"
+              ]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Vendor not found with id of {{nonExistentVendorId}}\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Associate Vendor with Categories",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"categories\": [\n        {\n            \"categoryId\": \"{{categoryId1}}\",\n            \"preferredSupplier\": true,\n            \"priceRange\": {\n                \"min\": 100,\n                \"max\": 5000,\n                \"currency\": \"USD\"\n            },\n            \"notes\": \"Primary supplier for this category\"\n        },\n        {\n            \"categoryId\": \"{{categoryId2}}\",\n            \"preferredSupplier\": false,\n            \"notes\": \"Secondary supplier\"\n        }\n    ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}/categories",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "vendors",
+            "{{vendorId}}",
+            "categories"
+          ]
+        },
+        "description": "Associates a vendor with one or more categories, with additional relationship information"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"categories\": [\n        {\n            \"categoryId\": \"{{categoryId1}}\",\n            \"preferredSupplier\": true,\n            \"priceRange\": {\n                \"min\": 100,\n                \"max\": 5000,\n                \"currency\": \"USD\"\n            },\n            \"notes\": \"Primary supplier for this category\"\n        },\n        {\n            \"categoryId\": \"{{categoryId2}}\",\n            \"preferredSupplier\": false,\n            \"notes\": \"Secondary supplier\"\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "{{vendorId}}",
+                "categories"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"count\": 2,\n  \"data\": [\n    {\n      \"_id\": \"60e5fc76f45c913e3c9c5311\",\n      \"vendorId\": \"{{vendorId}}\",\n      \"categoryId\": \"{{categoryId1}}\",\n      \"tenantId\": \"60d5ec66e45c913e3c9c4301\",\n      \"preferredSupplier\": true,\n      \"priceRange\": {\n        \"min\": 100,\n        \"max\": 5000,\n        \"currency\": \"USD\"\n      },\n      \"notes\": \"Primary supplier for this category\",\n      \"createdAt\": \"2023-06-25T10:23:22.111Z\",\n      \"updatedAt\": \"2023-06-25T10:23:22.111Z\"\n    },\n    {\n      \"_id\": \"60e5fc76f45c913e3c9c5312\",\n      \"vendorId\": \"{{vendorId}}\",\n      \"categoryId\": \"{{categoryId2}}\",\n      \"tenantId\": \"60d5ec66e45c913e3c9c4301\",\n      \"preferredSupplier\": false,\n      \"priceRange\": {\n        \"min\": 0,\n        \"max\": 0,\n        \"currency\": \"USD\"\n      },\n      \"notes\": \"Secondary supplier\",\n      \"createdAt\": \"2023-06-25T10:23:22.111Z\",\n      \"updatedAt\": \"2023-06-25T10:23:22.111Z\"\n    }\n  ]\n}"
+        },
+        {
+          "name": "Validation Error",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"someField\": \"invalidData\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "{{vendorId}}",
+                "categories"
+              ]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Request must include categoryId or an array of category objects\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Remove Vendor from Category",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}/categories/{{categoryId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "vendors",
+            "{{vendorId}}",
+            "categories",
+            "{{categoryId}}"
+          ]
+        },
+        "description": "Removes the association between a vendor and a category"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "{{vendorId}}",
+                "categories",
+                "{{categoryId}}"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"message\": \"Vendor removed from category successfully\",\n  \"data\": {}\n}"
+        },
+        {
+          "name": "Not Found Response",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}/categories/{{nonExistentCategoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "vendors",
+                "{{vendorId}}",
+                "categories",
+                "{{nonExistentCategoryId}}"
+              ]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Vendor-category relationship not found\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get Vendors for a Category",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}/vendors",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "categories",
+            "{{categoryId}}",
+            "vendors"
+          ]
+        },
+        "description": "Retrieves all vendors associated with a specific category"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}/vendors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                "{{categoryId}}",
+                "vendors"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"count\": 2,\n  \"data\": [\n    {\n      \"_id\": \"60d5ec66e45c913e3c9c4311\",\n      \"name\": \"ABC Suppliers\",\n      \"code\": \"VEN001\",\n      \"contactPerson\": \"John Doe\",\n      \"email\": \"john@abcsuppliers.com\",\n      \"phone\": \"+1234567890\",\n      \"preferredSupplier\": true,\n      \"priceRange\": {\n        \"min\": 100,\n        \"max\": 5000,\n        \"currency\": \"USD\"\n      },\n      \"notes\": \"Primary supplier for this category\"\n    },\n    {\n      \"_id\": \"60d5ec66e45c913e3c9c4312\",\n      \"name\": \"XYZ Manufacturing\",\n      \"code\": \"VEN002\",\n      \"contactPerson\": \"Jane Smith\",\n      \"email\": \"jane@xyzmanufacturing.com\",\n      \"phone\": \"+0987654321\",\n      \"preferredSupplier\": false,\n      \"priceRange\": {\n        \"min\": 0,\n        \"max\": 0,\n        \"currency\": \"USD\"\n      },\n      \"notes\": \"Secondary supplier\"\n    }\n  ]\n}"
+        },
+        {
+          "name": "Not Found Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/categories/{{nonExistentCategoryId}}/vendors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "categories",
+                "{{nonExistentCategoryId}}",
+                "vendors"
+              ]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"success\": false,\n  \"message\": \"Category not found with id of {{nonExistentCategoryId}}\"\n}"
+        }
+      ]
     }
   ],
   "event": [
@@ -714,8 +1068,7 @@
         ]
       }
     }
-  ],
-  "variable": [
+  ],  "variable": [
     {
       "key": "baseUrl",
       "value": "http://localhost:5000",
@@ -733,6 +1086,26 @@
     },
     {
       "key": "nonExistentVendorId",
+      "value": "60d5ec66e45c913e3c9c4399",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "60d5ec66e45c913e3c9c4322",
+      "type": "string"
+    },
+    {
+      "key": "categoryId1",
+      "value": "60d5ec66e45c913e3c9c4322",
+      "type": "string"
+    },
+    {
+      "key": "categoryId2",
+      "value": "60d5ec66e45c913e3c9c4323",
+      "type": "string"
+    },
+    {
+      "key": "nonExistentCategoryId",
       "value": "60d5ec66e45c913e3c9c4399",
       "type": "string"
     }

@@ -291,8 +291,7 @@
 						"description": "Create multiple categories at once, with or without parent references"
 					},
 					"response": []
-				},
-				{
+				},				{
 					"name": "Update Category",
 					"request": {
 						"method": "PUT",
@@ -324,9 +323,118 @@
 						"description": "Update an existing category's name or attributes"
 					},
 					"response": []
+				},
+				{
+					"name": "Get Vendors for Category",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}/vendors",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"{{categoryId}}",
+								"vendors"
+							]
+						},
+						"description": "Get all vendors associated with a specific category"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}/vendors",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"categories",
+										"{{categoryId}}",
+										"vendors"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n  \"success\": true,\n  \"count\": 2,\n  \"data\": [\n    {\n      \"_id\": \"60d5ec66e45c913e3c9c4311\",\n      \"name\": \"ABC Suppliers\",\n      \"code\": \"VEN001\",\n      \"contactPerson\": \"John Doe\",\n      \"email\": \"john@abcsuppliers.com\",\n      \"phone\": \"+1234567890\",\n      \"preferredSupplier\": true,\n      \"priceRange\": {\n        \"min\": 100,\n        \"max\": 5000,\n        \"currency\": \"USD\"\n      },\n      \"notes\": \"Primary supplier for this category\"\n    },\n    {\n      \"_id\": \"60d5ec66e45c913e3c9c4312\",\n      \"name\": \"XYZ Manufacturing\",\n      \"code\": \"VEN002\",\n      \"contactPerson\": \"Jane Smith\",\n      \"email\": \"jane@xyzmanufacturing.com\",\n      \"phone\": \"+0987654321\",\n      \"preferredSupplier\": false,\n      \"priceRange\": {\n        \"min\": 0,\n        \"max\": 0,\n        \"currency\": \"USD\"\n      },\n      \"notes\": \"Secondary supplier\"\n    }\n  ]\n}"
+						},
+						{
+							"name": "Not Found Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/categories/{{nonExistentCategoryId}}/vendors",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"categories",
+										"{{nonExistentCategoryId}}",
+										"vendors"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n  \"success\": false,\n  \"message\": \"Category not found with id of {{nonExistentCategoryId}}\"\n}"
+						}
+					]
 				}
 			],
 			"description": "Endpoints for managing hierarchical Categories"
+		}
+	],
+	"variable": [
+		{
+			"key": "nonExistentCategoryId",
+			"value": "60d5ec66e45c913e3c9c4399",
+			"type": "string"
 		}
 	]
 }

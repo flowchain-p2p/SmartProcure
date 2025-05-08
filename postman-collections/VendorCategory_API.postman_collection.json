@@ -1,0 +1,204 @@
+{
+  "info": {
+    "name": "Vendor-Category Relationship API",
+    "description": "API endpoints for managing vendor-category relationships in the multitenancy system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Categories for a Vendor",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}/categories",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "vendors",
+            "{{vendorId}}",
+            "categories"
+          ]
+        },
+        "description": "Retrieves all categories associated with a specific vendor"
+      },
+      "response": []
+    },
+    {
+      "name": "Associate Vendor with Categories",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"categories\": [\n        {\n            \"categoryId\": \"{{categoryId1}}\",\n            \"preferredSupplier\": true,\n            \"priceRange\": {\n                \"min\": 100,\n                \"max\": 5000,\n                \"currency\": \"USD\"\n            },\n            \"notes\": \"Primary supplier for this category\"\n        },\n        {\n            \"categoryId\": \"{{categoryId2}}\",\n            \"preferredSupplier\": false,\n            \"notes\": \"Secondary supplier\"\n        }\n    ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}/categories",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "vendors",
+            "{{vendorId}}",
+            "categories"
+          ]
+        },
+        "description": "Associates a vendor with one or more categories, with additional relationship information"
+      },
+      "response": []
+    },
+    {
+      "name": "Associate Vendor with Single Category",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"categoryId\": \"{{categoryId}}\",\n    \"preferredSupplier\": true,\n    \"priceRange\": {\n        \"min\": 100,\n        \"max\": 5000,\n        \"currency\": \"USD\"\n    },\n    \"notes\": \"Primary supplier for this category\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}/categories",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "vendors",
+            "{{vendorId}}",
+            "categories"
+          ]
+        },
+        "description": "Associates a vendor with a single category, with additional relationship information"
+      },
+      "response": []
+    },
+    {
+      "name": "Remove Vendor from Category",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/vendors/{{vendorId}}/categories/{{categoryId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "vendors",
+            "{{vendorId}}",
+            "categories",
+            "{{categoryId}}"
+          ]
+        },
+        "description": "Removes the association between a vendor and a category"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Vendors for a Category",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/categories/{{categoryId}}/vendors",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "categories",
+            "{{categoryId}}",
+            "vendors"
+          ]
+        },
+        "description": "Retrieves all vendors associated with a specific category"
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "token",
+      "value": "YOUR_AUTH_TOKEN"
+    },
+    {
+      "key": "vendorId",
+      "value": "VENDOR_ID"
+    },
+    {
+      "key": "categoryId",
+      "value": "CATEGORY_ID"
+    },
+    {
+      "key": "categoryId1",
+      "value": "CATEGORY_ID_1"
+    },
+    {
+      "key": "categoryId2",
+      "value": "CATEGORY_ID_2"
+    }
+  ]
+}

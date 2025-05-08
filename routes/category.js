@@ -7,6 +7,8 @@ const {
   createCategory, 
   updateCategory 
 } = require('../controllers/categoryController');
+
+const { getVendorsByCategory } = require('../controllers/vendorController');
 const { identifyTenantFromToken } = require('../middleware/tenantMiddleware');
 
 // Protect all routes with tenant identification
@@ -23,5 +25,8 @@ router.route('/:id')
 
 router.route('/:id/children')
   .get(getCategoryChildren);
+
+router.route('/:id/vendors')
+  .get(getVendorsByCategory);
 
 module.exports = router;

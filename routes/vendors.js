@@ -6,7 +6,11 @@ const {
   createVendor, 
   updateVendor, 
   deleteVendor,
-  getVendorCategories
+  getVendorCategories,
+  associateVendorWithCategories,
+  removeVendorFromCategory,
+  getVendorCategoriesById,
+  getVendorsByCategory
 } = require('../controllers/vendorController');
 const { identifyTenantFromToken } = require('../middleware/tenantMiddleware');
 const { protect, authorize } = require('../middleware/authMiddleware');
@@ -29,5 +33,15 @@ router
   .get(getVendor)
   .put(updateVendor)
   .delete(deleteVendor);
+
+// Vendor-category relationship routes
+router
+  .route('/:id/categories')
+  .get(getVendorCategoriesById)
+  .post(associateVendorWithCategories);
+
+router
+  .route('/:id/categories/:categoryId')
+  .delete(removeVendorFromCategory);
 
 module.exports = router;
