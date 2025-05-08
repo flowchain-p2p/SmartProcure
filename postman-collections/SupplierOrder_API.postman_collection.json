@@ -1,0 +1,456 @@
+{
+  "info": {
+    "_postman_id": "f6789d04-8763-4e21-9320-c5f1dbea8ca2",
+    "name": "SupplierOrder_API",
+    "description": "# Supplier Order API Collection\n\nThis collection contains API endpoints for managing supplier orders.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Supplier Orders",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/supplier-orders?page=1&limit=10",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "supplier-orders"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "vendorId",
+              "value": "",
+              "disabled": true
+            },
+            {
+              "key": "status",
+              "value": "",
+              "disabled": true
+            },
+            {
+              "key": "orderType",
+              "value": "",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Get all supplier orders with pagination and filtering options"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Single Supplier Order",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/supplier-orders/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "supplier-orders",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "orderId",
+              "description": "ID of the supplier order to get"
+            }
+          ]
+        },
+        "description": "Get a single supplier order by ID"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Supplier Order",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"orderId\": \"PO-2023-0001\",\n    \"customerName\": \"ABC Corporation\",\n    \"orderType\": \"PO\",\n    \"date\": \"2023-05-15T00:00:00.000Z\",\n    \"status\": \"Requested\",\n    \"vendorId\": \"{{vendorId}}\",\n    \"quote\": {\n        \"unitPrice\": 150.00,\n        \"taxes\": 15.00,\n        \"deliveryDate\": \"2023-05-30T00:00:00.000Z\",\n        \"terms\": \"Net 30\",\n        \"notes\": \"Standard delivery terms apply\"\n    }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/supplier-orders",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "supplier-orders"
+          ]
+        },
+        "description": "Create a new supplier order"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Supplier Order",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"customerName\": \"XYZ Corporation\",\n    \"date\": \"2023-05-20T00:00:00.000Z\",\n    \"status\": \"Accepted\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/supplier-orders/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "supplier-orders",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "orderId",
+              "description": "ID of the supplier order to update"
+            }
+          ]
+        },
+        "description": "Update an existing supplier order"
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Supplier Order",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/supplier-orders/:id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "supplier-orders",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "orderId",
+              "description": "ID of the supplier order to delete"
+            }
+          ]
+        },
+        "description": "Delete a supplier order"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Supplier Quote",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"unitPrice\": 175.00,\n    \"taxes\": 17.50,\n    \"deliveryDate\": \"2023-06-05T00:00:00.000Z\",\n    \"terms\": \"Net 15\",\n    \"notes\": \"Rush delivery available for additional fee\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/supplier-orders/:id/quote",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "supplier-orders",
+            ":id",
+            "quote"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "orderId",
+              "description": "ID of the supplier order to update quote"
+            }
+          ]
+        },
+        "description": "Update the quote information for a supplier order"
+      },
+      "response": []
+    },
+    {
+      "name": "Update PO Details",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"accepted\": true,\n    \"estimatedDeliveryDate\": \"2023-06-15T00:00:00.000Z\",\n    \"poFileUrl\": \"https://example.com/po-files/po-123.pdf\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/supplier-orders/:id/po-details",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "supplier-orders",
+            ":id",
+            "po-details"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "orderId",
+              "description": "ID of the supplier order to update PO details"
+            }
+          ]
+        },
+        "description": "Update the purchase order details for a supplier order"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Delivery Status",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"currentStatus\": \"In Transit\",\n    \"trackingInfo\": \"TRACK123456\",\n    \"invoiceUrl\": \"https://example.com/invoices/inv-123.pdf\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/supplier-orders/:id/delivery",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "supplier-orders",
+            ":id",
+            "delivery"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "orderId",
+              "description": "ID of the supplier order to update delivery status"
+            }
+          ]
+        },
+        "description": "Update the delivery status for a supplier order"
+      },
+      "response": []
+    },
+    {
+      "name": "Change Order Status",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"status\": \"Accepted\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/supplier-orders/:id/status",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "supplier-orders",
+            ":id",
+            "status"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "orderId",
+              "description": "ID of the supplier order to change status"
+            }
+          ]
+        },
+        "description": "Change the status of a supplier order"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "your-auth-token",
+      "type": "string"
+    },
+    {
+      "key": "vendorId",
+      "value": "your-vendor-id",
+      "type": "string"
+    }
+  ]
+}

@@ -186,8 +186,8 @@ const seedMRFData = async () => {
         },
         approvalHierarchy: 3,
         active: true,
-        roles: ['Approver'],
-        roleIds: [roleMap.approver]
+        roles: ['Requester'],
+        roleIds: [roleMap.requester]
       },
       {
         name: 'Marketing Specialist',
