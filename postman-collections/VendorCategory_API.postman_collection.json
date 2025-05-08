@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "Vendor-Category Relationship API",
+    "name": "SmartProcure Vendor-Category Relationship API",
     "description": "API endpoints for managing vendor-category relationships in the multitenancy system",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },

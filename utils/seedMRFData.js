@@ -149,11 +149,12 @@ const seedMRFData = async () => {
     console.log('Creating users...');
     const defaultPassword = await hashPassword('Password@123');
     
-    // Define users
+    // Define users - 2 users per role from the role enum
     const users = [
+      // 2 Administrator users
       {
-        name: 'Admin User',
-        email: 'admin@mrf.com',
+        name: 'Rajesh Sharma',
+        email: 'admin1@mrf.com',
         password: defaultPassword,
         tenantId: mrfTenant._id,
         authType: 'local',
@@ -171,80 +172,263 @@ const seedMRFData = async () => {
         roleIds: [roleMap.administrator]
       },
       {
-        name: 'Engineering Manager',
-        email: 'engineering@mrf.com',
+        name: 'Vikram Patel',
+        email: 'admin2@mrf.com',
         password: defaultPassword,
         tenantId: mrfTenant._id,
         authType: 'local',
         defaultLocationId: createdLocations[0]._id,
-        position: 'Engineering Manager',
+        position: 'Assistant System Administrator',
+        costCenterId: createdCostCenters[2]._id, // Corporate Administration
+        departmentId: createdDepartments[2]._id, // Finance Department
+        approvalLimits: {
+          requisition: 900000,
+          purchase: 450000
+        },
+        approvalHierarchy: 5,
+        active: true,
+        roles: ['Administrator'],
+        roleIds: [roleMap.administrator]
+      },
+      
+      // 2 Requester users
+      {
+        name: 'Aditya Nair',
+        email: 'requester1@mrf.com',
+        password: defaultPassword,
+        tenantId: mrfTenant._id,
+        authType: 'local',
+        defaultLocationId: createdLocations[0]._id,
+        position: 'Engineering Associate',
         costCenterId: createdCostCenters[0]._id,
         departmentId: createdDepartments[0]._id,
         approvalLimits: {
-          requisition: 50000,
-          purchase: 25000
+          requisition: 25000,
+          purchase: 10000
         },
-        approvalHierarchy: 3,
+        approvalHierarchy: 1,
         active: true,
         roles: ['Requester'],
         roleIds: [roleMap.requester]
       },
       {
-        name: 'Marketing Specialist',
-        email: 'marketing@mrf.com',
+        name: 'Sunita Reddy',
+        email: 'requester2@mrf.com',
         password: defaultPassword,
         tenantId: mrfTenant._id,
         authType: 'local',
         defaultLocationId: createdLocations[1]._id, // Bangalore
-        position: 'Marketing Specialist',
-        costCenterId: createdCostCenters[1]._id,
-        departmentId: createdDepartments[1]._id,
-        approvalLimits: {
-          requisition: 10000,
-          purchase: 5000
-        },
-        approvalHierarchy: 2,
-        active: true,
-        roles: ['Requester'],
-        roleIds: [roleMap.requester]
-      },
-      {
-        name: 'R&D Scientist',
-        email: 'research@mrf.com',
-        password: defaultPassword,
-        tenantId: mrfTenant._id,
-        authType: 'local',
-        defaultLocationId: createdLocations[2]._id, // Mumbai
-        position: 'Senior Scientist',
+        position: 'Research Associate',
         costCenterId: createdCostCenters[3]._id,
         departmentId: createdDepartments[3]._id,
         approvalLimits: {
           requisition: 20000,
-          purchase: 10000
+          purchase: 8000
         },
-        approvalHierarchy: 2,
+        approvalHierarchy: 1,
         active: true,
         roles: ['Requester'],
         roleIds: [roleMap.requester]
       },
+      
+      // 2 Approver users
       {
-        name: 'Logistics Coordinator',
-        email: 'logistics@mrf.com',
+        name: 'Karthik Iyer',
+        email: 'approver1@mrf.com',
         password: defaultPassword,
         tenantId: mrfTenant._id,
         authType: 'local',
-        defaultLocationId: createdLocations[0]._id, // Chennai
-        position: 'Logistics Coordinator',
+        defaultLocationId: createdLocations[0]._id,
+        position: 'Senior Manager',
+        costCenterId: createdCostCenters[0]._id,
+        departmentId: createdDepartments[0]._id,
+        approvalLimits: {
+          requisition: 100000,
+          purchase: 50000
+        },
+        approvalHierarchy: 3,
+        active: true,
+        roles: ['Approver'],
+        roleIds: [roleMap.approver]
+      },
+      {
+        name: 'Priya Venkatesh',
+        email: 'approver2@mrf.com',
+        password: defaultPassword,
+        tenantId: mrfTenant._id,
+        authType: 'local',
+        defaultLocationId: createdLocations[1]._id,
+        position: 'Department Lead',
+        costCenterId: createdCostCenters[1]._id,
+        departmentId: createdDepartments[1]._id,
+        approvalLimits: {
+          requisition: 80000,
+          purchase: 40000
+        },
+        approvalHierarchy: 3,
+        active: true,
+        roles: ['Approver'],
+        roleIds: [roleMap.approver]
+      },
+      
+      // 2 CostCenterHead users
+      {
+        name: 'Ravi Subramaniam',
+        email: 'costcenterhead1@mrf.com',
+        password: defaultPassword,
+        tenantId: mrfTenant._id,
+        authType: 'local',
+        defaultLocationId: createdLocations[0]._id,
+        position: 'Cost Center Director',
+        costCenterId: createdCostCenters[0]._id,
+        departmentId: createdDepartments[0]._id,
+        approvalLimits: {
+          requisition: 150000,
+          purchase: 80000
+        },
+        approvalHierarchy: 4,
+        active: true,
+        roles: ['CostCenterHead'],
+        roleIds: [roleMap.costcenter_head]
+      },
+      {
+        name: 'Ananya Krishnan',
+        email: 'costcenterhead2@mrf.com',
+        password: defaultPassword,
+        tenantId: mrfTenant._id,
+        authType: 'local',
+        defaultLocationId: createdLocations[2]._id,
+        position: 'Cost Center Manager',
+        costCenterId: createdCostCenters[1]._id,
+        departmentId: createdDepartments[1]._id,
+        approvalLimits: {
+          requisition: 120000,
+          purchase: 70000
+        },
+        approvalHierarchy: 4,
+        active: true,
+        roles: ['CostCenterHead'],
+        roleIds: [roleMap.costcenter_head]
+      },
+      
+      // 2 Procurement Manager users
+      {
+        name: 'Venkat Rao',
+        email: 'procurement1@mrf.com',
+        password: defaultPassword,
+        tenantId: mrfTenant._id,
+        authType: 'local',
+        defaultLocationId: createdLocations[0]._id,
+        position: 'Senior Procurement Manager',
         costCenterId: createdCostCenters[4]._id,
         departmentId: createdDepartments[4]._id,
         approvalLimits: {
-          requisition: 15000,
-          purchase: 7500
+          requisition: 200000,
+          purchase: 100000
+        },
+        approvalHierarchy: 4,
+        active: true,
+        roles: ['Procurement Manager'],
+        roleIds: [roleMap.procurement_manager]
+      },
+      {
+        name: 'Lakshmi Menon',
+        email: 'procurement2@mrf.com',
+        password: defaultPassword,
+        tenantId: mrfTenant._id,
+        authType: 'local',
+        defaultLocationId: createdLocations[1]._id,
+        position: 'Procurement Manager',
+        costCenterId: createdCostCenters[4]._id,
+        departmentId: createdDepartments[4]._id,
+        approvalLimits: {
+          requisition: 180000,
+          purchase: 90000
+        },
+        approvalHierarchy: 3,
+        active: true,
+        roles: ['Procurement Manager'],
+        roleIds: [roleMap.procurement_manager]
+      },
+      
+      // 2 Finance Analyst users
+      {
+        name: 'Deepak Joshi',
+        email: 'finance1@mrf.com',
+        password: defaultPassword,
+        tenantId: mrfTenant._id,
+        authType: 'local',
+        defaultLocationId: createdLocations[0]._id,
+        position: 'Senior Finance Analyst',
+        costCenterId: createdCostCenters[2]._id,
+        departmentId: createdDepartments[2]._id,
+        approvalLimits: {
+          requisition: 75000,
+          purchase: 40000
+        },
+        approvalHierarchy: 3,
+        active: true,
+        roles: ['Finance Analyst'],
+        roleIds: [roleMap.finance_analyst]
+      },
+      {
+        name: 'Meenakshi Sundaram',
+        email: 'finance2@mrf.com',
+        password: defaultPassword,
+        tenantId: mrfTenant._id,
+        authType: 'local',
+        defaultLocationId: createdLocations[2]._id,
+        position: 'Finance Analyst',
+        costCenterId: createdCostCenters[2]._id,
+        departmentId: createdDepartments[2]._id,
+        approvalLimits: {
+          requisition: 60000,
+          purchase: 30000
         },
         approvalHierarchy: 2,
         active: true,
-        roles: ['Requester'],
-        roleIds: [roleMap.requester]
+        roles: ['Finance Analyst'],
+        roleIds: [roleMap.finance_analyst]
+      },
+      
+      // 2 Supplier users
+      {
+        name: 'Sanjay Mehta',
+        email: 'supplier1@mrf.com',
+        password: defaultPassword,
+        tenantId: mrfTenant._id,
+        authType: 'local',
+        defaultLocationId: createdLocations[0]._id,
+        position: 'Vendor Representative',
+        costCenterId: createdCostCenters[4]._id,
+        departmentId: createdDepartments[4]._id,
+        approvalLimits: {
+          requisition: 0,
+          purchase: 0
+        },
+        approvalHierarchy: 0,
+        active: true,
+        roles: ['Supplier'],
+        roleIds: [roleMap.supplier]
+      },
+      {
+        name: 'Arjun Malhotra',
+        email: 'supplier2@mrf.com',
+        password: defaultPassword,
+        tenantId: mrfTenant._id,
+        authType: 'local',
+        defaultLocationId: createdLocations[1]._id,
+        position: 'Vendor Manager',
+        costCenterId: createdCostCenters[4]._id,
+        departmentId: createdDepartments[4]._id,
+        approvalLimits: {
+          requisition: 0,
+          purchase: 0
+        },
+        approvalHierarchy: 0,
+        active: true,
+        roles: ['Supplier'],
+        roleIds: [roleMap.supplier]
       }
     ];
 

@@ -1,7 +1,7 @@
 {
   "info": {
     "_postman_id": "f6789d04-8763-4e21-9320-c5f1dbea8ca2",
-    "name": "SupplierOrder_API",
+    "name": "SmartProcure SupplierOrder API",
     "description": "# Supplier Order API Collection\n\nThis collection contains API endpoints for managing supplier orders.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },

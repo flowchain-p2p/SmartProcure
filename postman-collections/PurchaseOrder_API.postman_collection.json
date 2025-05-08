@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "7b8e0fc2-5d3c-42a5-9e3d-71d72e5fdb9e",
-		"name": "PurchaseOrder_API",
+		"name": "SmartProcure PurchaseOrder API",
 		"description": "# Purchase Order API Collection\n\nThis collection contains endpoints for managing purchase orders in the multi-tenant procurement system.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
