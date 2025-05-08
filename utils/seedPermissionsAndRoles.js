@@ -36,43 +36,21 @@ const permissionsList = [
   { code: 'supplier.update_profile', name: 'Update Supplier Profile', description: 'Update own supplier profile information', category: 'Supplier Management' },
   { code: 'invoice.match', name: 'Match Invoice', description: 'Match invoices with purchase orders', category: 'Finance Operations' },
   { code: 'payment.release', name: 'Release Payment', description: 'Release payments to suppliers', category: 'Finance Operations' },
-  { code: 'payment.view_schedule', name: 'View Payment Schedule', description: 'View payment schedules', category: 'Finance Operations' },
-  { code: 'user.manage', name: 'Manage Users', description: 'Manage users in the system', category: 'System Administration' },
+  { code: 'payment.view_schedule', name: 'View Payment Schedule', description: 'View payment schedules', category: 'Finance Operations' },  { code: 'user.manage', name: 'Manage Users', description: 'Manage users in the system', category: 'System Administration' },
   { code: 'role.manage', name: 'Manage Roles', description: 'Manage roles and permissions', category: 'System Administration' },
   { code: 'audit.view', name: 'View Audit Logs', description: 'View system audit logs', category: 'System Administration' },
   { code: 'settings.manage', name: 'Manage Settings', description: 'Manage system settings', category: 'System Administration' },
   
-  // New RFQ Permissions by Status and Actions
-  // Draft Status Permissions
+  // Simplified RFQ Permissions
   { code: 'rfq.create', name: 'Create RFQ', description: 'Create new Request for Quotations', category: 'RFQ Management' },
   { code: 'rfq.view', name: 'View RFQ', description: 'View Request for Quotations', category: 'RFQ Management' },
-  { code: 'rfq.edit_draft', name: 'Edit Draft RFQ', description: 'Edit RFQs in Draft status', category: 'RFQ Management' },
-  { code: 'rfq.delete_draft', name: 'Delete Draft RFQ', description: 'Delete RFQs in Draft status', category: 'RFQ Management' },
-  { code: 'rfq.add_vendor', name: 'Add Vendors to RFQ', description: 'Add vendors to an RFQ', category: 'RFQ Management' },
-  { code: 'rfq.issue', name: 'Issue RFQ', description: 'Change RFQ status from Draft to Issued', category: 'RFQ Management' },
-  
-  // Issued Status Permissions
-  { code: 'rfq.view_issued', name: 'View Issued RFQ', description: 'View RFQs in Issued status', category: 'RFQ Management' },
-  { code: 'rfq.cancel_issued', name: 'Cancel Issued RFQ', description: 'Cancel RFQs in Issued status', category: 'RFQ Management' },
-  { code: 'rfq.deliver', name: 'Mark RFQ Delivered', description: 'Mark an RFQ as delivered to vendors', category: 'RFQ Management' },
-  
-  // Delivered Status Permissions
-  { code: 'rfq.view_delivered', name: 'View Delivered RFQ', description: 'View RFQs in Delivered status', category: 'RFQ Management' },
-  { code: 'rfq.update_vendor_quote', name: 'Update Vendor Quote', description: 'Update vendor quotes in an RFQ', category: 'RFQ Management' },
-  { code: 'rfq.cancel_delivered', name: 'Cancel Delivered RFQ', description: 'Cancel RFQs in Delivered status', category: 'RFQ Management' },
-  { code: 'rfq.complete', name: 'Complete RFQ', description: 'Mark an RFQ as completed', category: 'RFQ Management' },
-  { code: 'rfq.award', name: 'Award RFQ', description: 'Award an RFQ to a vendor', category: 'RFQ Management' },
-  
-  // Completed Status Permissions
-  { code: 'rfq.view_completed', name: 'View Completed RFQ', description: 'View RFQs in Completed status', category: 'RFQ Management' },
-  { code: 'rfq.create_po_from_rfq', name: 'Create PO from RFQ', description: 'Create Purchase Order from a completed RFQ', category: 'RFQ Management' },
-  
-  // Cancelled Status Permissions
-  { code: 'rfq.view_cancelled', name: 'View Cancelled RFQ', description: 'View RFQs in Cancelled status', category: 'RFQ Management' }
+  { code: 'rfq.edit', name: 'Edit RFQ', description: 'Edit Request for Quotations', category: 'RFQ Management' },
+  { code: 'rfq.submit', name: 'Submit RFQ', description: 'Submit RFQs to vendors', category: 'RFQ Management' },
+  { code: 'rfq.award', name: 'Award RFQ', description: 'Award RFQs to selected vendors', category: 'RFQ Management' },
+  { code: 'rfq.cancel', name: 'Cancel RFQ', description: 'Cancel Request for Quotations', category: 'RFQ Management' }
 ];
 
-const roleDefinitions = [
-  {
+const roleDefinitions = [  {
     name: 'Requester',
     code: 'requester',
     description: 'Can create and submit PRs, and view own PRs',
@@ -101,14 +79,9 @@ const roleDefinitions = [
       'po.create', 'po.edit', 'po.send_to_supplier', 
       'supplier.create', 'supplier.view', 'supplier.edit',
       // RFQ permissions for Procurement Manager
-      'rfq.create', 'rfq.view', 'rfq.edit_draft', 'rfq.delete_draft',
-      'rfq.add_vendor', 'rfq.issue', 'rfq.view_issued', 'rfq.deliver',
-      'rfq.view_delivered', 'rfq.update_vendor_quote', 'rfq.complete',
-      'rfq.award', 'rfq.view_completed', 'rfq.create_po_from_rfq',
-      'rfq.view_cancelled', 'rfq.cancel_issued', 'rfq.cancel_delivered'
+      'rfq.create', 'rfq.view', 'rfq.edit', 'rfq.submit', 'rfq.award', 'rfq.cancel'
     ]
-  },
-  {
+  },  {
     name: 'Finance Analyst',
     code: 'finance_analyst',
     description: 'Can perform budget checks, approve payments, and manage financial records',
@@ -116,11 +89,9 @@ const roleDefinitions = [
       'pr.view', 'po.view', 'budget.view', 'budget.check', 
       'invoice.match', 'payment.view_schedule',
       // Limited RFQ permissions for Finance
-      'rfq.view', 'rfq.view_issued', 'rfq.view_delivered', 
-      'rfq.view_completed', 'rfq.view_cancelled'
+      'rfq.view'
     ]
-  },
-  {
+  },  {
     name: 'Administrator',
     code: 'administrator',
     description: 'Full access to all system functions',
@@ -128,11 +99,7 @@ const roleDefinitions = [
       'user.manage', 'role.manage', 'audit.view', 'settings.manage', 
       'budget.override', 'payment.release',
       // All RFQ permissions
-      'rfq.create', 'rfq.view', 'rfq.edit_draft', 'rfq.delete_draft',
-      'rfq.add_vendor', 'rfq.issue', 'rfq.view_issued', 'rfq.cancel_issued',
-      'rfq.deliver', 'rfq.view_delivered', 'rfq.update_vendor_quote',
-      'rfq.cancel_delivered', 'rfq.complete', 'rfq.award',
-      'rfq.view_completed', 'rfq.create_po_from_rfq', 'rfq.view_cancelled'
+      'rfq.create', 'rfq.view', 'rfq.edit', 'rfq.submit', 'rfq.award', 'rfq.cancel'
     ]
   },
   {
@@ -145,31 +112,23 @@ const roleDefinitions = [
       'supplier.update_profile',
       'po.view'
     ]
-  },
-  {
+  },  {
     name: 'Procurement Officer',
     code: 'procurement_officer',
     description: 'Assists in procurement processes and manages RFQs',
     permissions: [
       'pr.view', 'po.view', 'supplier.view',
       // RFQ permissions for Procurement Officer
-      'rfq.create', 'rfq.view', 'rfq.edit_draft', 'rfq.add_vendor', 
-      'rfq.issue', 'rfq.view_issued', 'rfq.deliver', 'rfq.view_delivered',
-      'rfq.update_vendor_quote', 'rfq.view_completed', 'rfq.view_cancelled'
+      'rfq.create', 'rfq.view', 'rfq.edit', 'rfq.submit'
     ]
-  },
-  {
+  },  {
     name: 'Buyer',
     code: 'buyer',
     description: 'Can manage RFQs and vendor quotes',
     permissions: [
       'pr.view', 'po.view', 'supplier.view',
       // RFQ specific permissions for buyer
-      'rfq.create', 'rfq.view', 'rfq.edit_draft', 'rfq.add_vendor',
-      'rfq.issue', 'rfq.view_issued', 'rfq.deliver',
-      'rfq.view_delivered', 'rfq.update_vendor_quote',
-      'rfq.complete', 'rfq.award', 'rfq.view_completed',
-      'rfq.create_po_from_rfq', 'rfq.view_cancelled'
+      'rfq.create', 'rfq.view', 'rfq.edit', 'rfq.submit', 'rfq.award'
     ]
   }
 ];
