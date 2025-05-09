@@ -138,8 +138,6 @@ const getRequisition = async (req, res) => {
  * @access  Private
  */
 const createRequisition = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
   try {
     const { title, description, organizationId, costCenterId, items, ...rest } = req.body;
 
@@ -222,7 +220,7 @@ const createRequisition = async (req, res) => {
           requisition.approvalStatus = 'In Progress';
           requisition.submittedAt = new Date();
           
-          await requisition.save({ session });
+          await requisition.save();
         }
       }
     }
@@ -239,9 +237,6 @@ const createRequisition = async (req, res) => {
       savedItems = await RequisitionItem.create(itemsToCreate);
     }
 
-    await session.commitTransaction();
-    session.endSession();
-
     res.status(201).json({
       success: true,
       data: {
@@ -250,9 +245,6 @@ const createRequisition = async (req, res) => {
       }
     });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-
     console.error('Error creating requisition:', error);
     res.status(400).json({
       success: false,
@@ -330,9 +322,6 @@ const updateRequisition = async (req, res) => {
  * @access  Private
  */
 const deleteRequisition = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const requisition = await Requisition.findOne({
       _id: req.params.id,
@@ -363,17 +352,11 @@ const deleteRequisition = async (req, res) => {
     // Delete the requisition
     await Requisition.findByIdAndDelete(req.params.id);
 
-    await session.commitTransaction();
-    session.endSession();
-
     res.status(200).json({
       success: true,
       data: {}
     });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-
     console.error('Error deleting requisition:', error);
     res.status(500).json({
       success: false,
@@ -388,9 +371,6 @@ const deleteRequisition = async (req, res) => {
  * @access  Private
  */
 const submitRequisition = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  
   try {
     let requisition = await Requisition.findOne({
       _id: req.params.id,
@@ -444,12 +424,6 @@ const submitRequisition = async (req, res) => {
       }
     );
     
-    // Note: The approval history is now created inside the approval service
-    // This ensures all approval history is managed consistently
-
-    await session.commitTransaction();
-    session.endSession();
-
     // Get the current approvers for the UI to display
     const currentApprovers = await approvalService.getCurrentApprovers(
       requisition._id, 
@@ -467,9 +441,6 @@ const submitRequisition = async (req, res) => {
       }
     });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    
     console.error('Error submitting requisition:', error);
     res.status(500).json({
       success: false,
@@ -484,9 +455,6 @@ const submitRequisition = async (req, res) => {
  * @access  Private/Permission Based
  */
 const approveRequisition = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  
   try {
     const { decision, comments } = req.body;
 
@@ -509,14 +477,6 @@ const approveRequisition = async (req, res) => {
       });
     }
 
-    // // Check if requisition is pending approval
-    // if (!requisition.status.startsWith('Pending')) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     error: 'This requisition is not pending approval'
-    //   });
-    // }
-    
     // Check if requisition has an approval instance
     if (!requisition.approvalInstanceId) {
       return res.status(400).json({
@@ -524,36 +484,33 @@ const approveRequisition = async (req, res) => {
         error: 'This requisition does not have an approval workflow'
       });
     }
-    
+
     // Find the approval instance and verify the user is an approver
     const approvalInstance = await ApprovalInstance.findOne({
       instanceId: requisition.approvalInstanceId,
       tenantId: req.tenant.id
     });
-    
+
     if (!approvalInstance) {
       return res.status(400).json({
         success: false,
         error: 'Approval process is not in progress for this requisition'
       });
     }
-      // Get current stage and check if user is a current approver
+
+    // Get current stage and check if user is a current approver
     const currentStage = approvalInstance.approvals[approvalInstance.currentStageIndex];
     const isApprover = currentStage.approvers.some(
       approver => approver.userId.toString() === req.user.id && approver.status === 'Pending'
     );
-    
-    // For backward compatibility also check the legacy field
-    const isLegacyApprover = requisition.currentApprover && 
-                            requisition.currentApprover.toString() === req.user.id;
-    
-    if (!isApprover && !isLegacyApprover) {
+
+    if (!isApprover) {
       return res.status(403).json({
         success: false,
         error: 'You are not a current approver for this requisition'
       });
     }
-    
+
     // Use our approval service to process the decision
     const { requisition: updatedRequisition, approvalInstance: updatedInstance } = 
       await approvalService.processApprovalDecision(
@@ -571,11 +528,6 @@ const approveRequisition = async (req, res) => {
     // For backward compatibility, ensure we have the requisition object
     requisition = updatedRequisition;
 
-    // Note: ApprovalHistory is now managed by the approval service
-
-    await session.commitTransaction();
-    session.endSession();
-
     // Get the approval status to return to the UI
     const approvalStatus = await approvalService.getApprovalStatus(
       requisition._id, 
@@ -590,9 +542,6 @@ const approveRequisition = async (req, res) => {
       }
     });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    
     console.error('Error processing approval decision:', error);
     res.status(500).json({
       success: false,
@@ -622,12 +571,12 @@ const addRequisitionItem = async (req, res) => {
     }
     
     // Only allow adding items if status is Draft
-    if (requisition.status !== 'Draft') {
-      return res.status(400).json({
-        success: false,
-        error: 'Cannot add items to a requisition that is not in Draft status'
-      });
-    }
+    // if (requisition.status !== 'Draft') {
+    //   return res.status(400).json({
+    //     success: false,
+    //     error: 'Cannot add items to a requisition that is not in Draft status'
+    //   });
+    // }
       // Make sure isCatalogItem is properly set
     let isCatalogItem = req.body.isCatalogItem;
     if (isCatalogItem === undefined) {

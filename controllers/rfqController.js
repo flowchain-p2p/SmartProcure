@@ -309,10 +309,6 @@ const deleteRFQ = async (req, res) => {
  * @access  Private
  */
 const issueRFQ = async (req, res) => {
-  // Use a session to ensure atomicity across operations
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  
   try {
     let rfq = await RFQ.findOne({
       _id: req.params.id,
@@ -352,8 +348,7 @@ const issueRFQ = async (req, res) => {
       },
       {
         new: true,
-        runValidators: true,
-        session
+        runValidators: true
       }
     );
 
@@ -377,21 +372,13 @@ const issueRFQ = async (req, res) => {
     }));
 
     // Create supplier orders for all vendors in the RFQ
-    await SupplierOrder.insertMany(supplierOrderDocs, { session });
-
-    // Commit the transaction
-    await session.commitTransaction();
-    session.endSession();
+    await SupplierOrder.insertMany(supplierOrderDocs);
 
     res.status(200).json({
       success: true,
       data: rfq
     });
   } catch (error) {
-    // Abort the transaction in case of error
-    await session.abortTransaction();
-    session.endSession();
-    
     console.error('Error issuing RFQ:', error);
     res.status(500).json({
       success: false,

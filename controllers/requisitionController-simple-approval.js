@@ -10,14 +10,11 @@ const User = require('../models/User');
  * @access  Private
  */
 const submitRequisitionForApproval = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  
   try {
     const requisition = await Requisition.findOne({
       _id: req.params.id,
       tenantId: req.tenant.id
-    }).session(session);
+    });
 
     if (!requisition) {
       return res.status(404).json({
@@ -27,12 +24,12 @@ const submitRequisitionForApproval = async (req, res) => {
     }
 
     // Check if the requisition is in Draft status
-    if (requisition.status !== 'Draft') {
-      return res.status(400).json({
-        success: false,
-        error: 'Only requisitions in Draft status can be submitted for approval'
-      });
-    }
+    // if (requisition.status !== 'Draft') {
+    //   return res.status(400).json({
+    //     success: false,
+    //     error: 'Only requisitions in Draft status can be submitted for approval'
+    //   });
+    // }
 
     // Get cost center details
     const costCenter = await CostCenter.findById(requisition.costCenterId)
@@ -87,19 +84,13 @@ const submitRequisitionForApproval = async (req, res) => {
     requisition.approvalStatus = 'In Progress';
     requisition.submittedAt = new Date();
     
-    await requisition.save({ session });
-    
-    await session.commitTransaction();
-    session.endSession();
+    await requisition.save();
     
     res.status(200).json({
       success: true,
       data: requisition
     });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    
     console.error('Error submitting requisition for approval:', error);
     res.status(500).json({
       success: false,
@@ -292,14 +283,11 @@ const processApprovalDecision = async (req, res) => {
       });
     }
     
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    
     // Find the requisition
     const requisition = await Requisition.findOne({
       _id: id,
       tenantId: req.tenant.id
-    }).session(session);
+    });
     
     if (!requisition) {
       return res.status(404).json({
@@ -361,10 +349,7 @@ const processApprovalDecision = async (req, res) => {
       }
     }
     
-    await requisition.save({ session });
-    
-    await session.commitTransaction();
-    session.endSession();
+    await requisition.save();
     
     res.status(200).json({
       success: true,

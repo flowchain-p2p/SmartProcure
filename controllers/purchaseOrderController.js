@@ -317,10 +317,6 @@ const deletePurchaseOrder = async (req, res) => {
  * @access  Private
  */
 const issuePurchaseOrder = async (req, res) => {
-  // Use a session to ensure atomicity across both operations
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  
   try {
     let purchaseOrder = await PurchaseOrder.findOne({
       _id: req.params.id,
@@ -352,13 +348,12 @@ const issuePurchaseOrder = async (req, res) => {
       },
       {
         new: true,
-        runValidators: true,
-        session
+        runValidators: true
       }
     );
 
     // Create a corresponding entry in the SupplierOrder table
-    await SupplierOrder.create([{
+    await SupplierOrder.create({
       orderId: purchaseOrder.poNumber,
       customerName: req.tenant.name || 'Customer',
       orderType: 'PO',
@@ -376,20 +371,13 @@ const issuePurchaseOrder = async (req, res) => {
         updatedAt: new Date()
       },
       createdBy: req.user.id
-    }], { session });
-
-    // Commit the transaction
-    await session.commitTransaction();
-    session.endSession();
+    });
 
     res.status(200).json({
       success: true,
       data: purchaseOrder
-    });  } catch (error) {
-    // Abort transaction in case of error
-    await session.abortTransaction();
-    session.endSession();
-    
+    });
+  } catch (error) {
     console.error('Error issuing purchase order:', error);
     res.status(500).json({
       success: false,
