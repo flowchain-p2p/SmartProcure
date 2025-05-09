@@ -1,6 +1,8 @@
 const ApprovalInstance = require('../models/ApprovalInstance');
 const ApprovalWorkflow = require('../models/ApprovalWorkflow');
 const Requisition = require('../models/Requisition');
+const RequisitionItem = require('../models/RequisitionItem');
+const PurchaseOrder = require('../models/PurchaseOrder');
 const CostCenter = require('../models/CostCenter');
 const User = require('../models/User');
 const mongoose = require('mongoose');
@@ -249,8 +251,7 @@ const processApprovalDecision = async (requisitionId, decision, options = {}) =>
           // Final approval
           approvalInstance.status = 'Approved';
           approvalInstance.completedAt = new Date();
-          
-          // Update requisition
+            // Update requisition
           await Requisition.updateOne(
             { _id: requisitionId },
             {
@@ -259,6 +260,21 @@ const processApprovalDecision = async (requisitionId, decision, options = {}) =>
               approvedBy: userId
             }
           );
+            // Get the full requisition details to check its type
+          const updatedReq = await Requisition.findById(requisitionId).populate('items');
+          
+          // If the requisition type is catalogItem, create a PO with draft status
+          if (updatedReq && updatedReq.requisitionType === 'catalogItem') {
+            try {
+              const newPO = await createPurchaseOrderFromRequisition(updatedReq, userId, tenantId);
+              if (newPO) {
+                console.log(`Successfully created Purchase Order ${newPO.poNumber} for approved requisition ${updatedReq.requisitionNumber}`);
+              }
+            } catch (poError) {
+              console.error(`Error creating Purchase Order for requisition ${requisitionId}:`, poError);
+              // We don't throw the error here to avoid disrupting the approval process
+            }
+          }
           
           newStatus = 'Approved';
           newApprovalStage = 'Complete';
@@ -459,9 +475,89 @@ const getApprovalStatus = async (requisitionId, options = {}) => {
       stageOrder: currentStage.stageOrder
     } : null,
     currentApprovers,
-    completedStages,
-    isComplete: ['Approved', 'Rejected', 'Cancelled'].includes(approvalInstance.status)
+    completedStages,    isComplete: ['Approved', 'Rejected', 'Cancelled'].includes(approvalInstance.status)
   };
+};
+
+/**
+ * Creates a Purchase Order from an approved Requisition
+ * @param {Object} requisition - The approved requisition
+ * @param {String} userId - ID of the user who approved the requisition
+ * @param {String} tenantId - The tenant ID
+ * @returns {Promise<Object>} - The created purchase order
+ */
+const createPurchaseOrderFromRequisition = async (requisition, userId, tenantId) => {
+  try {
+    // Get all items related to this requisition
+    const requisitionItems = await RequisitionItem.find({
+      requisitionId: requisition._id,
+      tenantId: tenantId
+    }).populate('catalogProductId');
+
+    // If there are no items, we can't create a PO
+    if (!requisitionItems || requisitionItems.length === 0) {
+      console.log(`No items found for requisition ${requisition._id}, skipping PO creation`);
+      return null;
+    }
+
+    // Find the primary vendor from the first item (assuming all items are from same vendor)
+    // If no vendor specified, we can't create a PO
+    let vendorId = null;
+    for (const item of requisitionItems) {
+      if (item.vendorId) {
+        vendorId = item.vendorId;
+        break;
+      }
+    }
+
+    if (!vendorId) {
+      console.log(`No vendor found for requisition items in ${requisition._id}, skipping PO creation`);
+      return null;
+    }
+
+    // Generate PO number
+    const poCount = await PurchaseOrder.countDocuments({ tenantId });
+    const poNumber = `PO-${requisition.tenantId}-${new Date().getFullYear()}-${(poCount + 1).toString().padStart(4, '0')}`;
+
+    // Convert requisition items to PO items
+    const poItems = requisitionItems.map(item => ({
+      description: item.name || (item.catalogProductId ? item.catalogProductId.name : 'Unknown Item'),
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      totalPrice: item.totalPrice,
+      currency: item.currency || 'INR',
+      catalogItemId: item.catalogProductId ? item.catalogProductId._id : undefined,
+      requisitionItemId: item._id,
+      unitOfMeasure: item.unit || 'Each',
+      notes: item.notes
+    }));
+
+    // Create the Purchase Order
+    const purchaseOrder = await PurchaseOrder.create({
+      poNumber,
+      title: `PO for ${requisition.title}`,
+      description: requisition.description,
+      status: 'Draft', // Always create as draft
+      tenantId: requisition.tenantId,
+      organizationId: requisition.organizationId,
+      costCenterId: requisition.costCenterId,
+      requisitionId: requisition._id,
+      vendorId: vendorId,
+      items: poItems,
+      totalAmount: requisition.totalAmount,
+      currency: requisition.currency || 'INR',
+      deliveryDate: requisition.deliveryDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Default to 1 week from now
+      paymentTerms: 'Net 30', // Default value
+      createdBy: userId,
+      notes: `Auto-generated from Requisition ${requisition.requisitionNumber}`
+    });
+
+    console.log(`Created PO ${purchaseOrder.poNumber} from requisition ${requisition.requisitionNumber}`);
+    return purchaseOrder;
+  } catch (error) {
+    console.error(`Error creating PO from requisition ${requisition._id}:`, error);
+    return null;
+  }
 };
 
 module.exports = {
@@ -469,5 +565,6 @@ module.exports = {
   startApprovalProcess,
   processApprovalDecision,
   getCurrentApprovers,
-  getApprovalStatus
+  getApprovalStatus,
+  createPurchaseOrderFromRequisition
 };

@@ -41,13 +41,16 @@ const permissionsList = [
   { code: 'budget.check', name: 'Check Budget', description: 'Perform budget checks', category: 'Budget Management' },
   { code: 'budget.override', name: 'Override Budget', description: 'Override budget limits', category: 'Budget Management' },
 
-  // Supplier Management Permissions
+  // Teent  Management Supplier Permissions
   { code: 'supplier.create', name: 'Create Supplier', description: 'Create new suppliers', category: 'Supplier Management' },
   { code: 'supplier.view', name: 'View Supplier', description: 'View supplier information', category: 'Supplier Management' },
   { code: 'supplier.edit', name: 'Edit Supplier', description: 'Edit supplier information', category: 'Supplier Management' },
+
+  // Supplier portal permissions
   { code: 'supplier.portal_access', name: 'Supplier Portal Access', description: 'Access supplier portal and view assigned POs', category: 'Supplier Management' },
   { code: 'supplier.respond_po', name: 'Respond to PO', description: 'Ability to accept or reject purchase orders', category: 'Supplier Management' },
   { code: 'supplier.update_profile', name: 'Update Supplier Profile', description: 'Update own supplier profile information', category: 'Supplier Management' },
+  
   // Finance Operations Permissions
   { code: 'invoice.match', name: 'Match Invoice', description: 'Match invoices with purchase orders', category: 'Finance Operations' },
   { code: 'payment.release', name: 'Release Payment', description: 'Release payments to suppliers', category: 'Finance Operations' },
@@ -89,7 +92,18 @@ const roleDefinitions = [  {
     permissions: [
       'po.create', 'po.edit', 'po.send_to_supplier', 
       'supplier.create', 'supplier.view', 'supplier.edit',
-      // RFQ permissions for Procurement Manager
+      // PR Management
+      'pr.create', 'pr.view', 'pr.edit', 'pr.submit', 'pr.approve', 'pr.reject', 'pr.cancel',
+      // PO Management
+      'po.create', 'po.view', 'po.edit', 'po.approve', 'po.send_to_supplier', 'po.cancel',
+      // Budget Management
+      'budget.view', 'budget.check', 'budget.override',
+      // Supplier Management
+      'supplier.create', 'supplier.view', 'supplier.edit', 'supplier.portal_access', 
+      'supplier.respond_po', 'supplier.update_profile',
+      // Finance Operations
+      'invoice.match', 'payment.release', 'payment.view_schedule',
+      // RFQ Management
       'rfq.create', 'rfq.view', 'rfq.edit', 'rfq.submit', 'rfq.award', 'rfq.cancel'
     ]
   },  {
@@ -100,7 +114,9 @@ const roleDefinitions = [  {
       'pr.view', 'po.view', 'budget.view', 'budget.check', 
       'invoice.match', 'payment.view_schedule',
       // Limited RFQ permissions for Finance
-      'rfq.view'
+      'rfq.view',
+      // Budget Management
+      'budget.view', 'budget.check', 'budget.override',
     ]
   },  {
     name: 'Administrator',
@@ -133,24 +149,6 @@ const roleDefinitions = [  {
       'supplier.respond_po',
       'supplier.update_profile',
       'po.view'
-    ]
-  },  {
-    name: 'Procurement Officer',
-    code: 'procurement_officer',
-    description: 'Assists in procurement processes and manages RFQs',
-    permissions: [
-      'pr.view', 'po.view', 'supplier.view',
-      // RFQ permissions for Procurement Officer
-      'rfq.create', 'rfq.view', 'rfq.edit', 'rfq.submit'
-    ]
-  },  {
-    name: 'Buyer',
-    code: 'buyer',
-    description: 'Can manage RFQs and vendor quotes',
-    permissions: [
-      'pr.view', 'po.view', 'supplier.view',
-      // RFQ specific permissions for buyer
-      'rfq.create', 'rfq.view', 'rfq.edit', 'rfq.submit', 'rfq.award'
     ]
   }
 ];

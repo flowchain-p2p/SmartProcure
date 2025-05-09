@@ -15,6 +15,11 @@ const RequisitionSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  requisitionType: {
+    type: String,
+    enum: ['catalogItem', 'customItem'],
+    default: 'catalogItem' // Default to catalog item initially
+  },
   status: {
     type: String,
     required: true,

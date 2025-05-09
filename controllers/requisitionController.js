@@ -169,8 +169,19 @@ const createRequisition = async (req, res) => {
     // Only add costCenterId if it's a valid MongoDB ObjectId
     if (costCenterId && mongoose.Types.ObjectId.isValid(costCenterId)) {
       requisitionData.costCenterId = costCenterId;
+    }    // Determine if we have any custom items
+    let requisitionType = 'catalogItem'; // Default to catalog items
+    if (items && items.length > 0) {
+      // Check if any item is marked as non-catalog
+      const hasCustomItem = items.some(item => item.isCatalogItem === false);
+      if (hasCustomItem) {
+        requisitionType = 'customItem';
+      }
     }
-
+    
+    // Set the requisition type based on its items
+    requisitionData.requisitionType = requisitionType;
+    
     const requisition = await Requisition.create(requisitionData);
 
     // Create requisition items if provided
@@ -574,14 +585,26 @@ const addRequisitionItem = async (req, res) => {
         error: 'Cannot add items to a requisition that is not in Draft status'
       });
     }
+      // Make sure isCatalogItem is properly set
+    let isCatalogItem = req.body.isCatalogItem;
+    if (isCatalogItem === undefined) {
+      // If not explicitly set, infer from presence of catalogProductId
+      isCatalogItem = !!req.body.catalogProductId;
+    }
     
     // Create the item with requisition ID and tenant ID
     const itemData = {
       ...req.body,
       requisitionId: requisition._id,
       tenantId: req.tenant.id,
-      currency: req.body.currency || requisition.currency // Use requisition currency if not specified
+      currency: req.body.currency || requisition.currency, // Use requisition currency if not specified
+      isCatalogItem: isCatalogItem
     };
+    
+    // For non-catalog items, ensure catalogProductId is not set
+    if (!isCatalogItem) {
+      delete itemData.catalogProductId;
+    }
     
     const item = await RequisitionItem.create(itemData);
     

@@ -2,6 +2,7 @@ const PurchaseOrder = require('../models/PurchaseOrder');
 const Requisition = require('../models/Requisition');
 const RFQ = require('../models/RFQ');
 const Vendor = require('../models/Vendor');
+const SupplierOrder = require('../models/SupplierOrder');
 const mongoose = require('mongoose');
 
 /**
@@ -316,11 +317,15 @@ const deletePurchaseOrder = async (req, res) => {
  * @access  Private
  */
 const issuePurchaseOrder = async (req, res) => {
+  // Use a session to ensure atomicity across both operations
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  
   try {
     let purchaseOrder = await PurchaseOrder.findOne({
       _id: req.params.id,
       tenantId: req.tenant.id
-    });
+    }).populate('vendorId', 'name');
 
     if (!purchaseOrder) {
       return res.status(404).json({
@@ -347,15 +352,44 @@ const issuePurchaseOrder = async (req, res) => {
       },
       {
         new: true,
-        runValidators: true
+        runValidators: true,
+        session
       }
     );
+
+    // Create a corresponding entry in the SupplierOrder table
+    await SupplierOrder.create([{
+      orderId: purchaseOrder.poNumber,
+      customerName: req.tenant.name || 'Customer',
+      orderType: 'PO',
+      date: new Date(),
+      status: 'Requested',
+      vendorId: purchaseOrder.vendorId,
+      tenantId: req.tenant.id,
+      poDetails: {
+        accepted: false,
+        estimatedDeliveryDate: purchaseOrder.deliveryDate,
+        poFileUrl: purchaseOrder.attachments && purchaseOrder.attachments.length > 0 ? purchaseOrder.attachments[0] : ''
+      },
+      deliveryStatus: {
+        currentStatus: 'Not Started',
+        updatedAt: new Date()
+      },
+      createdBy: req.user.id
+    }], { session });
+
+    // Commit the transaction
+    await session.commitTransaction();
+    session.endSession();
 
     res.status(200).json({
       success: true,
       data: purchaseOrder
-    });
-  } catch (error) {
+    });  } catch (error) {
+    // Abort transaction in case of error
+    await session.abortTransaction();
+    session.endSession();
+    
     console.error('Error issuing purchase order:', error);
     res.status(500).json({
       success: false,

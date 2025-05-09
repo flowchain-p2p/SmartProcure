@@ -1,6 +1,7 @@
 const RFQ = require('../models/RFQ');
 const Requisition = require('../models/Requisition');
 const Vendor = require('../models/Vendor');
+const SupplierOrder = require('../models/SupplierOrder');
 const mongoose = require('mongoose');
 
 /**
@@ -308,11 +309,15 @@ const deleteRFQ = async (req, res) => {
  * @access  Private
  */
 const issueRFQ = async (req, res) => {
+  // Use a session to ensure atomicity across operations
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  
   try {
     let rfq = await RFQ.findOne({
       _id: req.params.id,
       tenantId: req.tenant.id
-    });
+    }).populate('vendorQuotes.vendorId', 'name');
 
     if (!rfq) {
       return res.status(404).json({
@@ -347,15 +352,46 @@ const issueRFQ = async (req, res) => {
       },
       {
         new: true,
-        runValidators: true
+        runValidators: true,
+        session
       }
     );
+
+    // Create corresponding entries in the SupplierOrder table for each vendor
+    const supplierOrderDocs = rfq.vendorQuotes.map(vendorQuote => ({
+      orderId: rfq.rfqNumber,
+      customerName: req.tenant.name || 'Customer',
+      orderType: 'Quote',
+      date: new Date(),
+      status: 'Requested',
+      vendorId: vendorQuote.vendorId,
+      tenantId: req.tenant.id,
+      quote: {
+        unitPrice: null,
+        taxes: null,
+        deliveryDate: null,
+        terms: '',
+        notes: ''
+      },
+      createdBy: req.user.id
+    }));
+
+    // Create supplier orders for all vendors in the RFQ
+    await SupplierOrder.insertMany(supplierOrderDocs, { session });
+
+    // Commit the transaction
+    await session.commitTransaction();
+    session.endSession();
 
     res.status(200).json({
       success: true,
       data: rfq
     });
   } catch (error) {
+    // Abort the transaction in case of error
+    await session.abortTransaction();
+    session.endSession();
+    
     console.error('Error issuing RFQ:', error);
     res.status(500).json({
       success: false,

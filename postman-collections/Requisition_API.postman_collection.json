@@ -226,7 +226,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"title\": \"Office Supplies Requisition\",\n    \"description\": \"Monthly office supplies for marketing department\",\n    \"organizationId\": \"{{organizationId}}\",\n    \"currency\": \"INR\",\n    \"expectedDeliveryDate\": \"2025-06-01\",\n    \"items\": [\n        {\n            \"catalogProductId\": \"{{productId1}}\",\n            \"quantity\": 10,\n            \"unitPrice\": 125,\n            \"unit\": \"Each\",\n            \"unitId\": \"{{unitId}}\"\n        },\n        {\n            \"name\": \"Premium Notebooks\",\n            \"description\": \"A5 size premium notebooks with leather cover\",\n            \"quantity\": 5,\n            \"unitPrice\": 450,\n            \"unit\": \"Each\",\n            \"unitId\": \"{{unitId}}\"\n        }\n    ]\n}"
+                            "raw": "{\n    \"title\": \"Office Supplies Requisition\",\n    \"description\": \"Monthly office supplies for marketing department\",\n    \"organizationId\": \"{{organizationId}}\",\n    \"costCenterId\": \"{{costCenterId}}\",\n    \"currency\": \"INR\",\n    \"expectedDeliveryDate\": \"2025-06-01\",\n    \"items\": [\n        {\n            \"catalogProductId\": \"{{productId1}}\",\n            \"quantity\": 10,\n            \"unitPrice\": 125,\n            \"unit\": \"Each\",\n            \"unitId\": \"{{unitId}}\",\n            \"isCatalogItem\": true\n        },\n        {\n            \"name\": \"Premium Notebooks\",\n            \"description\": \"A5 size premium notebooks with leather cover\",\n            \"quantity\": 5,\n            \"unitPrice\": 450,\n            \"unit\": \"Each\",\n            \"unitId\": \"{{unitId}}\",\n            \"isCatalogItem\": false\n        }\n    ]\n}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/api/v1/requisitions",
@@ -306,9 +306,8 @@
                         "description": "Delete a requisition (only allowed in Draft status)"
                     },
                     "response": []
-                },
-                {
-                    "name": "Update Requisition Status",
+                },                {
+                    "name": "Submit Requisition",
                     "request": {
                         "method": "PATCH",
                         "header": [
@@ -323,10 +322,10 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"status\": \"Submitted\"\n}"
+                            "raw": "{\n    \"workflowId\": \"{{workflowId}}\"\n}"
                         },
                         "url": {
-                            "raw": "{{baseUrl}}/api/v1/requisitions/{{requisitionId}}/status",
+                            "raw": "{{baseUrl}}/api/v1/requisitions/{{requisitionId}}/submit",
                             "host": [
                                 "{{baseUrl}}"
                             ],
@@ -335,10 +334,157 @@
                                 "v1",
                                 "requisitions",
                                 "{{requisitionId}}",
-                                "status"
+                                "submit"
                             ]
                         },
-                        "description": "Update the status of a requisition"
+                        "description": "Submit a requisition for approval"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Approve Requisition",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"decision\": \"approve\",\n    \"comments\": \"Looks good, approved!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/requisitions/{{requisitionId}}/approve",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "requisitions",
+                                "{{requisitionId}}",
+                                "approve"
+                            ]
+                        },
+                        "description": "Approve a requisition (decision can be 'approve', 'reject', or 'return')"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Approval Status",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/requisitions/{{requisitionId}}/approval-status",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "requisitions",
+                                "{{requisitionId}}",
+                                "approval-status"
+                            ]
+                        },
+                        "description": "Get the detailed approval status for a requisition"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Pending Approvals",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/requisitions/pending-approvals?page=1&limit=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "requisitions",
+                                "pending-approvals"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        },
+                        "description": "Get requisitions pending approval for the current user"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Cost Center Pending Approvals",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/requisitions/pending-approvals/cost-center?page=1&limit=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "requisitions",
+                                "pending-approvals",
+                                "cost-center"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        },
+                        "description": "Get requisitions pending approval for cost centers the current user manages"
                     },
                     "response": []
                 }
@@ -408,8 +554,7 @@
                         "description": "Get a single requisition item by its ID"
                     },
                     "response": []
-                },
-                {
+                },                {
                     "name": "Add Item to Requisition",
                     "event": [
                         {
@@ -442,7 +587,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n    \"catalogProductId\": \"{{productId2}}\",\n    \"quantity\": 3,\n    \"unitPrice\": 750,\n    \"unit\": \"Each\",\n    \"unitId\": \"{{unitId}}\",\n    \"notes\": \"Need this ASAP\"\n}"
+                            "raw": "{\n    \"catalogProductId\": \"{{productId2}}\",\n    \"quantity\": 3,\n    \"unitPrice\": 750,\n    \"unit\": \"Each\",\n    \"unitId\": \"{{unitId}}\",\n    \"notes\": \"Need this ASAP\",\n    \"isCatalogItem\": true\n}"
                         },
                         "url": {
                             "raw": "{{baseUrl}}/api/v1/requisitions/{{requisitionId}}/items",
@@ -458,6 +603,58 @@
                             ]
                         },
                         "description": "Add a new line item to an existing requisition"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Add Custom Item to Requisition",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "const responseJson = pm.response.json();",
+                                    "",
+                                    "if (responseJson.success && responseJson.data && responseJson.data._id) {",
+                                    "    pm.environment.set('requisitionItemId', responseJson.data._id);",
+                                    "    console.log('Requisition Item ID saved to environment variable: requisitionItemId');",
+                                    "}",
+                                    ""
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{authToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Custom IT Hardware\",\n    \"description\": \"Special hardware not in catalog\",\n    \"quantity\": 2,\n    \"unitPrice\": 1250,\n    \"unit\": \"Each\",\n    \"unitId\": \"{{unitId}}\",\n    \"notes\": \"Need specific model as discussed\",\n    \"isCatalogItem\": false\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/requisitions/{{requisitionId}}/items",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "requisitions",
+                                "{{requisitionId}}",
+                                "items"
+                            ]
+                        },
+                        "description": "Add a new custom line item to an existing requisition"
                     },
                     "response": []
                 },

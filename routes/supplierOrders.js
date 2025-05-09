@@ -18,28 +18,30 @@ const { hasPermission } = require('../middleware/permissionMiddleware');
 // Apply middleware to all routes
 router.use(protect);
 router.use(identifyTenantFromToken);
+// Single permission check for all supplier order operations
+router.use(hasPermission('supplier.portal_access'));
 
 // Main supplier order routes
 router.route('/')
-  .get(hasPermission('supplier.view'), getSupplierOrders)
-  .post(hasPermission('supplier.create'), createSupplierOrder);
+  .get(getSupplierOrders)
+  .post(createSupplierOrder);
 
 router.route('/:id')
-  .get(hasPermission('supplier.view'), getSupplierOrder)
-  .put(hasPermission('supplier.edit'), updateSupplierOrder)
-  .delete(hasPermission('supplier.delete'), deleteSupplierOrder);
+  .get(getSupplierOrder)
+  .put(updateSupplierOrder)
+  .delete(deleteSupplierOrder);
 
 // Specialized routes for updating specific parts of an order
 router.route('/:id/quote')
-  .put(hasPermission('supplier.edit'), updateSupplierQuote);
+  .put(updateSupplierQuote);
 
 router.route('/:id/po-details')
-  .put(hasPermission('supplier.edit'), updatePODetails);
+  .put(updatePODetails);
 
 router.route('/:id/delivery')
-  .put(hasPermission('supplier.edit'), updateDeliveryStatus);
+  .put(updateDeliveryStatus);
 
 router.route('/:id/status')
-  .put(hasPermission('supplier.edit'), changeOrderStatus);
+  .put(changeOrderStatus);
 
 module.exports = router;

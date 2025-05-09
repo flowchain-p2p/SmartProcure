@@ -6,15 +6,26 @@ const RequisitionItemSchema = new mongoose.Schema({
     ref: 'Requisition',
     required: true
   },
+  // Flag to identify catalog vs non-catalog items
+  isCatalogItem: {
+    type: Boolean,
+    default: false
+  },
   // Fields for catalog-based items
   catalogProductId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product'
+    ref: 'Product',
+    required: function() {
+      return this.isCatalogItem === true;
+    }
   },
   // Fields for free-text items
   name: {
     type: String,
-    trim: true
+    trim: true,
+    required: function() {
+      return this.isCatalogItem === false;
+    }
   },
   description: {
     type: String,
@@ -99,9 +110,14 @@ RequisitionItemSchema.pre('validate', function(next) {
 RequisitionItemSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   
-  // Validation to ensure either catalog product or free-text fields are provided
-  if (!this.catalogProductId && !this.name) {
-    const error = new Error('Either catalogProductId or name must be provided');
+  // Validation based on item type (catalog vs non-catalog)
+  if (this.isCatalogItem && !this.catalogProductId) {
+    const error = new Error('Catalog product ID must be provided for catalog items');
+    return next(error);
+  }
+  
+  if (!this.isCatalogItem && !this.name) {
+    const error = new Error('Name must be provided for non-catalog items');
     return next(error);
   }
   
@@ -119,14 +135,22 @@ RequisitionItemSchema.post('save', async function() {
     // Calculate the total amount
     const totalAmount = items.reduce((sum, item) => sum + item.totalPrice, 0);
     
-    // Update the requisition's total amount
+    // Determine requisition type based on items
+    // If any item is not a catalog item, mark the requisition as customItem
+    const hasCustomItem = items.some(item => item.isCatalogItem === false);
+    const requisitionType = hasCustomItem ? 'customItem' : 'catalogItem';
+    
+    // Update the requisition's total amount and requisition type
     await Requisition.findByIdAndUpdate(
       this.requisitionId, 
-      { totalAmount },
+      { 
+        totalAmount,
+        requisitionType
+      },
       { new: true }
     );
   } catch (error) {
-    console.error('Error updating requisition total amount:', error);
+    console.error('Error updating requisition total amount and type:', error);
   }
 });
 
@@ -141,14 +165,26 @@ RequisitionItemSchema.post('remove', async function() {
     // Calculate the new total amount
     const totalAmount = items.reduce((sum, item) => sum + item.totalPrice, 0);
     
-    // Update the requisition's total amount
+    // Determine requisition type based on remaining items
+    // If any item is not a catalog item, mark the requisition as customItem
+    // If there are no items left, default to catalogItem
+    let requisitionType = 'catalogItem'; // Default
+    if (items.length > 0) {
+      const hasCustomItem = items.some(item => item.isCatalogItem === false);
+      requisitionType = hasCustomItem ? 'customItem' : 'catalogItem';
+    }
+    
+    // Update the requisition's total amount and requisition type
     await Requisition.findByIdAndUpdate(
       this.requisitionId, 
-      { totalAmount },
+      { 
+        totalAmount,
+        requisitionType
+      },
       { new: true }
     );
   } catch (error) {
-    console.error('Error updating requisition total amount after remove:', error);
+    console.error('Error updating requisition total amount and type after remove:', error);
   }
 });
 
