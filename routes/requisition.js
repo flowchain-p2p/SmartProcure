@@ -15,7 +15,11 @@ const {
   deleteRequisitionItem,
   getRequisitionItems,
   getRequisitionItemById,
-  getRequisitionApprovalStatus
+  getRequisitionApprovalStatus,
+  // New simple approval functions
+  submitRequisitionForApproval,
+  getMyPendingApprovals,
+  processApprovalDecision
 } = require('../controllers/requisitionController');
 const { identifyTenantFromToken } = require('../middleware/tenantMiddleware');
 const { hasPermission } = require('../middleware/permissionMiddleware');
@@ -39,6 +43,16 @@ router.route('/:id/submit')
 
 router.route('/:id/approve')
   .patch(hasPermission('pr.approve'), approveRequisition);
+  
+// New simple approval routes
+router.route('/:id/submit-for-approval')
+  .post(hasPermission('pr.submit'), submitRequisitionForApproval);
+  
+router.route('/my-pending-approvals')
+  .get(hasPermission('pr.approve'), getMyPendingApprovals);
+  
+router.route('/:id/approval-decision')
+  .post(hasPermission('pr.approve'), processApprovalDecision);
 
 // Approval status route
 router.route('/:id/approval-status')

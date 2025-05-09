@@ -26,6 +26,34 @@ const RequisitionSchema = new mongoose.Schema({
     enum: ['Draft', 'Submitted', 'Pending Approval', 'Approved', 'Rejected', 'Cancelled'],
     default: 'Draft'
   },
+  // New fields for simplified approval process
+  approvers: [{
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    level: {
+      type: Number,
+      default: 1
+    },
+    status: {
+      type: String,
+      enum: ['Pending', 'Approved', 'Rejected'],
+      default: 'Pending'
+    },
+    comments: String,
+    actionDate: Date
+  }],
+  currentApprovalLevel: {
+    type: Number,
+    default: 1
+  },
+  approvalStatus: {
+    type: String,
+    enum: ['Not Started', 'In Progress', 'Approved', 'Rejected'],
+    default: 'Not Started'
+  },
   tenantId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Tenant',
@@ -49,21 +77,7 @@ const RequisitionSchema = new mongoose.Schema({
   approvedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  },
-  // Reference to the approval instance that manages the workflow
-  approvalInstanceId: {
-    type: String,
-    index: true
-  },
-  // The following fields are kept for backward compatibility but will be deprecated
-  // in favor of using the approvalInstance data
-  currentApprover: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  approverRole: {
-    type: String
-  },
+  },  // The following fields are kept for basic approval information
   submittedAt: {
     type: Date
   },

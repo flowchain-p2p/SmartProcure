@@ -41,6 +41,7 @@ const users = require('./routes/users');
 const departments = require('./routes/departments');
 const costCenters = require('./routes/costCenters');
 const tenants = require('./routes/tenants');
+const { getCostCenterDirect } = require('./controllers/costCenterController');
 const domainAuthRoutes = require('./routes/domainAuth');
 const domainRoutes = require('./routes/domain');
 const productRoutes = require('./routes/product');
@@ -64,6 +65,9 @@ app.use('/api/v1/tenants/:tenantSlug/cost-centers', costCenters);
 app.use('/api/v1/tenants', tenants);
 app.use('/api/v1/auth', domainAuthRoutes);
 app.use('/api/v1/domain', domainRoutes);
+
+// Direct cost center access route
+app.get('/api/v1/cost-centers/:id', getCostCenterDirect);
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/categories', categoryRoutes);
 app.use('/api/v1/uom', uomRoutes);

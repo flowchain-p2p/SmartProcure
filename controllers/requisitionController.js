@@ -1,13 +1,10 @@
 const Requisition = require('../models/Requisition');
 const RequisitionItem = require('../models/RequisitionItem');
-// ApprovalHistory removed from MVP
 const CostCenter = require('../models/CostCenter');
 const User = require('../models/User');
 const mongoose = require('mongoose');
 const Location = require('../models/Location');
-const ApprovalWorkflow = require('../models/ApprovalWorkflow');
-const ApprovalInstance = require('../models/ApprovalInstance');
-const approvalService = require('../services/approvalService');
+const { submitRequisitionForApproval, getMyPendingApprovals, processApprovalDecision } = require('./requisitionController-simple-approval');
 
 /**
  * @desc    Get all requisitions for the current tenant
@@ -178,11 +175,57 @@ const createRequisition = async (req, res) => {
         requisitionType = 'customItem';
       }
     }
-    
-    // Set the requisition type based on its items
+      // Set the requisition type based on its items
     requisitionData.requisitionType = requisitionType;
     
     const requisition = await Requisition.create(requisitionData);
+    
+    // Check if submitting directly (simplified approval flow)
+    if (req.body.submitForApproval && requisition.costCenterId) {
+      // Get cost center details for approval
+      const costCenter = await CostCenter.findById(requisition.costCenterId)
+        .populate('head')
+        .populate('approvers.userId');
+      
+      if (costCenter) {
+        // Collect approvers from cost center
+        const approversToAdd = [];
+        
+        // Add cost center head as level 1 approver if exists
+        if (costCenter.head) {
+          approversToAdd.push({
+            userId: costCenter.head._id,
+            level: 1,
+            status: 'Pending'
+          });
+        }
+        
+        // Add other approvers from cost center if any
+        if (costCenter.approvers && costCenter.approvers.length > 0) {
+          costCenter.approvers.forEach(approver => {
+            approversToAdd.push({
+              userId: approver.userId._id,
+              level: approver.level || 2, // Default to level 2 if not specified
+              status: 'Pending'
+            });
+          });
+        }
+        
+        // Sort approvers by level
+        if (approversToAdd.length > 0) {
+          approversToAdd.sort((a, b) => a.level - b.level);
+          
+          // Update requisition with approvers
+          requisition.approvers = approversToAdd;
+          requisition.currentApprovalLevel = 1;
+          requisition.status = 'Pending Approval';
+          requisition.approvalStatus = 'In Progress';
+          requisition.submittedAt = new Date();
+          
+          await requisition.save({ session });
+        }
+      }
+    }
 
     // Create requisition items if provided
     let savedItems = [];
@@ -964,8 +1007,7 @@ const getRequisitionApprovalStatus = async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Server error while fetching approval status'
-    });
-  }
+    });  }
 };
 
 module.exports = {
@@ -983,5 +1025,9 @@ module.exports = {
   deleteRequisitionItem,
   getRequisitionItems,
   getRequisitionItemById,
-  getRequisitionApprovalStatus
+  getRequisitionApprovalStatus,
+  // New simple approval functions
+  submitRequisitionForApproval,
+  getMyPendingApprovals,
+  processApprovalDecision
 };
