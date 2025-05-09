@@ -54,6 +54,7 @@ const supplierInviteRoutes = require('./routes/supplierInvite');
 const purchaseOrderRoutes = require('./routes/purchaseOrder');
 const rfqRoutes = require('./routes/rfq');
 const supplierOrderRoutes = require('./routes/supplierOrders');
+const approvalInstanceRoutes = require('./routes/approvalInstance');
 
 // Mount routers
 app.use('/api/v1/auth', auth);
@@ -74,6 +75,7 @@ app.use('/api/v1/suppliers', supplierInviteRoutes);
 app.use('/api/v1/purchase-orders', purchaseOrderRoutes);
 app.use('/api/v1/rfqs', rfqRoutes);
 app.use('/api/v1/supplier-orders', supplierOrderRoutes);
+app.use('/api/v1/approval-instances', approvalInstanceRoutes);
 
 // Set up Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { 

@@ -5,6 +5,7 @@ const RequisitionItem = require('../models/RequisitionItem');
 const PurchaseOrder = require('../models/PurchaseOrder');
 const CostCenter = require('../models/CostCenter');
 const User = require('../models/User');
+const RFQ = require('../models/RFQ');
 const mongoose = require('mongoose');
 
 /**
@@ -259,20 +260,34 @@ const processApprovalDecision = async (requisitionId, decision, options = {}) =>
               approvalStage: 'Complete',
               approvedBy: userId
             }
-          );
-            // Get the full requisition details to check its type
+          );          // Get the full requisition details to check its type
           const updatedReq = await Requisition.findById(requisitionId).populate('items');
           
-          // If the requisition type is catalogItem, create a PO with draft status
-          if (updatedReq && updatedReq.requisitionType === 'catalogItem') {
-            try {
-              const newPO = await createPurchaseOrderFromRequisition(updatedReq, userId, tenantId);
-              if (newPO) {
-                console.log(`Successfully created Purchase Order ${newPO.poNumber} for approved requisition ${updatedReq.requisitionNumber}`);
+          // Handle different requisition types
+          if (updatedReq) {
+            // If the requisition type is catalogItem, create a PO with draft status
+            if (updatedReq.requisitionType === 'catalogItem') {
+              try {
+                const newPO = await createPurchaseOrderFromRequisition(updatedReq, userId, tenantId);
+                if (newPO) {
+                  console.log(`Successfully created Purchase Order ${newPO.poNumber} for approved requisition ${updatedReq.requisitionNumber}`);
+                }
+              } catch (poError) {
+                console.error(`Error creating Purchase Order for requisition ${requisitionId}:`, poError);
+                // We don't throw the error here to avoid disrupting the approval process
               }
-            } catch (poError) {
-              console.error(`Error creating Purchase Order for requisition ${requisitionId}:`, poError);
-              // We don't throw the error here to avoid disrupting the approval process
+            } 
+            // If the requisition type is customItem, create an RFQ with draft status
+            else if (updatedReq.requisitionType === 'customItem') {
+              try {
+                const newRFQ = await createRFQFromRequisition(updatedReq, userId, tenantId);
+                if (newRFQ) {
+                  console.log(`Successfully created RFQ ${newRFQ.rfqNumber} for approved requisition ${updatedReq.requisitionNumber}`);
+                }
+              } catch (rfqError) {
+                console.error(`Error creating RFQ for requisition ${requisitionId}:`, rfqError);
+                // We don't throw the error here to avoid disrupting the approval process
+              }
             }
           }
           
@@ -560,11 +575,80 @@ const createPurchaseOrderFromRequisition = async (requisition, userId, tenantId)
   }
 };
 
+/**
+ * Creates an RFQ from an approved Requisition
+ * @param {Object} requisition - The approved requisition
+ * @param {String} userId - ID of the user who approved the requisition
+ * @param {String} tenantId - The tenant ID
+ * @returns {Promise<Object>} - The created RFQ
+ */
+const createRFQFromRequisition = async (requisition, userId, tenantId) => {
+  try {
+    // Get all items related to this requisition
+    const requisitionItems = await RequisitionItem.find({
+      requisitionId: requisition._id,
+      tenantId: tenantId
+    });
+
+    // If there are no items, we can't create an RFQ
+    if (!requisitionItems || requisitionItems.length === 0) {
+      console.log(`No items found for requisition ${requisition._id}, skipping RFQ creation`);
+      return null;
+    }
+
+    // Generate RFQ number
+    const rfqCount = await RFQ.countDocuments({ tenantId });
+    const rfqNumber = `RFQ-${requisition.tenantId}-${new Date().getFullYear()}-${(rfqCount + 1).toString().padStart(4, '0')}`;
+
+    // Convert requisition items to RFQ items
+    const rfqItems = requisitionItems.map(item => ({
+      description: item.name || 'Custom Item',
+      quantity: item.quantity,
+      unitOfMeasure: item.unit || 'Each',
+      estimatedUnitPrice: item.unitPrice || 0,
+      estimatedTotalPrice: item.totalPrice || 0,
+      requisitionItemId: item._id,
+      notes: item.notes
+    }));
+
+    // Set submission deadline to 7 days from now
+    const submissionDeadline = new Date();
+    submissionDeadline.setDate(submissionDeadline.getDate() + 7);
+
+    // Calculate estimated total amount
+    const estimatedTotalAmount = rfqItems.reduce((total, item) => total + (item.estimatedTotalPrice || 0), 0);
+
+    // Create the RFQ
+    const rfq = await RFQ.create({
+      rfqNumber,
+      title: `RFQ for ${requisition.title}`,
+      description: requisition.description,
+      status: 'Draft', // Always create as draft
+      tenantId: requisition.tenantId,
+      organizationId: requisition.organizationId,
+      requisitionId: requisition._id,
+      items: rfqItems,
+      submissionDeadline: submissionDeadline,
+      estimatedTotalAmount: estimatedTotalAmount,
+      currency: requisition.currency || 'INR',
+      createdBy: userId,
+      notes: `Auto-generated from Requisition ${requisition.requisitionNumber}`
+    });
+
+    console.log(`Created RFQ ${rfq.rfqNumber} from requisition ${requisition.requisitionNumber}`);
+    return rfq;
+  } catch (error) {
+    console.error(`Error creating RFQ from requisition ${requisition._id}:`, error);
+    return null;
+  }
+};
+
 module.exports = {
   createApprovalInstance,
   startApprovalProcess,
   processApprovalDecision,
   getCurrentApprovers,
   getApprovalStatus,
-  createPurchaseOrderFromRequisition
+  createPurchaseOrderFromRequisition,
+  createRFQFromRequisition
 };

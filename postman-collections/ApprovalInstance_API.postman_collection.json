@@ -1,0 +1,297 @@
+{
+	"info": {
+		"_postman_id": "ea8f5f9d-8643-4e45-8ea2-d6b1a2e9f5d0",
+		"name": "SmartProcure ApprovalInstance API",
+		"description": "API endpoints for managing approval instances in the system",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get All Approval Instances",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Tenant-ID",
+						"value": "{{tenantId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/approval-instances?status=Pending Approval&page=1&limit=10",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"approval-instances"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "Pending Approval",
+							"description": "Filter by approval status (Draft, Submitted, Pending Approval, Approved, Rejected, Cancelled)"
+						},
+						{
+							"key": "requisitionId",
+							"value": "{{requisitionId}}",
+							"description": "Filter by requisition ID",
+							"disabled": true
+						},
+						{
+							"key": "page",
+							"value": "1",
+							"description": "Page number for pagination"
+						},
+						{
+							"key": "limit",
+							"value": "10",
+							"description": "Number of items per page"
+						}
+					]
+				},
+				"description": "Retrieves a list of approval instances with filters and pagination"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Approval Instance By ID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Tenant-ID",
+						"value": "{{tenantId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/approval-instances/{{approvalInstanceId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"approval-instances",
+						"{{approvalInstanceId}}"
+					]
+				},
+				"description": "Retrieves details of a specific approval instance by ID or instanceId"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Approval Instances By Requisition ID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Tenant-ID",
+						"value": "{{tenantId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/approval-instances/requisition/{{requisitionId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"approval-instances",
+						"requisition",
+						"{{requisitionId}}"
+					]
+				},
+				"description": "Retrieves all approval instances associated with a specific requisition"
+			},
+			"response": []
+		},
+		{
+			"name": "Get My Approval Instances",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Tenant-ID",
+						"value": "{{tenantId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/approval-instances/my-approvals?status=Pending Approval&page=1&limit=10",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"approval-instances",
+						"my-approvals"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "Pending Approval",
+							"description": "Filter by approval status"
+						},
+						{
+							"key": "page",
+							"value": "1",
+							"description": "Page number for pagination"
+						},
+						{
+							"key": "limit",
+							"value": "10",
+							"description": "Number of items per page"
+						}
+					]
+				},
+				"description": "Retrieves all approval instances assigned to the current user for approval in the current stage"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Approval History",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Tenant-ID",
+						"value": "{{tenantId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/approval-instances/history/{{requisitionId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"approval-instances",
+						"history",
+						"{{requisitionId}}"
+					]
+				},
+				"description": "Retrieves the complete approval history timeline for a specific requisition"
+			},
+			"response": []
+		},
+		{
+			"name": "Update Approval Instance (Admin)",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "X-Tenant-ID",
+						"value": "{{tenantId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"status\": \"Pending Approval\",\n    \"currentStageIndex\": 0,\n    \"approvals\": [\n        {\n            \"stage\": \"Cost Center Approval\",\n            \"stageOrder\": 0,\n            \"approvers\": [\n                {\n                    \"userId\": \"{{userId}}\",\n                    \"role\": \"CostCenterHead\",\n                    \"status\": \"Pending\"\n                }\n            ]\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/approval-instances/{{approvalInstanceId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"approval-instances",
+						"{{approvalInstanceId}}"
+					]
+				},
+				"description": "Updates an approval instance (Admin only)"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Approval Instance (Admin)",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "X-Tenant-ID",
+						"value": "{{tenantId}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/approval-instances/{{approvalInstanceId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"approval-instances",
+						"{{approvalInstanceId}}"
+					]
+				},
+				"description": "Deletes an approval instance (Admin only)"
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{authToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "tenantId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "requisitionId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "approvalInstanceId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

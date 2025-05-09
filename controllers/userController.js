@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Location = require('../models/Location');
 const Tenant = require('../models/Tenant');
+const CostCenter = require('../models/CostCenter');
 
 /**
  * @desc    Get all users for a tenant
@@ -340,6 +341,189 @@ exports.getUserLocations = async (req, res) => {
       }
     });
   } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server Error: ' + error.message
+    });
+  }
+};
+
+/**
+ * @desc    Get approvers based on cost centers
+ * @route   GET /api/v1/users/approvers
+ * @access  Private
+ */
+exports.getApproversByCostCenters = async (req, res) => {
+  try {
+    // Find all users who are administrators
+    const admins = await User.find({
+      tenantId: req.tenant.id,
+      role: 'admin' // Assuming 'admin' is the role for administrators
+    });
+
+    // Get all cost centers for the tenant
+    const costCenters = await CostCenter.find({
+      tenantId: req.tenant.id
+    });
+
+    // For each cost center, find the associated approvers
+    const costCenterApprovers = await Promise.all(costCenters.map(async (center) => {
+      // Find users associated with this cost center
+      const usersInCenter = await User.find({
+        _id: { $in: center.approverIds },
+        tenantId: req.tenant.id
+      });
+
+      return {
+        costCenter: center,
+        approvers: usersInCenter
+      };
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: costCenterApprovers
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server Error: ' + error.message
+    });
+  }
+};
+
+/**
+ * @desc    Get all approvers in the system
+ * @route   GET /api/v1/tenants/:tenantSlug/users/approvers
+ * @access  Private
+ * @query   includeCostCenterId - Optional, include approvers from specific cost center
+ * @query   includeAdmins - Optional (default: true), include administrators as approvers
+ */
+exports.getApprovers = async (req, res) => {
+  try {
+    const includeAdmins = req.query.includeAdmins !== 'false'; // Default to true
+    const costCenterId = req.query.costCenterId;
+    const tenantId = req.tenant.id;
+    
+    // Initialize the list of approvers
+    const approversList = [];
+    const approverIds = new Set(); // To track unique approvers
+    
+    // 1. If a specific cost center ID is provided, get approvers from that cost center
+    if (costCenterId) {
+      const costCenter = await CostCenter.findOne({ 
+        _id: costCenterId,
+        tenantId
+      }).populate('head', 'name email _id').populate('approvers.userId', 'name email _id');
+      
+      if (costCenter) {
+        // Add cost center head if exists
+        if (costCenter.head) {
+          approverIds.add(costCenter.head._id.toString());
+          approversList.push({
+            _id: costCenter.head._id,
+            name: costCenter.head.name,
+            email: costCenter.head.email,
+            role: 'CostCenterHead',
+            approverType: 'CostCenterHead',
+            level: 1
+          });
+        }
+        
+        // Add cost center approvers if any
+        if (costCenter.approvers && costCenter.approvers.length > 0) {
+          costCenter.approvers.forEach(approver => {
+            if (approver.userId && !approverIds.has(approver.userId._id.toString())) {
+              approverIds.add(approver.userId._id.toString());
+              approversList.push({
+                _id: approver.userId._id,
+                name: approver.userId.name,
+                email: approver.userId.email,
+                role: 'Approver',
+                approverType: 'CostCenterApprover',
+                level: approver.level || 1
+              });
+            }
+          });
+        }
+      }
+    } 
+    // 2. If no specific cost center, get all cost center heads and approvers
+    else {
+      const costCenters = await CostCenter.find({ tenantId })
+        .populate('head', 'name email _id')
+        .populate('approvers.userId', 'name email _id');
+      
+      costCenters.forEach(costCenter => {
+        // Add cost center head if exists
+        if (costCenter.head && !approverIds.has(costCenter.head._id.toString())) {
+          approverIds.add(costCenter.head._id.toString());
+          approversList.push({
+            _id: costCenter.head._id,
+            name: costCenter.head.name,
+            email: costCenter.head.email,
+            role: 'CostCenterHead',
+            approverType: 'CostCenterHead',
+            costCenterId: costCenter._id,
+            costCenterName: costCenter.name,
+            level: 1
+          });
+        }
+        
+        // Add cost center approvers if any
+        if (costCenter.approvers && costCenter.approvers.length > 0) {
+          costCenter.approvers.forEach(approver => {
+            if (approver.userId && !approverIds.has(approver.userId._id.toString())) {
+              approverIds.add(approver.userId._id.toString());
+              approversList.push({
+                _id: approver.userId._id,
+                name: approver.userId.name,
+                email: approver.userId.email,
+                role: 'Approver',
+                approverType: 'CostCenterApprover',
+                costCenterId: costCenter._id,
+                costCenterName: costCenter.name,
+                level: approver.level || 1
+              });
+            }
+          });
+        }
+      });
+    }
+    
+    // 3. Include administrators if requested
+    if (includeAdmins) {
+      const administrators = await User.find({
+        tenantId,
+        roles: 'Administrator',
+        active: true
+      }).select('_id name email roles');
+      
+      administrators.forEach(admin => {
+        if (!approverIds.has(admin._id.toString())) {
+          approverIds.add(admin._id.toString());
+          approversList.push({
+            _id: admin._id,
+            name: admin.name,
+            email: admin.email,
+            role: 'Administrator',
+            approverType: 'Administrator',
+            level: 0 // Administrators have highest priority
+          });
+        }
+      });
+    }
+    
+    // Sort by level (ascending - lowest level number has highest priority)
+    approversList.sort((a, b) => a.level - b.level);
+    
+    res.status(200).json({
+      success: true,
+      count: approversList.length,
+      data: approversList
+    });
+  } catch (error) {
+    console.error('Error getting approvers:', error);
     res.status(500).json({
       success: false,
       message: 'Server Error: ' + error.message

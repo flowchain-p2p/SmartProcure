@@ -10,7 +10,8 @@ const {
   deleteUser,
   setUserDefaultLocation,
   manageUserLocations,
-  getUserLocations
+  getUserLocations,
+  getApprovers
 } = require('../controllers/userController');
 
 // All routes require authentication
@@ -23,6 +24,10 @@ router.use(function(req, res, next) {
 router.route('/')
   .get(getUsers)
   .post(createUser);
+
+// Get all approvers (including cost center heads, approvers, and administrators)
+router.route('/approvers')
+  .get(getApprovers);
 
 router.route('/:id')
   .get(getUser)

@@ -340,4 +340,82 @@
  *                   type: boolean
  *                 data:
  *                   $ref: '#/components/schemas/User'
+ *
+ * /tenants/{tenantSlug}/users/approvers:
+ *   get:
+ *     summary: Get all approvers (cost center heads, approvers, and administrators)
+ *     description: Retrieves a list of all approvers in the system, including cost center heads, approvers, and administrators
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: tenantSlug
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The tenant's slug
+ *       - name: costCenterId
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Optional - Filter approvers by specific cost center
+ *       - name: includeAdmins
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *           default: true
+ *         description: Optional - Include administrators in the results
+ *     responses:
+ *       200:
+ *         description: List of approvers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 count:
+ *                   type: integer
+ *                   example: 5
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 60d21b4667d0d8992e610c85
+ *                       name:
+ *                         type: string
+ *                         example: John Doe
+ *                       email:
+ *                         type: string
+ *                         example: john@example.com
+ *                       role:
+ *                         type: string
+ *                         enum: [CostCenterHead, Approver, Administrator]
+ *                         example: CostCenterHead
+ *                       approverType:
+ *                         type: string
+ *                         enum: [CostCenterHead, CostCenterApprover, Administrator]
+ *                         example: CostCenterHead
+ *                       costCenterId:
+ *                         type: string
+ *                         example: 60d21b4667d0d8992e610c86
+ *                       costCenterName:
+ *                         type: string
+ *                         example: Finance Department
+ *                       level:
+ *                         type: integer
+ *                         example: 1
+ *                         description: Priority level for approval (lower number = higher priority)
+ *       401:
+ *         description: Not authorized
+ *       500:
+ *         description: Server error
  */
