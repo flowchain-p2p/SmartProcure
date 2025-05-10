@@ -118,11 +118,10 @@ const PurchaseOrderSchema = new mongoose.Schema({
     type: String,
     required: true,
     default: 'INR'
-  },
-  // Delivery information
+  },  // Delivery information
   deliveryDate: {
     type: Date,
-    required: true
+    // Made optional as per requirement
   },
   deliveryAddress: {
     type: String,

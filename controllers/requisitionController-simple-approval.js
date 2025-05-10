@@ -355,6 +355,9 @@ const processApprovalDecision = async (req, res) => {
  */
 const createPurchaseOrderFromRequisition = async (requisition, userId, tenantId) => {
   try {
+    // Import the function to get vendor by category name
+    const { getVendorByCategoryNameInternal } = require('./vendorController');
+    
     // Get all items related to this requisition
     const requisitionItems = await RequisitionItem.find({
       requisitionId: requisition._id,
@@ -365,22 +368,33 @@ const createPurchaseOrderFromRequisition = async (requisition, userId, tenantId)
     if (!requisitionItems || requisitionItems.length === 0) {
       console.log(`No items found for requisition ${requisition._id}, skipping PO creation`);
       return null;
-    }
-
-    // Find the primary vendor from the first item (assuming all items are from same vendor)
-    // If no vendor specified, we can't create a PO
-    let vendorId = null;
-    for (const item of requisitionItems) {
-      if (item.vendorId) {
-        vendorId = item.vendorId;
-        break;
+    }    // First check if we have a category name on the requisition itself
+    let primaryCategory = requisition.categoryName;
+    
+    // If not found on requisition, try to find it from the items as fallback
+    if (!primaryCategory) {
+      for (const item of requisitionItems) {
+        if (item.categoryName) {
+          primaryCategory = item.categoryName;
+          break;
+        }
       }
     }
 
-    if (!vendorId) {
-      console.log(`No vendor found for requisition items in ${requisition._id}, skipping PO creation`);
+    // If no category found, can't determine vendor
+    if (!primaryCategory) {
+      console.log(`No category name found for requisition ${requisition._id} or its items, skipping PO creation`);
       return null;
     }
+
+    // Get vendor by category name
+    const vendorResult = await getVendorByCategoryNameInternal(primaryCategory, tenantId);
+    if (!vendorResult.success) {
+      console.log(`No vendor found for category ${primaryCategory}, skipping PO creation`);
+      return null;
+    }
+    
+    const vendorId = vendorResult.data.vendorId;
 
     // Generate PO number
     const poCount = await PurchaseOrder.countDocuments({ tenantId });

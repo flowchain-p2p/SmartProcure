@@ -85,8 +85,11 @@ const RequisitionSchema = new mongoose.Schema({
     type: String,
     enum: ['Not Started', 'Cost Center', 'Department', 'Finance', 'Complete'],
     default: 'Not Started'
+  },  department: {
+    type: String,
+    trim: true
   },
-  department: {
+  categoryName: {
     type: String,
     trim: true
   },

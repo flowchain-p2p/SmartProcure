@@ -137,9 +137,8 @@ const getRequisition = async (req, res) => {
  * @route   POST /api/v1/requisitions
  * @access  Private
  */
-const createRequisition = async (req, res) => {
-  try {
-    const { title, description, organizationId, costCenterId, items, ...rest } = req.body;
+const createRequisition = async (req, res) => {  try {
+    const { title, description, organizationId, costCenterId, categoryName, items, ...rest } = req.body;
 
     // Import the function to get vendor by category name
     const { getVendorByCategoryNameInternal } = require('./vendorController');
@@ -156,6 +155,7 @@ const createRequisition = async (req, res) => {
       description,
       tenantId: req.tenant.id,
       createdBy: req.user.id,
+      categoryName, // Store category name at the requisition level
       ...rest
     };
     
@@ -229,9 +229,7 @@ const createRequisition = async (req, res) => {
           await requisition.save();
         }
       }
-    }
-
-    // Create requisition items if provided
+    }    // Create requisition items if provided
     let savedItems = [];
     if (items && items.length > 0) {
       // Process items and add vendorId if categoryName is provided
@@ -247,6 +245,7 @@ const createRequisition = async (req, res) => {
           const vendorResult = await getVendorByCategoryNameInternal(item.categoryName, req.tenant.id);
           if (vendorResult.success) {
             itemData.vendorId = vendorResult.data.vendorId;
+            itemData.vendorName = vendorResult.data.vendorName || '';
             // Also store if this is a preferred vendor
             itemData.preferredVendor = vendorResult.data.preferred;
           }
@@ -256,6 +255,9 @@ const createRequisition = async (req, res) => {
       }));
 
       savedItems = await RequisitionItem.create(processedItems);
+      
+      // Log successful creation to debug
+      console.log(`Created ${savedItems.length} requisition items for requisition ${requisition._id}`);
     }
 
     res.status(201).json({
@@ -617,6 +619,19 @@ const addRequisitionItem = async (req, res) => {
     // For non-catalog items, ensure catalogProductId is not set
     if (!isCatalogItem) {
       delete itemData.catalogProductId;
+    }
+    
+    // If item has categoryName but no vendorId, try to get vendor by category name
+    if (req.body.categoryName && !req.body.vendorId) {
+      // Import the function to get vendor by category name
+      const { getVendorByCategoryNameInternal } = require('./vendorController');
+      const vendorResult = await getVendorByCategoryNameInternal(req.body.categoryName, req.tenant.id);
+      if (vendorResult.success) {
+        itemData.vendorId = vendorResult.data.vendorId;
+        itemData.vendorName = vendorResult.data.vendorName || '';
+        // Also store if this is a preferred vendor
+        itemData.preferredVendor = vendorResult.data.preferred;
+      }
     }
     
     const item = await RequisitionItem.create(itemData);

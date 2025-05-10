@@ -30,15 +30,22 @@ const RequisitionItemSchema = new mongoose.Schema({
   description: {
     type: String,
     trim: true
-  },
-  // Common fields for both catalog and free-text items
+  },  // Common fields for both catalog and free-text items
   vendorName: {
     type: String,
     trim: true
   },
   vendorId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Vendor' // Assuming there might be a Vendor model in the future
+    ref: 'Vendor'
+  },
+  preferredVendor: {
+    type: Boolean,
+    default: false
+  },
+  categoryName: {
+    type: String,
+    trim: true
   },
   quantity: {
     type: Number,
