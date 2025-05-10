@@ -492,27 +492,27 @@ exports.getApprovers = async (req, res) => {
     }
     
     // 3. Include administrators if requested
-    if (includeAdmins) {
-      const administrators = await User.find({
-        tenantId,
-        roles: 'Administrator',
-        active: true
-      }).select('_id name email roles');
+    // if (includeAdmins) {
+    //   const administrators = await User.find({
+    //     tenantId,
+    //     roles: 'Administrator',
+    //     active: true
+    //   }).select('_id name email roles');
       
-      administrators.forEach(admin => {
-        if (!approverIds.has(admin._id.toString())) {
-          approverIds.add(admin._id.toString());
-          approversList.push({
-            _id: admin._id,
-            name: admin.name,
-            email: admin.email,
-            role: 'Administrator',
-            approverType: 'Administrator',
-            level: 0 // Administrators have highest priority
-          });
-        }
-      });
-    }
+    //   administrators.forEach(admin => {
+    //     if (!approverIds.has(admin._id.toString())) {
+    //       approverIds.add(admin._id.toString());
+    //       approversList.push({
+    //         _id: admin._id,
+    //         name: admin.name,
+    //         email: admin.email,
+    //         role: 'Administrator',
+    //         approverType: 'Administrator',
+    //         level: 0 // Administrators have highest priority
+    //       });
+    //     }
+    //   });
+    // }
     
     // Sort by level (ascending - lowest level number has highest priority)
     approversList.sort((a, b) => a.level - b.level);

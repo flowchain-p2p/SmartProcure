@@ -141,6 +141,9 @@ const createRequisition = async (req, res) => {
   try {
     const { title, description, organizationId, costCenterId, items, ...rest } = req.body;
 
+    // Import the function to get vendor by category name
+    const { getVendorByCategoryNameInternal } = require('./vendorController');
+
     // Generate a unique requisition number
     const count = await Requisition.countDocuments({ tenantId: req.tenant.id });
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -164,7 +167,9 @@ const createRequisition = async (req, res) => {
     // Only add costCenterId if it's a valid MongoDB ObjectId
     if (costCenterId && mongoose.Types.ObjectId.isValid(costCenterId)) {
       requisitionData.costCenterId = costCenterId;
-    }    // Determine if we have any custom items
+    }
+    
+    // Determine if we have any custom items
     let requisitionType = 'catalogItem'; // Default to catalog items
     if (items && items.length > 0) {
       // Check if any item is marked as non-catalog
@@ -173,7 +178,8 @@ const createRequisition = async (req, res) => {
         requisitionType = 'customItem';
       }
     }
-      // Set the requisition type based on its items
+      
+    // Set the requisition type based on its items
     requisitionData.requisitionType = requisitionType;
     
     const requisition = await Requisition.create(requisitionData);
@@ -228,13 +234,28 @@ const createRequisition = async (req, res) => {
     // Create requisition items if provided
     let savedItems = [];
     if (items && items.length > 0) {
-      const itemsToCreate = items.map(item => ({
-        ...item,
-        requisitionId: requisition._id,
-        tenantId: req.tenant.id
+      // Process items and add vendorId if categoryName is provided
+      const processedItems = await Promise.all(items.map(async (item) => {
+        const itemData = {
+          ...item,
+          requisitionId: requisition._id,
+          tenantId: req.tenant.id
+        };
+        
+        // If item has categoryName but no vendorId, try to get vendor by category name
+        if (item.categoryName && !item.vendorId) {
+          const vendorResult = await getVendorByCategoryNameInternal(item.categoryName, req.tenant.id);
+          if (vendorResult.success) {
+            itemData.vendorId = vendorResult.data.vendorId;
+            // Also store if this is a preferred vendor
+            itemData.preferredVendor = vendorResult.data.preferred;
+          }
+        }
+        
+        return itemData;
       }));
 
-      savedItems = await RequisitionItem.create(itemsToCreate);
+      savedItems = await RequisitionItem.create(processedItems);
     }
 
     res.status(201).json({

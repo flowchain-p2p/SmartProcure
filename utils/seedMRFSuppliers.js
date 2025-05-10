@@ -38,17 +38,10 @@ const seedMRFSuppliers = async () => {
       process.exit(1);
     }
     
-    console.log(`Found MRF tenant with ID: ${mrfTenant._id}`);
-
-    // Step 2: Get the supplier role
-    const systemTenant = await Tenant.findOne({ slug: 'system' });
-    if (!systemTenant) {
-      console.error('System tenant not found. Please run seedPermissionsAndRoles.js first.');
-      process.exit(1);
-    }
-
+    console.log(`Found MRF tenant with ID: ${mrfTenant._id}`);    // Step 2: Get the supplier role - using MRF tenant instead of system tenant
+    // The MRF tenant should already be found in step 1, so we use that
     const supplierRole = await Role.findOne({ 
-      tenantId: systemTenant._id, 
+      tenantId: mrfTenant._id, 
       code: 'supplier' 
     });
     

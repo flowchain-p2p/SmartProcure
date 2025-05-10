@@ -155,44 +155,44 @@ const roleDefinitions = [  {
 
 const seedData = async () => {
   try {
-    // Find or create the system tenant
-    let systemTenant = await Tenant.findOne({ slug: 'system' });
+    // Find or create the MRF tenant instead of system tenant
+    let mrfTenant = await Tenant.findOne({ name: 'MRF' });
     
-    if (!systemTenant) {
-      console.log('Creating system tenant...');
-      systemTenant = await Tenant.create({
-        name: 'System',
-        slug: 'system',
-        adminEmail: 'admin@system.com',
-        adminPassword: 'admin123',
+    if (!mrfTenant) {
+      console.log('Creating MRF tenant...');
+      mrfTenant = await Tenant.create({
+        name: 'MRF',
+        slug: 'mrf',
+        adminEmail: 'admin@mrf.com',
+        adminPassword: 'Password@123', // Will be hashed by the pre-save hook
         active: true,
         plan: 'enterprise',
-        contactPhone: '0000000000',
-        address: 'System Address',
-        city: 'System City',
-        state: 'System State',
-        postalCode: '000000',
-        country: 'System Country',
-        isSystemTenant: true
+        contactPhone: '9876543210',
+        address: 'MRF Headquarters',
+        city: 'Chennai',
+        state: 'Tamil Nadu',
+        postalCode: '600001',
+        country: 'India',
+        allowedDomains: ['mrf.com']
       });
-      console.log(`System tenant created with ID: ${systemTenant._id}`);
+      console.log(`MRF tenant created with ID: ${mrfTenant._id}`);
     } else {
-      console.log(`Using existing system tenant with ID: ${systemTenant._id}`);
-    }
-
-    // Clear existing permissions and roles
+      console.log(`Using existing MRF tenant with ID: ${mrfTenant._id}`);
+    }// Clear existing permissions and roles
     await Permission.deleteMany({});
-    await Role.deleteMany({});
-
-    // Insert permissions
-    const permissions = await Permission.insertMany(permissionsList);
+    await Role.deleteMany({});    // Insert permissions with the MRF tenant ID
+    const permissionsWithTenantId = permissionsList.map(permission => ({
+      ...permission,
+      tenantId: mrfTenant._id
+    }));
+    const permissions = await Permission.insertMany(permissionsWithTenantId);
     console.log(`${permissions.length} permissions inserted`);
 
-    // Insert roles with the system tenant ID
+    // Insert roles with the MRF tenant ID
     for (const roleDef of roleDefinitions) {
       await Role.create({
         ...roleDef,
-        tenantId: systemTenant._id
+        tenantId: mrfTenant._id
       });
     }
 

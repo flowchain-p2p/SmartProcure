@@ -29,33 +29,17 @@ const hashPassword = async (password) => {
 };
 
 const seedMRFData = async () => {
-  try {
-    console.log('Starting MRF data seeding...');
+  try {    console.log('Starting MRF data seeding...');
 
-    // Step 1: Create MRF Tenant
-    console.log('Creating MRF tenant...');
+    // Find the existing MRF Tenant (created by seedPermissionsAndRoles.js)
+    console.log('Finding MRF tenant...');
     let mrfTenant = await Tenant.findOne({ name: 'MRF' });
     
     if (!mrfTenant) {
-      mrfTenant = await Tenant.create({
-        name: 'MRF',
-        slug: 'mrf',
-        adminEmail: 'admin@mrf.com',
-        adminPassword: 'Password@123', // Will be hashed by the pre-save hook
-        active: true,
-        plan: 'enterprise',
-        contactPhone: '9876543210',
-        address: 'MRF Headquarters',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        postalCode: '600001',
-        country: 'India',
-        allowedDomains: ['mrf.com']
-      });
-      console.log(`MRF tenant created with ID: ${mrfTenant._id}`);
-    } else {
-      console.log(`Using existing MRF tenant with ID: ${mrfTenant._id}`);
+      console.error('MRF tenant not found. Please run seedPermissionsAndRoles.js first.');
+      process.exit(1);
     }
+    console.log(`Using existing MRF tenant with ID: ${mrfTenant._id}`);
 
     // Step 2: Create Locations
     console.log('Creating locations...');
@@ -71,20 +55,12 @@ const seedMRFData = async () => {
     console.log(`${createdLocations.length} locations created`);
 
     // Set default location for tenant
-    await Tenant.findByIdAndUpdate(mrfTenant._id, { defaultLocationId: createdLocations[0]._id });
-
-    // Step 3: Get existing roles or create them if needed
+    await Tenant.findByIdAndUpdate(mrfTenant._id, { defaultLocationId: createdLocations[0]._id });    // Step 3: Get existing roles
     console.log('Fetching roles...');
-    const systemTenant = await Tenant.findOne({ slug: 'system' });
     
-    if (!systemTenant) {
-      console.error('System tenant not found. Please run seedPermissionsAndRoles.js first.');
-      process.exit(1);
-    }
-
-    const roles = await Role.find({ tenantId: systemTenant._id });
+    const roles = await Role.find({ tenantId: mrfTenant._id });
     if (roles.length === 0) {
-      console.error('No system roles found. Please run seedPermissionsAndRoles.js first.');
+      console.error('No roles found for MRF tenant. Please run seedPermissionsAndRoles.js first.');
       process.exit(1);
     }
 
@@ -290,27 +266,7 @@ const seedMRFData = async () => {
         active: true,
         roles: ['CostCenterHead'],
         roleIds: [roleMap.costcenter_head]
-      },
-      {
-        name: 'Ananya Krishnan',
-        email: 'costcenterhead2@mrf.com',
-        password: defaultPassword,
-        tenantId: mrfTenant._id,
-        authType: 'local',
-        defaultLocationId: createdLocations[2]._id,
-        position: 'Cost Center Manager',
-        costCenterId: createdCostCenters[1]._id,
-        departmentId: createdDepartments[1]._id,
-        approvalLimits: {
-          requisition: 120000,
-          purchase: 70000
-        },
-        approvalHierarchy: 4,
-        active: true,
-        roles: ['CostCenterHead'],
-        roleIds: [roleMap.costcenter_head]
-      },
-      
+      },      
       // 2 Procurement Manager users
       {
         name: 'Venkat Rao',
@@ -437,30 +393,49 @@ const seedMRFData = async () => {
     
     // Insert users - using insertMany to bypass the password hashing (already hashed)
     const createdUsers = await User.insertMany(users);
-    console.log(`${createdUsers.length} users created`);
-
-    // Step 7: Update Cost Centers with heads and Departments with managers
+    console.log(`${createdUsers.length} users created`);    // Step 7: Update Cost Centers with heads and Departments with managers
     console.log('Updating cost centers and departments with managers...');
     
-    // Update cost centers with heads
-    for (let i = 0; i < createdCostCenters.length; i++) {
-      const userIndex = i % createdUsers.length;
+    // Find specific users for cost center heads and approvers
+    const costCenterHead1 = createdUsers.find(user => user.email === 'costcenterhead1@mrf.com');
+    
+    
+    if (!costCenterHead1) {
+      console.error('Could not find all required cost center head users!');
+      process.exit(1);
+    }
+    
+    // Update cost centers with specific heads
+    // First half of cost centers get costcenterhead1@mrf.com
+    for (let i = 0; i < Math.ceil(createdCostCenters.length / 2); i++) {
       await CostCenter.findByIdAndUpdate(createdCostCenters[i]._id, {
-        head: createdUsers[userIndex]._id,
+        head: costCenterHead1._id,
         $push: {
           approvers: {
-            userId: createdUsers[userIndex]._id,
+            userId: costCenterHead1._id,
             level: 1
           }
         }
       });
     }
-
-    // Update departments with managers
+    
+    // // Second half of cost centers get costcenterhead2@mrf.com
+    // for (let i = Math.ceil(createdCostCenters.length / 2); i < createdCostCenters.length; i++) {
+    //   await CostCenter.findByIdAndUpdate(createdCostCenters[i]._id, {
+    //     head: costCenterHead2._id,
+    //     $push: {
+    //       approvers: {
+    //         userId: costCenterHead2._id,
+    //         level: 1
+    //       }
+    //     }
+    //   });
+    // }    // Update departments with managers
+    // Using the same cost center head users for department managers
     for (let i = 0; i < createdDepartments.length; i++) {
-      const userIndex = i % createdUsers.length;
+      const manager = i < Math.ceil(createdDepartments.length / 2) ? costCenterHead1._id : costCenterHead1._id;
       await Department.findByIdAndUpdate(createdDepartments[i]._id, {
-        manager: createdUsers[userIndex]._id
+        manager: manager
       });
     }
 

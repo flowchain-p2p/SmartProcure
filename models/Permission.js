@@ -20,6 +20,11 @@ const PermissionSchema = new mongoose.Schema({
     enum: ['PR Management', 'PO Management', 'RFQ Management', 'Budget Management', 'Supplier Management', 'Finance Operations', 'System Administration'],
     required: true
   },
+  tenantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Tenant',
+      required: true
+    },
   createdAt: {
     type: Date,
     default: Date.now

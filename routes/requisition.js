@@ -32,6 +32,10 @@ router.route('/')
   .get(hasPermission('pr.view'), getRequisitions)
   .post(hasPermission('pr.create'), createRequisition);
 
+// Route with specific path must be defined before route with parameter
+router.route('/my-pending-approvals')
+  .get(hasPermission('pr.approve'), getMyPendingApprovals);
+
 router.route('/:id')
   .get(hasPermission('pr.view'), getRequisition)
   .put(hasPermission('pr.edit'), updateRequisition)
@@ -47,9 +51,6 @@ router.route('/:id/approve')
 // New simple approval routes
 router.route('/:id/submit-for-approval')
   .post(hasPermission('pr.submit'), submitRequisitionForApproval);
-  
-router.route('/my-pending-approvals')
-  .get(hasPermission('pr.approve'), getMyPendingApprovals);
   
 router.route('/:id/approval-decision')
   .post(hasPermission('pr.approve'), processApprovalDecision);

@@ -644,6 +644,140 @@ const getVendorsByCategory = async (req, res) => {
   }
 };
 
+// @desc    Get vendor ID by category name
+// @route   GET /api/v1/vendors/by-category/:categoryName
+// @access  Private
+const getVendorIdByCategoryName = async (req, res) => {
+  try {
+    const tenantId = req.tenant._id;
+    const { categoryName } = req.params;
+    
+    // Find category by name
+    const category = await Category.findOne({ 
+      name: categoryName,
+      tenantId 
+    });
+    
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        message: `Category not found with name ${categoryName}`
+      });
+    }
+    
+    // Find vendor-category relationship for this category
+    // Prioritize preferred suppliers
+    const vendorCategory = await VendorCategory.findOne({
+      categoryId: category._id,
+      tenantId,
+      preferredSupplier: true
+    }).populate('vendorId');
+    
+    // If no preferred supplier, get any supplier for this category
+    if (!vendorCategory) {
+      const anyVendorCategory = await VendorCategory.findOne({
+        categoryId: category._id,
+        tenantId
+      }).populate('vendorId');
+      
+      if (!anyVendorCategory) {
+        return res.status(404).json({
+          success: false,
+          message: `No vendor found for category ${categoryName}`
+        });
+      }
+      
+      return res.status(200).json({
+        success: true,
+        data: {
+          vendorId: anyVendorCategory.vendorId._id,
+          vendorName: anyVendorCategory.vendorId.name,
+          preferred: false
+        }
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      data: {
+        vendorId: vendorCategory.vendorId._id,
+        vendorName: vendorCategory.vendorId.name,
+        preferred: true
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error finding vendor by category name:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error finding vendor by category name',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Get vendor ID by category name (for internal use)
+// @access  Private
+const getVendorByCategoryNameInternal = async (categoryName, tenantId) => {
+  try {
+    // Find category by name
+    const category = await Category.findOne({ 
+      name: categoryName,
+      tenantId 
+    });
+    
+    if (!category) {
+      return { success: false, message: `Category not found with name ${categoryName}` };
+    }
+    
+    // Find vendor-category relationship for this category
+    // Prioritize preferred suppliers
+    const vendorCategory = await VendorCategory.findOne({
+      categoryId: category._id,
+      tenantId,
+      preferredSupplier: true
+    }).populate('vendorId');
+    
+    // If no preferred supplier, get any supplier for this category
+    if (!vendorCategory) {
+      const anyVendorCategory = await VendorCategory.findOne({
+        categoryId: category._id,
+        tenantId
+      }).populate('vendorId');
+      
+      if (!anyVendorCategory) {
+        return { success: false, message: `No vendor found for category ${categoryName}` };
+      }
+      
+      return { 
+        success: true, 
+        data: {
+          vendorId: anyVendorCategory.vendorId._id,
+          vendorName: anyVendorCategory.vendorId.name,
+          preferred: false
+        }
+      };
+    }
+    
+    return {
+      success: true,
+      data: {
+        vendorId: vendorCategory.vendorId._id,
+        vendorName: vendorCategory.vendorId.name,
+        preferred: true
+      }
+    };
+    
+  } catch (error) {
+    console.error('Error finding vendor by category name:', error);
+    return {
+      success: false,
+      message: 'Error finding vendor by category name',
+      error: error.message
+    };
+  }
+};
+
 module.exports = {
   getVendors,
   getVendor,
@@ -654,5 +788,7 @@ module.exports = {
   associateVendorWithCategories,
   removeVendorFromCategory,
   getVendorCategoriesById,
-  getVendorsByCategory
+  getVendorsByCategory,
+  getVendorIdByCategoryName,
+  getVendorByCategoryNameInternal
 };
