@@ -1,7 +1,7 @@
 {
   "info": {
     "_postman_id": "f8d53ce1-e1c4-46a3-ac48-0f2e51a54558",
-    "name": "SmartProcure Location API",
+    "name": "FlowChain Location API",
     "description": "API endpoints for location management in multi-tenant application",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },

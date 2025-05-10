@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "95f27a47-7c20-5e53-9e12-3bc3ec60e811",
-		"name": "SmartProcure CostCenter API",
+		"name": "FlowChain CostCenter API",
 		"description": "Collection for testing the Cost Center management API endpoints of the Instatenders Multi-tenant application",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
