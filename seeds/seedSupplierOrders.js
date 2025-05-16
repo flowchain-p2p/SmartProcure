@@ -17,33 +17,37 @@ const seedData = async () => {
   try {
     console.log('Starting to seed supplier order data...');
     
-    // Find or create the MRF tenant
-    let mrfTenant = await Tenant.findOne({ slug: 'mrf' });
-    if (!mrfTenant) {
-      console.log('MRF tenant not found. Creating MRF tenant...');
+    // Accept tenant name as a parameter
+    const tenantName = process.argv[2] || 'MRF';
+    const tenantSlug = tenantName.toLowerCase();
+    
+    // Find or create the tenant dynamically
+    let tenant = await Tenant.findOne({ slug: tenantSlug });
+    if (!tenant) {
+      console.log(`${tenantName} tenant not found. Creating ${tenantName} tenant...`);
       
       // Hash password before saving
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash('admin123', salt);
       
-      mrfTenant = await Tenant.create({
-        name: 'MRF Limited',
-        slug: 'mrf',
-        adminEmail: 'admin@mrf.com',
+      tenant = await Tenant.create({
+        name: `${tenantName} Limited`,
+        slug: tenantSlug,
+        adminEmail: `admin@${tenantSlug}.com`,
         adminPassword: hashedPassword,
         active: true,
         plan: 'enterprise',
         contactPhone: '9876543210',
-        address: 'MRF Headquarters',
+        address: `${tenantName} Headquarters`,
         city: 'Chennai',
         state: 'Tamil Nadu',
         postalCode: '600001',
         country: 'India',
-        allowedDomains: ['mrf.com']
+        allowedDomains: [`${tenantSlug}.com`]
       });
-      console.log(`Created MRF tenant with ID: ${mrfTenant._id}`);
+      console.log(`Created ${tenantName} tenant with ID: ${tenant._id}`);
     } else {
-      console.log(`Found MRF tenant with ID: ${mrfTenant._id}`);
+      console.log(`Found ${tenantName} tenant with ID: ${tenant._id}`);
     }
     
     // Find supplier role
@@ -56,7 +60,7 @@ const seedData = async () => {
     // Find or create supplier10 user
     let supplier10User = await User.findOne({ 
       email: 'supplier10@example.com', 
-      tenantId: mrfTenant._id 
+      tenantId: tenant._id 
     });
     
     if (!supplier10User) {
@@ -70,7 +74,7 @@ const seedData = async () => {
         name: 'Supplier 10',
         email: 'supplier10@example.com',
         password: hashedPassword,
-        tenantId: mrfTenant._id,
+        tenantId: tenant._id,
         roles: ['Supplier'],
         roleIds: [supplierRole._id]
       });
@@ -84,7 +88,7 @@ const seedData = async () => {
     // Find or create a vendor for supplier10
     let vendor = await Vendor.findOne({ 
       email: supplier10User.email,
-      tenantId: mrfTenant._id 
+      tenantId: tenant._id 
     });
     
     if (!vendor) {
@@ -103,7 +107,7 @@ const seedData = async () => {
           postalCode: '600001'
         },
         website: 'https://supplier10.com',
-        tenantId: mrfTenant._id
+        tenantId: tenant._id
       });
       console.log(`Created vendor with ID: ${vendor._id}`);
     } else {
@@ -130,7 +134,7 @@ const seedData = async () => {
         deliveryStatus: {
           currentStatus: 'Not Started'
         },
-        tenantId: mrfTenant._id,
+        tenantId: tenant._id,
         createdBy: supplier10User._id
       },
       {
@@ -150,7 +154,7 @@ const seedData = async () => {
           trackingInfo: 'TRACK123456',
           updatedAt: new Date('2025-04-20')
         },
-        tenantId: mrfTenant._id,
+        tenantId: tenant._id,
         createdBy: supplier10User._id
       },
       {
@@ -167,7 +171,7 @@ const seedData = async () => {
           terms: '',
           notes: ''
         },
-        tenantId: mrfTenant._id,
+        tenantId: tenant._id,
         createdBy: supplier10User._id
       },
       {
@@ -185,7 +189,7 @@ const seedData = async () => {
           notes: 'Including installation and training',
           submittedAt: new Date('2025-04-03')
         },
-        tenantId: mrfTenant._id,
+        tenantId: tenant._id,
         createdBy: supplier10User._id
       },
       {
@@ -206,7 +210,7 @@ const seedData = async () => {
           trackingInfo: 'TRACK789012',
           updatedAt: new Date('2025-04-05')
         },
-        tenantId: mrfTenant._id,
+        tenantId: tenant._id,
         createdBy: supplier10User._id
       }
     ];
@@ -214,7 +218,7 @@ const seedData = async () => {
     // Insert the supplier orders
     await SupplierOrder.insertMany(supplierOrders);
     
-    console.log(`Successfully inserted ${supplierOrders.length} supplier orders for supplier10 in MRF tenant`);
+    console.log(`Successfully inserted ${supplierOrders.length} supplier orders for supplier10 in ${tenantName} tenant`);
     
   } catch (error) {
     console.error('Error seeding supplier order data:', error);
