@@ -5,11 +5,11 @@ const Tenant = require('../models/Tenant');
 const CostCenter = require('../models/CostCenter');
 const dotenv = require('dotenv');
 
-// Load environment variables
-dotenv.config();
+// Load environment variables with correct path
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 // Connect to MongoDB
-mongoose.connect("mongodb://admin:admin@localhost:27017/SmartProcureDB");
+mongoose.connect(process.env.MONGODB_URI);
 
 /**
  * Setup the system with roles, permissions, and a CostCenterHead user

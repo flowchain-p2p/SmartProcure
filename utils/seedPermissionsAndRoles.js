@@ -3,12 +3,15 @@ const Permission = require('../models/Permission');
 const Role = require('../models/Role');
 const Tenant = require('../models/Tenant');
 const dotenv = require('dotenv');
+const path = require('path');
 
-// Load environment variables
-dotenv.config();
+// Load environment variables with correct path
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
+//print this process.env.MONGODB_URI
+console.log('MongoDB URI:', process.env.MONGODB_URI);
 // Connect to MongoDB
-mongoose.connect("mongodb://admin:admin@localhost:27017/SmartProcureDB");
+mongoose.connect(process.env.MONGODB_URI);
 
 const permissionsList = [  
 

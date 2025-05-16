@@ -5,12 +5,13 @@ const User = require('../models/User');
 const Role = require('../models/Role');
 const Vendor = require('../models/Vendor');
 const dotenv = require('dotenv');
+const path = require('path');
 
-// Load environment variables
-dotenv.config();
+// Load environment variables with correct path
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 // MongoDB Connection
-mongoose.connect("mongodb://admin:admin@localhost:27017/SmartProcureDB", {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => {

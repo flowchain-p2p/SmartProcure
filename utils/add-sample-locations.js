@@ -7,9 +7,14 @@ const mongoose = require('mongoose');
 const Tenant = require('../models/Tenant');
 const Location = require('../models/Location');
 const colors = require('colors');
+const dotenv = require('dotenv');
+const path = require('path');
+
+// Load environment variables with correct path
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 // Connect to database
-mongoose.connect("mongodb://admin:admin@localhost:27017/SmartProcureDB");
+mongoose.connect(process.env.MONGODB_URI);
 
 const addSampleLocations = async () => {
   try {

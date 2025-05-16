@@ -14,11 +14,12 @@ const dotenv = require('dotenv');
 const fs = require('fs');
 const path = require('path');
 
-// Load environment variables
-dotenv.config();
+// Load environment variables with correct path
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
+console.log('MongoDB URI:', process.env.MONGODB_URI);
 // MongoDB Connection
-mongoose.connect("mongodb://admin:admin@localhost:27017/SmartProcureDB").then(() => {
+mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.log('MongoDB Connected...');
 }).catch(err => {
   console.error('MongoDB Connection Error:', err);

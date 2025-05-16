@@ -19,14 +19,15 @@ const UnitOfMeasure = require('../models/UnitOfMeasure');
 const User = require('../models/User');
 const Vendor = require('../models/Vendor');
 const VendorCategory = require('../models/VendorCategory');
+const path = require('path');
 
-// Load environment variables
-dotenv.config();
+// Load environment variables with correct path
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 // MongoDB Connection string
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI || "mongodb://admin:admin@localhost:27017/SmartProcureDB", {
+    await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });
