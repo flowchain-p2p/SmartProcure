@@ -1,6 +1,7 @@
 // Using dynamic import for jose as it's an ES Module
 const CostCenter = require('../models/CostCenter');
 const User = require('../models/User');
+const crypto = require('crypto');
 
 // Cache the secret key for performance
 let secretKey;

@@ -4,6 +4,7 @@ const { sendTokenResponse, generateToken } = require('../utils/authUtils');
 const { validationResult } = require('express-validator');
 const { extractDomain } = require('../utils/domainUtils');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 /**
  * @desc    Register user for specific tenant

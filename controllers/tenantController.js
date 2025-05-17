@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Tenant = require('../models/Tenant');
 const User = require('../models/User');
+const crypto = require('crypto');
 
 const { sendTokenResponse } = require('../utils/authUtils');
 const { validationResult } = require('express-validator');
