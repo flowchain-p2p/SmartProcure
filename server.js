@@ -44,7 +44,18 @@ app.use(helmet());
 
 // CORS
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      process.env.CLIENT_ORIGIN || 'http://localhost:3000',
+      'https://yellow-ground-002d7b500.6.azurestaticapps.net'
+    ];
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
