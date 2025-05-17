@@ -1,7 +1,17 @@
 // Using dynamic import for jose as it's an ES Module
 const CostCenter = require('../models/CostCenter');
 const User = require('../models/User');
-const crypto = require('crypto');
+let crypto;
+try {
+  crypto = require('crypto');
+  console.log('[authUtils] crypto module loaded:', typeof crypto);
+} catch (err) {
+  console.error('[authUtils] crypto module NOT loaded:', err);
+}
+
+console.log('[authUtils] typeof Buffer:', typeof Buffer);
+console.log('[authUtils] process.versions.node:', process.versions.node);
+console.log('[authUtils] process.env.NODE_ENV:', process.env.NODE_ENV);
 
 // Cache the secret key for performance
 let secretKey;
@@ -12,6 +22,7 @@ let secretKey;
  * @returns {String} JWT token
  */
 exports.generateToken = async (user, tenant) => {
+  console.log('[authUtils] generateToken called for user:', user.email, 'tenant:', tenant ? tenant.slug : 'none');
   // Dynamic import for jose (ES Module)
   const { SignJWT } = await import('jose');
   
@@ -37,11 +48,18 @@ exports.generateToken = async (user, tenant) => {
   }
 
   // Sign the JWT
-  const token = await new SignJWT(payload)
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('1d')
-    .sign(secretKey);   
+  let token;
+  try {
+    token = await new SignJWT(payload)
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('1d')
+      .sign(secretKey);
+    console.log('[authUtils] JWT token generated successfully');
+  } catch (err) {
+    console.error('[authUtils] Error generating JWT token:', err);
+    throw err;
+  }
   return token;
 };
 
@@ -54,17 +72,22 @@ exports.generateToken = async (user, tenant) => {
  */
 exports.sendTokenResponse = async (user, statusCode, res, tenant = null) => {
   // Create token
-  const token = await this.generateToken(user, tenant);
+  let token;
+  try {
+    token = await this.generateToken(user, tenant);
+  } catch (err) {
+    console.error('[authUtils] Error in generateToken:', err);
+    throw err;
+  }
   // Decode the token without verification
   // In jose we can decode by splitting the token and decoding the payload (middle part)
   try {
     const [headerB64, payloadB64] = token.split('.');
-    
+    console.log('[authUtils] Decoding JWT payload:', payloadB64);
     // Base64 decode safely without relying on crypto
     // Handle padding for base64url format used in JWT
     const base64 = payloadB64.replace(/-/g, '+').replace(/_/g, '/');
     const padded = base64 + '==='.slice(0, (4 - (base64.length % 4)) % 4);
-    
     // Use Buffer or atob depending on environment
     let jsonStr;
     if (typeof Buffer !== 'undefined') {
@@ -73,15 +96,14 @@ exports.sendTokenResponse = async (user, statusCode, res, tenant = null) => {
       // For environments where Buffer is not available
       jsonStr = atob(padded);
     }
-    
     const decoded = JSON.parse(jsonStr);
-    
+    console.log('[authUtils] Decoded JWT payload:', decoded);
     // Validate token expiration
     if (decoded.exp * 1000 < Date.now()) {
       throw new Error('Token has expired');
     }
   } catch (error) {
-    console.error('Error decoding token:', error);
+    console.error('[authUtils] Error decoding token:', error);
     // Continue without decoding - this is just for validation and doesn't affect token generation
   }
 

@@ -56,20 +56,23 @@ exports.registerUser = async (req, res) => {
  * @access  Public
  */
 exports.loginUser = async (req, res) => {
+  console.log('[authController] loginUser called');
   try {
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('[authController] Validation errors:', errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { email, password } = req.body;
     const tenant = req.tenant;
+    console.log('[authController] loginUser for email:', email, 'tenant:', tenant ? tenant.slug : 'none');
 
     // Check if user exists
     const user = await User.findOne({ email, tenantId: tenant._id }).select('+password');
-
-    if (!user) {      
+    if (!user) {
+      console.log('[authController] User not found for email:', email, 'tenant:', tenant ? tenant.slug : 'none');
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'
@@ -77,21 +80,22 @@ exports.loginUser = async (req, res) => {
     }
     // Check if password matches
     const isMatch = await user.matchPassword(password);
-        if (!isMatch) {
-    
+    if (!isMatch) {
+      console.log('[authController] Invalid password for user:', email);
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'
       });
     }
-    
+
     // Check if user is a cost center head
     const { isUserCostCenterHead } = require('../utils/authUtils');
     user.isCostCenterHead = await isUserCostCenterHead(user._id, tenant._id);
-    
+
+    console.log('[authController] User authenticated, sending token response');
     await sendTokenResponse(user, 200, res);
   } catch (error) {
-    
+    console.error('[authController] Error in loginUser:', error);
     res.status(500).json({
       success: false,
       error: error.message
