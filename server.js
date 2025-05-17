@@ -47,7 +47,7 @@ app.use(cors({
   origin: function (origin, callback) {
     const allowedOrigins = [
       process.env.CLIENT_ORIGIN || 'http://localhost:3000',
-      'https://yellow-ground-002d7b500.6.azurestaticapps.net'
+      'flowchain-app-bsf7c6guh6gcftbd.centralindia-01.azurewebsites.net'
     ];
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
