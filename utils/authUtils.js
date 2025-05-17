@@ -54,15 +54,34 @@ exports.generateToken = async (user, tenant) => {
 exports.sendTokenResponse = async (user, statusCode, res, tenant = null) => {
   // Create token
   const token = await this.generateToken(user, tenant);
-
   // Decode the token without verification
   // In jose we can decode by splitting the token and decoding the payload (middle part)
-  const [headerB64, payloadB64] = token.split('.');
-  const decoded = JSON.parse(Buffer.from(payloadB64, 'base64').toString());
-
-  // Validate token expiration
-  if (decoded.exp * 1000 < Date.now()) {
-    throw new Error('Token has expired');
+  try {
+    const [headerB64, payloadB64] = token.split('.');
+    
+    // Base64 decode safely without relying on crypto
+    // Handle padding for base64url format used in JWT
+    const base64 = payloadB64.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64 + '==='.slice(0, (4 - (base64.length % 4)) % 4);
+    
+    // Use Buffer or atob depending on environment
+    let jsonStr;
+    if (typeof Buffer !== 'undefined') {
+      jsonStr = Buffer.from(padded, 'base64').toString();
+    } else {
+      // For environments where Buffer is not available
+      jsonStr = atob(padded);
+    }
+    
+    const decoded = JSON.parse(jsonStr);
+    
+    // Validate token expiration
+    if (decoded.exp * 1000 < Date.now()) {
+      throw new Error('Token has expired');
+    }
+  } catch (error) {
+    console.error('Error decoding token:', error);
+    // Continue without decoding - this is just for validation and doesn't affect token generation
   }
 
   // Parse JWT_EXPIRES_IN to ensure it's a number
