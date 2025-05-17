@@ -1,3 +1,16 @@
+// Polyfill crypto for jose library when running in Node.js
+try {
+  if (typeof globalThis.crypto === 'undefined') {
+    const nodeCrypto = require('crypto');
+    if (nodeCrypto && nodeCrypto.webcrypto) {
+      globalThis.crypto = nodeCrypto.webcrypto;
+      console.log('[server] Global crypto polyfilled successfully');
+    }
+  }
+} catch (err) {
+  console.error('[server] Failed to polyfill crypto:', err);
+}
+
 const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');

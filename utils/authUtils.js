@@ -1,9 +1,15 @@
 // Using dynamic import for jose as it's an ES Module
 const CostCenter = require('../models/CostCenter');
 const User = require('../models/User');
+// Explicitly import and make the crypto module available globally
 let crypto;
 try {
   crypto = require('crypto');
+  // Set crypto as a global variable in case it's not already defined
+  if (typeof globalThis.crypto === 'undefined') {
+    globalThis.crypto = crypto.webcrypto;
+    console.log('[authUtils] Global crypto polyfilled successfully');
+  }
   console.log('[authUtils] crypto module loaded:', typeof crypto);
 } catch (err) {
   console.error('[authUtils] crypto module NOT loaded:', err);
@@ -22,7 +28,12 @@ let secretKey;
  * @returns {String} JWT token
  */
 exports.generateToken = async (user, tenant) => {
-  console.log('[authUtils] generateToken called for user:', user.email, 'tenant:', tenant ? tenant.slug : 'none');
+  console.log('[authUtils] generateToken called for user:', user.email, 'tenant:', tenant ? tenant.slug : 'none');  // Ensure crypto is available before importing jose
+  if (typeof globalThis.crypto === 'undefined' && typeof crypto !== 'undefined') {
+    globalThis.crypto = crypto.webcrypto;
+    console.log('[authUtils] Global crypto set before jose import');
+  }
+  
   // Dynamic import for jose (ES Module)
   const { SignJWT } = await import('jose');
   
@@ -167,7 +178,12 @@ exports.isUserCostCenterHead = async (userId, tenantId) => {
  * @returns {Object} Decoded token payload
  */
 exports.verifyToken = async (token) => {
-  try {
+  try {    // Ensure crypto is available before importing jose
+    if (typeof globalThis.crypto === 'undefined' && typeof crypto !== 'undefined') {
+      globalThis.crypto = crypto.webcrypto;
+      console.log('[authUtils] Global crypto set before jose import in verifyToken');
+    }
+    
     // Dynamic import for jose (ES Module)
     const { jwtVerify } = await import('jose');
     
