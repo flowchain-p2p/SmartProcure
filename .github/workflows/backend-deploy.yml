@@ -1,8 +1,12 @@
 name: Deploy Backend
 
 on:
-  push:
-    branches: [ master ]    
+  workflow_dispatch:
+    inputs:
+      description:
+        description: 'Deployment notes'
+        required: false
+        default: 'Manual deployment'
 
 jobs:
   build_and_deploy:
