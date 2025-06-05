@@ -1,6 +1,6 @@
 {
   "projectName": "Multi-Tenant Backend",
-  "description": "A multi-tenant API backend for the Instatenders application",
+  "description": "A multi-tenant API backend for the Flowchain application",
   "architecture": {
     "type": "REST API",
     "pattern": "MVC",

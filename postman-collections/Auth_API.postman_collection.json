@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "85f27a46-6c10-4d53-9e12-2bc3ec60e698",
 		"name": "FlowChain Auth API",
-		"description": "Collection for testing the Authentication API endpoints of the Instatenders Multi-tenant application",
+		"description": "Collection for testing the Authentication API endpoints of the Flowchain Multi-tenant application",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [

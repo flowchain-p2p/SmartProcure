@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "79c85d36-9f2a-4e51-8b9a-10e87c39e123",
 		"name": "FlowChain Category API",
-		"description": "Collection for testing the Category API endpoints of the Instatenders Multi-tenant application",
+		"description": "Collection for testing the Category API endpoints of the Flowchain Multi-tenant application",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [

@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "95f27a47-7c20-5e53-9e12-3bc3ec60e814",
 		"name": "FlowChain User API",
-		"description": "Collection for testing the User management API endpoints of the Instatenders Multi-tenant application",
+		"description": "Collection for testing the User management API endpoints of the Flowchain Multi-tenant application",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [

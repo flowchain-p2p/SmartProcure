@@ -109,7 +109,7 @@ app.use('/api/v1/approval-instances', approvalInstanceRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { 
   explorer: true,
   customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: "Instatenders API Documentation"
+  customSiteTitle: "Flowchain API Documentation"
 }));
 
 // JSON endpoint for Swagger spec

@@ -8,12 +8,12 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Instatenders Multi-tenant API',
+      title: 'Flowchain Multi-tenant API',
       version: '1.0.0',
-      description: 'API documentation for Instatenders multi-tenant procurement platform',
+      description: 'API documentation for Flowchain multi-tenant procurement platform',
       contact: {
         name: 'Support Team',
-        email: 'support@instatenders.com'
+        email: 'support@Flowchain.com'
       },
       license: {
         name: 'MIT',

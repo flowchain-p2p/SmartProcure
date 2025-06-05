@@ -57,7 +57,7 @@ const inviteSupplier = async (inviteData, options) => {
               <a href="${inviteUrl}" style="background-color: #4CAF50; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">Accept Invitation</a>
             </div>
             <p>This invitation link will expire on ${expiresAt.toLocaleDateString()}.</p>
-            <p>If you have any questions, please contact support at ${tenant.email || process.env.SUPPORT_EMAIL || 'support@instatenders.com'}.</p>
+            <p>If you have any questions, please contact support at ${tenant.email || process.env.SUPPORT_EMAIL || 'support@Flowchain.com'}.</p>
           </div>
           <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #666;">
             <p>© ${new Date().getFullYear()} ${tenant.name}. All rights reserved.</p>
